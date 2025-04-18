@@ -10,7 +10,6 @@ namespace easySettingsForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
-use FraunhoferFokus\Helper;
 use easySettingsForWordPress\Fields\Button;
 
 /**
