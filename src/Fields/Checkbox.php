@@ -55,7 +55,7 @@ class Checkbox extends Field_Base {
 		$field = $setting->get_field();
 
 		?>
-		aaaa<input type="checkbox" id="<?php echo esc_attr( $setting->get_name() ); ?>"
+		<input type="checkbox" id="<?php echo esc_attr( $setting->get_name() ); ?>"
 				name="<?php echo esc_attr( $setting->get_name() ); ?>"
 				value="1"
 			<?php
