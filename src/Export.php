@@ -11,7 +11,6 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Fields\Button;
-use FraunhoferFokus\Transients;
 
 /**
  * Initialize the export support.
@@ -128,14 +127,6 @@ class Export {
 
 		// bail if list is empty.
 		if ( empty( $settings ) ) {
-			// show hint.
-			$transient_obj = Transients::get_instance()->add();
-			$transient_obj->set_type( 'error' );
-			$transient_obj->set_name( 'settings_export_error' );
-			$transient_obj->set_message( '<strong>' . __( 'Export could not run!', 'easy-settings-for-wordpress' ) . '</strong><br>' . __( 'No settings could be loaded.', 'easy-settings-for-wordpress' ) );
-			$transient_obj->save();
-
-			// redirect user.
 			wp_safe_redirect( wp_get_referer() );
 			exit;
 		}
