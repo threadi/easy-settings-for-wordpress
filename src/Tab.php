@@ -223,42 +223,32 @@ class Tab {
 		return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_settings', $sections, $this );
 	}
 
-	/**
-	 * Add section to the list of sections in this tab.
-	 *
-	 * @param string|Section $section The section as object.
-	 *
-	 * @return false|Section
-	 */
-	public function add_section( string|Section $section ): false|Section {
-		// initialize the section object value.
-		$section_obj = false;
+    /**
+     * Add section to the list of sections in this tab.
+     *
+     * @param string|Section $section The section as object.
+     *
+     * @return Section
+     */
+    public function add_section( string|Section $section ): Section {
+        // set the section object.
+        $section_obj = $section;
 
-		// if value is a string, create the tab object first.
-		if ( is_string( $section ) ) {
-			$section_obj = new Section();
-			$section_obj->set_name( $section );
-		}
+        // if value is a string, create the tab object first.
+        if ( is_string( $section ) ) {
+            $section_obj = new Section();
+            $section_obj->set_name( $section );
+        }
 
-		// if value is a Tab object, use it.
-		if ( $section instanceof Section ) {
-			$section_obj = $section;
-		}
+        // set the tab where this section is assigned to.
+        $section_obj->set_tab( $this );
 
-		// bail if $tab_obj is not set.
-		if ( ! $section_obj instanceof Section ) {
-			return false;
-		}
+        // add the section to the list of sections of this tab.
+        $this->sections[] = $section_obj;
 
-		// set the tab where this section is assigned to.
-		$section_obj->set_tab( $this );
-
-		// add the section to the list of sections of this tab.
-		$this->sections[] = $section_obj;
-
-		// return the tab object.
-		return $section_obj;
-	}
+        // return the tab object.
+        return $section_obj;
+    }
 
 	/**
 	 * Return the callback.
