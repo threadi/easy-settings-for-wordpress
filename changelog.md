@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1] - 21.04.2025
+
+### Changed
+
+- Optimized handling of adding tab, section and settings
+
 ## [1.1.0] - 18.04.2025
 
 ### Added
