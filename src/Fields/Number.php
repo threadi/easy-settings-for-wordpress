@@ -18,74 +18,155 @@ use easySettingsForWordPress\Settings;
  * Object to handle a number field for single setting.
  */
 class Number extends Field_Base {
-	/**
-	 * The type name.
-	 *
-	 * @var string
-	 */
-	protected string $type_name = 'Number';
+    /**
+     * The type name.
+     *
+     * @var string
+     */
+    protected string $type_name = 'Number';
 
-	/**
-	 * Return the HTML-code to display this field.
-	 *
-	 * @param array $attr Attributes for this field.
-	 *
-	 * @return void
-	 */
-	public function display( array $attr ): void {
-		// bail if no attributes are set.
-		if ( empty( $attr ) ) {
-			return;
-		}
+    /**
+     * The min value.
+     *
+     * @var int
+     */
+    private int $min = 1;
 
-		// bail if no setting object is set.
-		if ( empty( $attr['setting'] ) ) {
-			return;
-		}
+    /**
+     * The max value.
+     *
+     * @var int
+     */
+    private int $max = PHP_INT_MAX;
 
-		// bail if field is not a Setting object.
-		if ( ! $attr['setting'] instanceof Setting ) {
-			return;
-		}
+    /**
+     * The step value.
+     *
+     * @var int
+     */
+    private int $step = 1;
 
-		// get the setting object.
-		$setting = $attr['setting'];
+    /**
+     * Return the HTML-code to display this field.
+     *
+     * @param array $attr Attributes for this field.
+     *
+     * @return void
+     */
+    public function display( array $attr ): void {
+        // bail if no attributes are set.
+        if ( empty( $attr ) ) {
+            return;
+        }
 
-		// get the field object.
-		$field = $setting->get_field();
+        // bail if no setting object is set.
+        if ( empty( $attr['setting'] ) ) {
+            return;
+        }
 
-		?>
-		<input type="number" id="<?php echo esc_attr( $setting->get_name() ); ?>"
-				name="<?php echo esc_attr( $setting->get_name() ); ?>"
-				value="<?php echo absint( get_option( $setting->get_name(), 0 ) ); ?>"
-			<?php
-			echo ( $field->is_readonly() ? ' disabled="disabled"' : '' );
-			?>
-				class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
-				title="<?php echo esc_attr( $field->get_title() ); ?>"
-		>
-		<?php
+        // bail if field is not a Setting object.
+        if ( ! $attr['setting'] instanceof Setting ) {
+            return;
+        }
 
-		// show optional description for this checkbox.
-		if ( ! empty( $field->get_description() ) ) {
-			echo '<p>' . wp_kses_post( $field->get_description() ) . '</p>';
-		}
-	}
+        // get the setting object.
+        $setting = $attr['setting'];
 
-	/**
-	 * The sanitize callback for this field.
-	 *
-	 * @param mixed $value The value to save.
-	 *
-	 * @return mixed
-	 */
-	public function sanitize_callback( mixed $value ): int {
-		// bail if value is null.
-		if ( is_null( $value ) ) {
-			return 0;
-		}
+        ?>
+        <input type="number" id="<?php echo esc_attr( $setting->get_name() ); ?>"
+               name="<?php echo esc_attr( $setting->get_name() ); ?>"
+               value="<?php echo absint( get_option( $setting->get_name(), 0 ) ); ?>"
+            <?php
+            echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
+            ?>
+               min="<?php echo esc_attr( $this->get_min() ); ?>"
+               max="<?php echo esc_attr( $this->get_max() ); ?>"
+               step="<?php echo esc_attr( $this->get_step() ); ?>"
+               class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
+               title="<?php echo esc_attr( $this->get_title() ); ?>"
+        >
+        <?php
 
-		// return the value.
-		return absint( $value );
-	}
+        // show optional description for this checkbox.
+        if ( ! empty( $this->get_description() ) ) {
+            echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
+        }
+    }
+
+    /**
+     * The sanitize callback for this field.
+     *
+     * @param mixed $value The value to save.
+     *
+     * @return mixed
+     */
+    public function sanitize_callback( mixed $value ): int {
+        // bail if value is null.
+        if ( is_null( $value ) ) {
+            return 0;
+        }
+
+        // return the value.
+        return absint( $value );
+    }
+
+    /**
+     * Return the min value.
+     *
+     * @return int
+     */
+    public function get_min(): int {
+        return $this->min;
+    }
+
+    /**
+     * Set minimum value for this field.
+     *
+     * @param int $min The min value.
+     *
+     * @return void
+     */
+    public function set_min( int $min ): void {
+        $this->min = $min;
+    }
+
+    /**
+     * Return the max value.
+     *
+     * @return int
+     */
+    public function get_max(): int {
+        return $this->max;
+    }
+
+    /**
+     * Set maximum value for this field.
+     *
+     * @param int $max The max value.
+     *
+     * @return void
+     */
+    public function set_max( int $max ): void {
+        $this->max = $max;
+    }
+
+    /**
+     * Return the step value.
+     *
+     * @return int
+     */
+    public function get_step(): int {
+        return $this->step;
+    }
+
+    /**
+     * Set step value for this field.
+     *
+     * @param int $step The step value.
+     *
+     * @return void
+     */
+    public function set_step( int $step ): void {
+        $this->step = $step;
+    }
 }
