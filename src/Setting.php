@@ -59,9 +59,9 @@ class Setting {
 	/**
 	 * Save callback.
 	 *
-	 * @var array
+	 * @var array|string
 	 */
-	private array $save_callback = array();
+	private array|string $save_callback = array();
 
 	/**
 	 * Export prevent marker.
@@ -269,20 +269,20 @@ class Setting {
 	/**
 	 * Return the save callback.
 	 *
-	 * @return array
+	 * @return array|string
 	 */
-	public function get_save_callback(): array {
+	public function get_save_callback(): array|string {
 		return $this->save_callback;
 	}
 
 	/**
 	 * Set the save callback.
 	 *
-	 * @param array $save_callback The save callback.
+	 * @param array|string $save_callback The save callback.
 	 *
 	 * @return void
 	 */
-	public function set_save_callback( array $save_callback ): void {
+	public function set_save_callback( array|string $save_callback ): void {
 		$this->save_callback = $save_callback;
 	}
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] - 27.04.2025
+
+### Changed
+
+- Allow functions as callback
+
 ## [1.1.1] - 21.04.2025
 
 ### Changed
