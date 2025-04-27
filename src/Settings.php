@@ -106,6 +106,13 @@ class Settings {
     private string $url = '';
 
     /**
+     * Show the settings link in plugin list.
+     *
+     * @var bool
+     */
+    private bool $show_settings_link_in_plugin_list = false;
+
+    /**
      * Instance of actual object.
      *
      * @var ?Settings
@@ -1035,5 +1042,64 @@ class Settings {
      */
     public function set_url( string $url ): void {
         $this->url = $url;
+    }
+
+    /**
+     * Show settings link in plugin list.
+     *
+     * @return bool
+     */
+    private function is_show_settings_link_in_plugin_list(): bool {
+        return $this->show_settings_link_in_plugin_list;
+    }
+
+    /**
+     * Show settings link in plugin list.
+     *
+     * @param bool $show True to show the link.
+     *
+     * @return void
+     */
+    public function show_settings_link_in_plugin_list( bool $show ): void {
+        $this->show_settings_link_in_plugin_list = $show;
+    }
+
+    /**
+     * Add link to plugin-settings in plugin-list.
+     *
+     * @param array $links List of links.
+     * @return array
+     */
+    public function add_setting_link( array $links ): array {
+        $links[] = '<a href="' . esc_url( $this->get_settings_link() ) . '">' . __( 'Settings', 'easy-settings-for-wordpress' ) . '</a>';
+
+        return $links;
+    }
+
+    /**
+     * Get URL for settings page.
+     *
+     * @return string
+     */
+    public function get_settings_link(): string {
+        switch ( $this->get_menu_parent_slug() ) {
+            case 'options-general.php':
+                return add_query_arg(
+                    array(
+                        'page' => $this->get_menu_slug()
+                    ),
+                    get_admin_url() . 'options-general.php'
+                );
+            case 'themes.php':
+                return add_query_arg(
+                    array(
+                        'page' => $this->get_menu_slug()
+                    ),
+                    get_admin_url() . 'themes.php'
+                );
+        }
+
+        // return empty string.
+        return '#';
     }
 }
