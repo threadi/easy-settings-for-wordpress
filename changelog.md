@@ -2,6 +2,10 @@
 
 ## [1.2.1] - 27.04.2025
 
+### Changed
+
+- Optimized Number field for min, max and steps
+
 ### Fixed
 
 - Fixed visibility of settings link in plugin list
