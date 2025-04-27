@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.0] - 27.04.2025
+
+### Added
+
+- Added output of generated settings link
+- Added option to show settings link in plugin list
+
+### Changed
+
+- Allow functions as callback
+
 ## [1.1.1] - 21.04.2025
 
 ### Changed
