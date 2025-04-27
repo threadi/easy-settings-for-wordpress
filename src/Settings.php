@@ -582,6 +582,11 @@ class Settings {
                 add_filter( 'pre_update_option_' . $setting->get_name(), $setting->get_save_callback(), 10, 2 );
             }
         }
+
+        // show settings link in plugin list.
+        if( $this->is_show_settings_link_in_plugin_list() ) {
+            add_filter( 'plugin_action_links_' . $this->get_plugin_slug(), array( $this, 'add_setting_link' ) );
+        }
     }
 
     /**

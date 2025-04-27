@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.1] - 27.04.2025
+
+### Fixed
+
+- Fixed visibility of settings link in plugin list
+
 ## [1.2.0] - 27.04.2025
 
 ### Added
