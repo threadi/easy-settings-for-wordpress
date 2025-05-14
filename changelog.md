@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.2] - 14.05.2025
+
+### Changed
+
+- Change some texts
+
 ## [1.2.1] - 27.04.2025
 
 ### Changed
