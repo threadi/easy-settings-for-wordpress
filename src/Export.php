@@ -82,7 +82,7 @@ class Export {
 			'title'   => __( 'Export plugin settings', 'easy-settings-for-wordpress' ),
 			'texts'   => array(
 				'<p><strong>' . __( 'Click on the button below to export the actual settings.', 'easy-settings-for-wordpress' ) . '</strong></p>',
-				'<p>' . __( 'You can import this JSON-file in other projects using the WordPress plugin <i>Fraunhofer FOKUS</i>.', 'easy-settings-for-wordpress' ) . '</p>',
+				'<p>' . __( 'You can import this JSON-file in other projects using this WordPress plugin or theme.', 'easy-settings-for-wordpress' ) . '</p>',
 			),
 			'buttons' => array(
 				array(

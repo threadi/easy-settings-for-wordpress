@@ -91,7 +91,7 @@ class Import {
                 'ajax_url'                           => admin_url( 'admin-ajax.php' ),
                 'settings_import_file_nonce'         => wp_create_nonce( 'settings-import' ),
                 'title_settings_import_file_missing' => __( 'Required file missing', 'easy-settings-for-wordpress' ),
-                'text_settings_import_file_missing'  => __( 'Please choose a JSON-file with settings of <i>Fraunhofer Fokus</i> to import.', 'easy-settings-for-wordpress' ),
+                'text_settings_import_file_missing'  => __( 'Please choose a JSON-file with settings to import.', 'easy-settings-for-wordpress' ),
                 'lbl_ok'                             => __( 'OK', 'easy-settings-for-wordpress' ),
             )
         );
