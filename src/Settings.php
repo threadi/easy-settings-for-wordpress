@@ -5,7 +5,7 @@
  * @package easy-settings-for-wordpress
  */
 
-namespace PersonioIntegrationLight\Dependencies\easySettingsForWordPress;
+namespace easySettingsForWordPress;
 
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;

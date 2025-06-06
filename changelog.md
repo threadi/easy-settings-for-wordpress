@@ -6,6 +6,7 @@
 
 - Added option for menu position
 - Added support for cpt-own menu entries
+- Added new fields: Radio and Checkboxes (plural)
 
 ## [1.2.2] - 14.05.2025
 
