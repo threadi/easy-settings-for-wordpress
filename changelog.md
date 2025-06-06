@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0] - 06.06.2025
+
+### Added
+
+- Added option for menu position
+- Added support for cpt-own menu entries
+
 ## [1.2.2] - 14.05.2025
 
 ### Changed

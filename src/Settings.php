@@ -5,7 +5,7 @@
  * @package easy-settings-for-wordpress
  */
 
-namespace easySettingsForWordPress;
+namespace PersonioIntegrationLight\Dependencies\easySettingsForWordPress;
 
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
@@ -55,6 +55,13 @@ class Settings {
      * @var string
      */
     private string $menu_title = '';
+
+    /**
+     * The menu position.
+     *
+     * @var int
+     */
+    private int $menu_position = 10;
 
     /**
      * The title.
@@ -346,17 +353,8 @@ class Settings {
                     $this->get_menu_title(),
                     $this->get_capability(),
                     $this->get_menu_slug(),
-                    $this->get_callback()
-                );
-                break;
-            case 'themes.php':
-                add_submenu_page(
-                    $this->get_menu_parent_slug(),
-                    $this->get_title(),
-                    $this->get_menu_title(),
-                    $this->get_capability(),
-                    $this->get_menu_slug(),
-                    $this->get_callback()
+                    $this->get_callback(),
+                    $this->get_menu_position()
                 );
                 break;
             case 'admin.php':
@@ -367,7 +365,7 @@ class Settings {
                     $this->get_menu_slug(),
                     $this->get_callback(),
                     $this->get_menu_icon(),
-                    6
+                    $this->get_menu_position()
                 );
 
                 // check tabs for this setting whether they should be visible in menu.
@@ -389,7 +387,8 @@ class Settings {
                         $tab->get_title(),
                         $this->get_capability(),
                         $tab->get_name(),
-                        $tab->get_callback()
+                        $tab->get_callback(),
+                        6
                     );
 
                     // change link in menu if it is an external URL.
@@ -411,6 +410,17 @@ class Settings {
                         }
                     }
                 }
+                break;
+            default:
+                add_submenu_page(
+                    $this->get_menu_parent_slug(),
+                    $this->get_title(),
+                    $this->get_menu_title(),
+                    $this->get_capability(),
+                    $this->get_menu_slug(),
+                    $this->get_callback(),
+                    $this->get_menu_position()
+                );
                 break;
         }
     }
@@ -476,6 +486,15 @@ class Settings {
                     $target = $tab->get_url_target();
                     if ( ! empty( $tab->get_url() ) ) {
                         $url = $tab->get_url();
+                    }
+
+                    // output a non-linked tab.
+                    if( $tab->is_not_linked() ) {
+                        // output.
+                        ?>
+                        <span class="nav-tab<?php echo esc_attr( $classes ); ?>"><?php echo wp_kses_post( $tab->get_title() ); ?></span>
+                        <?php
+                        continue;
                     }
 
                     // output.
@@ -1106,5 +1125,25 @@ class Settings {
 
         // return empty string.
         return '#';
+    }
+
+    /**
+     * Return the menu position.
+     *
+     * @return int
+     */
+    public function get_menu_position(): int {
+        return $this->menu_position;
+    }
+
+    /**
+     * Set the menu position.
+     *
+     * @param int $menu_position The menu position.
+     *
+     * @return void
+     */
+    public function set_menu_position( int $menu_position ): void {
+        $this->menu_position = $menu_position;
     }
 }
