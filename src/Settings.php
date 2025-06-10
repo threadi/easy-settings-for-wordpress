@@ -173,6 +173,8 @@ class Settings {
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_init', array( $this, 'register_fields' ) );
         add_action( 'rest_api_init', array( $this, 'register_settings' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'add_js' ) );
+        add_filter( $this->get_slug() . '_settings_tabs' , array( $this, 'sort_tabs' ), PHP_INT_MAX );
     }
 
     /**
@@ -1214,5 +1216,33 @@ class Settings {
      */
     public function set_path( string $path ): void {
         $this->path = trailingslashit( $path );
+    }
+
+    /**
+     * Sort the tabs by its given positions.
+     *
+     * @param array<int,Tab> $tabs List of tabs.
+     *
+     * @return array<int,Tab>
+     */
+    public function sort_tabs( array $tabs ): array {
+        foreach( $tabs as $index => $tab ) {
+            // get the position used by this tab.
+            $tab_position = $tab->get_position();
+
+            // bail if tab position is not used.
+            if( 0 === $tab_position ) {
+                continue;
+            }
+
+            // remove it from its original position.
+            unset( $tabs[ $index ]);
+
+            // add the tab on the given position.
+            $tabs = Helper::add_array_in_array_on_position( $tabs, $tab_position, array( $tab_position => $tab ) );
+        }
+
+        // return resulting list of sorted tabs.
+        return $tabs;
     }
 }

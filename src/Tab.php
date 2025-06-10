@@ -92,6 +92,13 @@ class Tab {
     private bool $not_linked = false;
 
     /**
+     * The position of the tab.
+     *
+     * @var int
+     */
+    private int $position = 0;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
@@ -469,5 +476,25 @@ class Tab {
      */
     public function is_not_linked(): bool {
         return $this->not_linked;
+    }
+
+    /**
+     * Return the position of this tab in the list of all tabs.
+     *
+     * @return int
+     */
+    public function get_position(): int {
+        return $this->position;
+    }
+
+    /**
+     * Set the position of this tab in the list of all tabs.
+     *
+     * @param int $position The position to use.
+     *
+     * @return void
+     */
+    public function set_position( int $position ): void {
+        $this->position = $position;
     }
 }

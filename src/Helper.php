@@ -98,4 +98,32 @@ class Helper {
 			'object',
 		);
 	}
+
+    /**
+     * Add new entry with its key on specific position in array.
+     *
+     * @param array<int|string,mixed>|null $array_to_change The array we want to change.
+     * @param mixed                          $key The position where the new array should be added.
+     * @param array<int|string,mixed>      $array_to_add The new array which should be added.
+     *
+     * @return array<int|string,mixed>
+     */
+    public static function add_array_in_array_on_position( array|null $array_to_change, mixed $key, array $array_to_add ): array {
+        $index = array_search( $key, array_keys( $array_to_change ), true );
+
+        // key is not found, add to the end of the array
+        if( $index === false ){
+            $array_to_change = array_merge( $array_to_change, $array_to_add );
+        }
+        // split the array into two parts and insert a new element between them
+        else{
+            $array_to_change = array_merge(
+                array_slice( $array_to_change, 0, $index + 1, true ),
+                $array_to_add,
+                array_slice( $array_to_change, $index + 1, null, true )
+            );
+        }
+
+        return $array_to_change;
+    }
 }
