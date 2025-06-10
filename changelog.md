@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.2] - 10.06.2025
+
+### Fixed
+
+- Fixed missing version number update
+
 ## [1.3.1] - 10.06.2025
 
 ### Added
