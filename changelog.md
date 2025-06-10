@@ -2,6 +2,10 @@
 
 ## [1.3.1] - 10.06.2025
 
+### Added
+
+- Added custom position for tabs
+
 ### Changed
 
 - Optimized each field for loading its own properties
