@@ -93,14 +93,14 @@ class Checkboxes extends Field_Base {
      *
      * @return mixed
      */
-    public function sanitize_callback( mixed $value ): int {
-        // bail if value is null.
-        if ( is_null( $value ) ) {
-            return 0;
+    public function sanitize_callback( mixed $value ): array {
+        // bail if value is not an array.
+        if ( ! is_array( $value ) ) {
+            return array();
         }
 
         // return the value.
-        return absint( $value );
+        return $value;
     }
 
     /**

@@ -50,6 +50,13 @@ class Field_Base {
 	 */
 	private array $sanitize_callback = array();
 
+    /**
+     * Depending setting.
+     *
+     * @var array
+     */
+    private array $depends = array();
+
 	/**
 	 * The setting this field belongs to.
 	 *
@@ -220,4 +227,41 @@ class Field_Base {
 	public function set_setting( Setting $setting ): void {
 		$this->setting = $setting;
 	}
+
+    /**
+     * Return the configured fields this field depends on.
+     *
+     * @return string
+     */
+    protected function get_depend(): string {
+        // bail if no depends fields are set.
+        if( empty( $this->depends ) ) {
+            return '';
+        }
+
+        // generate JSON of this setting.
+        $json = wp_json_encode( $this->depends, JSON_FORCE_OBJECT );
+
+        // bail if JSON could not be generated.
+        if( ! $json ) {
+            return '';
+        }
+
+        // return the JSON string with the configuration.
+        return $json;
+    }
+
+    /**
+     * Add a setting this field depends on.
+     *
+     * This field will only be visible if this setting has the requested value.
+     *
+     * @param Setting $setting The setting this fields depends on.
+     * @param mixed   $value The value it must have.
+     *
+     * @return void
+     */
+    public function add_depend( Setting $setting, mixed $value ): void {
+        $this->depends[$setting->get_name()] = $value;
+    }
 }

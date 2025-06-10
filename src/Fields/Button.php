@@ -88,7 +88,7 @@ class Button extends Field_Base {
 							echo esc_attr( $this->get_classes() );
 							echo ( $this->is_readonly() ? ' disabled' : '' );
 							?>
-		"><?php echo esc_html( $this->get_button_title() ); ?></a>
+		" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">><?php echo esc_html( $this->get_button_title() ); ?></a>
 		<?php
 
 		// show optional description for this checkbox.

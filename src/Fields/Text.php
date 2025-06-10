@@ -66,8 +66,9 @@ class Text extends Field_Base {
 			<?php
 			echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
 			?>
-				class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
+				class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
 				title="<?php echo esc_attr( $this->get_title() ); ?>"
+                data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 		>
 		<?php
 

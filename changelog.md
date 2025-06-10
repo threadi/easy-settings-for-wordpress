@@ -1,12 +1,18 @@
 # Changelog
 
-## [1.3.0] - 06.06.2025
+## [1.3.0] - 10.06.2025
 
 ### Added
 
 - Added option for menu position
 - Added support for cpt-own menu entries
 - Added new fields: Radio and Checkboxes (plural)
+- Added read callback for settings
+- Added option to depend the fields from each other in settings form
+
+### Changed
+
+- Text fields are now using widefat class
 
 ## [1.2.2] - 14.05.2025
 
