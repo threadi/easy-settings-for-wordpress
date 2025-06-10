@@ -173,6 +173,7 @@ class Settings {
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_init', array( $this, 'register_fields' ) );
         add_action( 'rest_api_init', array( $this, 'register_settings' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'add_js' ) );
     }
 
     /**

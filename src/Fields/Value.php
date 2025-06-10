@@ -50,15 +50,12 @@ class Value extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-		// get the field object.
-		$field = $setting->get_field();
-
 		// output the value.
 		echo '<div data-depends="' . esc_attr( $this->get_depend() ) . '">' . wp_kses_post( $setting->get_value() ) . '</div>';
 
 		// show optional description for this checkbox.
-		if ( ! empty( $field->get_description() ) ) {
-			echo '<p>' . wp_kses_post( $field->get_description() ) . '</p>';
+		if ( ! empty( $this->get_description() ) ) {
+			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
 	}
 }

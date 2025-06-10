@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.1] - 10.06.2025
+
+### Changed
+
+- Optimized each field for loading its own properties
+
+### Fixed
+
+- Fixed invalid HTML-code for Text and Checkbox fields
+- Fixed missing embedding of own JS-file
+
 ## [1.3.0] - 10.06.2025
 
 ### Added

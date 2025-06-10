@@ -68,7 +68,7 @@ class Text extends Field_Base {
 			?>
 				class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
 				title="<?php echo esc_attr( $this->get_title() ); ?>"
-                data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
+                data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
 		>
 		<?php
 

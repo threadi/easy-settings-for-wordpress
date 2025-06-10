@@ -78,9 +78,6 @@ class Button extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-		// get the field object.
-		$field = $setting->get_field();
-
 		// output.
 		?>
 		<a href="<?php echo esc_url( $this->get_button_url() ); ?>"<?php echo wp_kses_post( $this->get_custom_attributes() ); ?> class="button button-primary
@@ -88,12 +85,12 @@ class Button extends Field_Base {
 							echo esc_attr( $this->get_classes() );
 							echo ( $this->is_readonly() ? ' disabled' : '' );
 							?>
-		" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">><?php echo esc_html( $this->get_button_title() ); ?></a>
+		" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"><?php echo esc_html( $this->get_button_title() ); ?></a>
 		<?php
 
 		// show optional description for this checkbox.
-		if ( ! empty( $field->get_description() ) ) {
-			echo '<p>' . wp_kses_post( $field->get_description() ) . '</p>';
+		if ( ! empty( $this->get_description() ) ) {
+			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
 	}
 

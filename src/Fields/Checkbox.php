@@ -51,26 +51,23 @@ class Checkbox extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-		// get the field object.
-		$field = $setting->get_field();
-
 		?>
 		<input type="checkbox" id="<?php echo esc_attr( $setting->get_name() ); ?>"
 				name="<?php echo esc_attr( $setting->get_name() ); ?>"
 				value="1"
 			<?php
-			echo ( $field->is_readonly() ? ' disabled="disabled"' : '' );
+			echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
 			echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? ' checked="checked"' : '' );
 			?>
 				class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
-				title="<?php echo esc_attr( $field->get_title() ); ?>"
-                data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
+				title="<?php echo esc_attr( $this->get_title() ); ?>"
+                data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
 		>
 		<?php
 
 		// show optional description for this checkbox.
-		if ( ! empty( $field->get_description() ) ) {
-			echo '<p>' . wp_kses_post( $field->get_description() ) . '</p>';
+		if ( ! empty( $this->get_description() ) ) {
+			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
 	}
 
