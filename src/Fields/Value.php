@@ -54,7 +54,7 @@ class Value extends Field_Base {
 		$field = $setting->get_field();
 
 		// output the value.
-		echo wp_kses_post( $setting->get_value() );
+		echo '<div data-depends="' . esc_attr( $this->get_depend() ) . '">' . wp_kses_post( $setting->get_value() ) . '</div>';
 
 		// show optional description for this checkbox.
 		if ( ! empty( $field->get_description() ) ) {

@@ -57,6 +57,13 @@ class Settings {
     private string $menu_title = '';
 
     /**
+     * The menu position.
+     *
+     * @var int
+     */
+    private int $menu_position = 10;
+
+    /**
      * The title.
      *
      * @var string
@@ -104,6 +111,13 @@ class Settings {
      * @var string
      */
     private string $url = '';
+
+    /**
+     * The used path.
+     *
+     * @var string
+     */
+    private string $path = '';
 
     /**
      * Show the settings link in plugin list.
@@ -346,17 +360,8 @@ class Settings {
                     $this->get_menu_title(),
                     $this->get_capability(),
                     $this->get_menu_slug(),
-                    $this->get_callback()
-                );
-                break;
-            case 'themes.php':
-                add_submenu_page(
-                    $this->get_menu_parent_slug(),
-                    $this->get_title(),
-                    $this->get_menu_title(),
-                    $this->get_capability(),
-                    $this->get_menu_slug(),
-                    $this->get_callback()
+                    $this->get_callback(),
+                    $this->get_menu_position()
                 );
                 break;
             case 'admin.php':
@@ -367,7 +372,7 @@ class Settings {
                     $this->get_menu_slug(),
                     $this->get_callback(),
                     $this->get_menu_icon(),
-                    6
+                    $this->get_menu_position()
                 );
 
                 // check tabs for this setting whether they should be visible in menu.
@@ -389,7 +394,8 @@ class Settings {
                         $tab->get_title(),
                         $this->get_capability(),
                         $tab->get_name(),
-                        $tab->get_callback()
+                        $tab->get_callback(),
+                        6
                     );
 
                     // change link in menu if it is an external URL.
@@ -412,6 +418,17 @@ class Settings {
                     }
                 }
                 break;
+            default:
+                add_submenu_page(
+                    $this->get_menu_parent_slug(),
+                    $this->get_title(),
+                    $this->get_menu_title(),
+                    $this->get_capability(),
+                    $this->get_menu_slug(),
+                    $this->get_callback(),
+                    $this->get_menu_position()
+                );
+                break;
         }
     }
 
@@ -433,7 +450,7 @@ class Settings {
         $current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
         ?>
-        <div class="wrap">
+        <div class="wrap easy-settings-for-wordpress">
             <h1 class="wp-heading-inline"><?php echo esc_html( $this->get_title() ); ?></h1>
             <nav class="nav-tab-wrapper">
                 <?php
@@ -476,6 +493,15 @@ class Settings {
                     $target = $tab->get_url_target();
                     if ( ! empty( $tab->get_url() ) ) {
                         $url = $tab->get_url();
+                    }
+
+                    // output a non-linked tab.
+                    if( $tab->is_not_linked() ) {
+                        // output.
+                        ?>
+                        <span class="nav-tab<?php echo esc_attr( $classes ); ?>"><?php echo wp_kses_post( $tab->get_title() ); ?></span>
+                        <?php
+                        continue;
                     }
 
                     // output.
@@ -554,6 +580,22 @@ class Settings {
                 continue;
             }
 
+            // get the section.
+            $section = $setting->get_section();
+
+            // bail if section could not be read.
+            if( ! $section instanceof Section ) {
+                continue;
+            }
+
+            // get the tab.
+            $tab = $section->get_tab();
+
+            // bail if tab could not be read.
+            if( ! $tab instanceof Tab ) {
+                continue;
+            }
+
             // collect arguments.
             $args = array(
                 'type'         => $setting->get_type(),
@@ -569,13 +611,18 @@ class Settings {
 
             // register the setting.
             register_setting(
-                $setting->get_section()->get_tab()->get_name(),
+                $tab->get_name(),
                 $setting->get_name(),
                 $args
             );
 
             // sanitize the option before any output.
             add_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ), 10, 2 );
+
+            // run custom callback after reading an option.
+            if ( $setting->has_read_callback() ) {
+                add_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
+            }
 
             // run custom callback before updating an option.
             if ( $setting->has_save_callback() ) {
@@ -1106,5 +1153,66 @@ class Settings {
 
         // return empty string.
         return '#';
+    }
+
+    /**
+     * Return the menu position.
+     *
+     * @return int
+     */
+    public function get_menu_position(): int {
+        return $this->menu_position;
+    }
+
+    /**
+     * Set the menu position.
+     *
+     * @param int $menu_position The menu position.
+     *
+     * @return void
+     */
+    public function set_menu_position( int $menu_position ): void {
+        $this->menu_position = $menu_position;
+    }
+
+    /**
+     * Add own JS for backend.
+     *
+     * @return void
+     */
+    public function add_js(): void {
+        // bail if URL or path is not set.
+        if( empty( $this->get_url() ) || empty( $this->get_path() ) ) {
+            return;
+        }
+
+        // backend-JS.
+        wp_enqueue_script(
+            $this->get_slug() . '-settings',
+            $this->get_url() . 'js.js',
+            array( 'jquery', 'easy-dialog' ),
+            (string) filemtime( $this->get_path() . 'js.js' ),
+            true
+        );
+    }
+
+    /**
+     * Return the path.
+     *
+     * @return string
+     */
+    private function get_path(): string {
+        return $this->path;
+    }
+
+    /**
+     * Set the path to use.
+     *
+     * @param string $path The path.
+     *
+     * @return void
+     */
+    public function set_path( string $path ): void {
+        $this->path = trailingslashit( $path );
     }
 }

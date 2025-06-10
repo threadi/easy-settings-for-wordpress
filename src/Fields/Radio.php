@@ -1,6 +1,6 @@
 <?php
 /**
- * This file holds an object for a single multi-select field.
+ * This file holds an object for multiple radio fields.
  *
  * @package easy-settings-for-wordpress
  */
@@ -15,15 +15,15 @@ use easySettingsForWordPress\Setting;
 use easySettingsForWordPress\Settings;
 
 /**
- * Object to handle a multiselect field for multi-single setting.
+ * Object to handle a checkbox for multiple radio fields.
  */
-class MultiSelect extends Field_Base {
+class Radio extends Field_Base {
 	/**
 	 * The type name.
 	 *
 	 * @var string
 	 */
-	protected string $type_name = 'Multiselect';
+	protected string $type_name = 'Radio';
 
 	/**
 	 * The options for this field.
@@ -58,27 +58,28 @@ class MultiSelect extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-		// get the field object.
-		$field = $setting->get_field();
-
-		// get values.
-		$values = (array) get_option( $setting->get_name(), array() );
-
-		?>
-		<select multiple="multiple" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>[]" class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width" title="<?php echo esc_attr( $field->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">>
-			<?php
-			foreach ( $this->get_options() as $key => $label ) {
-				?>
-				<option value="<?php echo esc_attr( $key ); ?>"<?php echo ( in_array( (string) $key, $values, true ) ? ' selected="selected"' : '' ); ?>><?php echo esc_html( $label ); ?></option>
-				<?php
-			}
+		// show each option.
+		foreach( $this->get_options() as $key => $title ) {
 			?>
-		</select>
-		<?php
+			<div>
+				<input type="radio" id="<?php echo esc_attr( $setting->get_name() . $key ); ?>"
+				       name="<?php echo esc_attr( $setting->get_name() ); ?>"
+				       value="<?php echo esc_attr( $key ); ?>"
+					<?php
+					echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
+					echo ( $key === get_option( $setting->get_name(), '' ) ? ' checked="checked"' : '' );
+					?>
+					   class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
+					   title="<?php echo esc_attr( $this->get_title() ); ?>"
+				>
+				<label for="<?php echo esc_attr( $setting->get_name() . $key ); ?>"><?php echo esc_html( $title ) ; ?></label>
+			</div>
+			<?php
+		}
 
 		// show optional description for this checkbox.
-		if ( ! empty( $field->get_description() ) ) {
-			echo '<p>' . wp_kses_post( $field->get_description() ) . '</p>';
+		if ( ! empty( $this->get_description() ) ) {
+			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
 	}
 
@@ -89,14 +90,14 @@ class MultiSelect extends Field_Base {
 	 *
 	 * @return mixed
 	 */
-	public function sanitize_callback( mixed $value ): array {
+	public function sanitize_callback( mixed $value ): int {
 		// bail if value is null.
 		if ( is_null( $value ) ) {
-			return array();
+			return 0;
 		}
 
 		// return the value.
-		return (array) $value;
+		return absint( $value );
 	}
 
 	/**
