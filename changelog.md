@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.1] - 11.06.2025
+
+### Changed
+
+- all get_options() for fields are now public
+
 ## [1.4.0] - 11.06.2025
 
 ### Added
