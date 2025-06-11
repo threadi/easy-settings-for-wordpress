@@ -108,7 +108,7 @@ class Checkboxes extends Field_Base {
      *
      * @return array
      */
-    private function get_options(): array {
+    public function get_options(): array {
         return $this->options;
     }
 

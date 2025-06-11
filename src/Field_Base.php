@@ -264,4 +264,13 @@ class Field_Base {
     public function add_depend( Setting $setting, mixed $value ): void {
         $this->depends[$setting->get_name()] = $value;
     }
+
+    /**
+     * Return the placeholder.
+     *
+     * @return string
+     */
+    public function get_placeholder(): string {
+        return '';
+    }
 }
