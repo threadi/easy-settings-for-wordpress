@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.0] - 11.06.2025
+
+### Added
+
+- Added custom vars on settings
+
+### Changed
+
+- Placeholder now also in Field_Base
+
 ## [1.3.2] - 10.06.2025
 
 ### Fixed

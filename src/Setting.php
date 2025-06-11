@@ -92,6 +92,13 @@ class Setting {
     private string $help = '';
 
     /**
+     * The custom vars.
+     *
+     * @var array<string,mixed>
+     */
+    private array $vars = array();
+
+    /**
      * Constructor.
      */
     public function __construct() {}
@@ -407,5 +414,34 @@ class Setting {
      */
     public function set_autoload( bool $autoload ): void {
         $this->autoload = $autoload;
+    }
+
+    /**
+     * Return the custom var for this setting.
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function get_custom_var( string $key ): mixed {
+        // bail if key does not exist on object.
+        if( ! isset( $this->vars[ $key ] ) ) {
+            return false;
+        }
+
+        // return the value assigned to the key.
+        return $this->vars[ $key ];
+    }
+
+    /**
+     * Add a custom var to this setting.
+     *
+     * @param string $key The key.
+     * @param string $value The value.
+     *
+     * @return void
+     */
+    public function add_custom_var( string $key, mixed $value ): void {
+        $this->vars[$key] = $value;
     }
 }
