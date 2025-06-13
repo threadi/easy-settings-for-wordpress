@@ -467,6 +467,9 @@ class Settings {
         // set active tab.
         $active_tab = false;
 
+        // get requested page.
+        $page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
         // get tab from request.
         $current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
@@ -479,6 +482,11 @@ class Settings {
                 foreach ( $this->get_tabs() as $tab ) {
                     // bail if tab is not Tab object.
                     if ( ! $tab instanceof Tab ) {
+                        continue;
+                    }
+
+                    // bail if page does not match the tab settings.
+                    if( $page !== $tab->get_page() ) {
                         continue;
                     }
 
@@ -506,7 +514,7 @@ class Settings {
                     // get URL for this tab.
                     $url    = add_query_arg(
                         array(
-                            'page' => $this->get_menu_slug(),
+                            'page' => $page,
                             'tab'  => $tab->get_name(),
                         ),
                         get_admin_url() . $this->get_menu_parent_slug()
