@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0] - 12.06.2025
+
+### Added
+
+- Added new field TextInfo to output just a text info
+- Added new field Textarea for multiline text fields
+- Added option to delete an existing tab from settings
+
+### Changed
+
+- Button field can now also use data-attributes
+
 ## [1.4.1] - 11.06.2025
 
 ### Changed
