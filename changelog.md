@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.6.0] - 13.06.2025
+
+### Added
+
+- Assign tabs and sections to pages
+
+### Changed
+
+- Display only tabs and settings for requested page
+
 ## [1.5.0] - 12.06.2025
 
 ### Added

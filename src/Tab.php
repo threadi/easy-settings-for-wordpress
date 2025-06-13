@@ -99,6 +99,13 @@ class Tab {
     private int $position = 0;
 
     /**
+     * The page slug.
+     *
+     * @var string|false
+     */
+    private string|false $page = false;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
@@ -496,5 +503,25 @@ class Tab {
      */
     public function set_position( int $position ): void {
         $this->position = $position;
+    }
+
+    /**
+     * Return the assigned page slug.
+     *
+     * @return string|false
+     */
+    public function get_page(): string|false {
+        return $this->page;
+    }
+
+    /**
+     * Set page this tab is assigned to.
+     *
+     * @param string $page The page slug.
+     *
+     * @return void
+     */
+    public function set_page( string $page ): void {
+        $this->page = $page;
     }
 }

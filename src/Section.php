@@ -49,6 +49,13 @@ class Section {
 	 */
 	private string|array $callback = '__return_true';
 
+    /**
+     * The page slug.
+     *
+     * @var string|false
+     */
+    private string|false $page = false;
+
 	/**
 	 * Constructor.
 	 */
@@ -186,4 +193,15 @@ class Section {
 	public function set_tab( Tab $tab ): void {
 		$this->tab = $tab;
 	}
+
+    /**
+     * Set page this tab is assigned to.
+     *
+     * @param string $page The page slug.
+     *
+     * @return void
+     */
+    public function set_page( string $page ): void {
+        $this->page = $page;
+    }
 }
