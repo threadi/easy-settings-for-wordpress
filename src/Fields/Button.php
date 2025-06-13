@@ -52,6 +52,13 @@ class Button extends Field_Base {
 	 */
 	private array $button_classes = array();
 
+    /**
+     * List of data attributes.
+     *
+     * @var array
+     */
+    private array $data = array();
+
 	/**
 	 * Return the HTML-code to display this field.
 	 *
@@ -74,9 +81,6 @@ class Button extends Field_Base {
 		if ( ! $attr['setting'] instanceof Setting ) {
 			return;
 		}
-
-		// get the setting object.
-		$setting = $attr['setting'];
 
 		// output.
 		?>
@@ -204,4 +208,37 @@ class Button extends Field_Base {
 	public function add_class( string $class_name ): void {
 		$this->button_classes[] = $class_name;
 	}
+
+    /**
+     * Return list of data-attributes as string for output on button.
+     *
+     * @return string
+     */
+    private function get_data(): string {
+        // collect the output.
+        $output = '';
+
+        // loop through the data attributes.
+        foreach( $this->data as $key => $value ) {
+            if( ! empty( $output ) ) {
+                $output .= ' ';
+            }
+            $output .= $key . '="' . $value . '"';
+        }
+
+        // return the resulting string.
+        return $output;
+    }
+
+    /**
+     * Add single class to the list of classes for the button.
+     *
+     * @param string $key The data key.
+     * @param string $value The data value.
+     *
+     * @return void
+     */
+    public function add_data( string $key, string $value ): void {
+        $this->data[$key] = $value;
+    }
 }

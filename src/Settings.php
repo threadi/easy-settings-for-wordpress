@@ -220,7 +220,7 @@ class Settings {
     /**
      * Return list of tabs.
      *
-     * @return array
+     * @return array<int,Tab>
      */
     public function get_tabs(): array {
         $tabs = $this->tabs;
@@ -257,6 +257,25 @@ class Settings {
 
         // return the tab object.
         return $tab_obj;
+    }
+
+    /**
+     * Delete the given tab.
+     *
+     * @param Tab $tab_to_delete The tab to delete.
+     *
+     * @return void
+     */
+    public function delete_tab( Tab $tab_to_delete ): void {
+        foreach( $this->get_tabs() as $index => $tab ) {
+            // bail if tab does not match.
+            if( $tab->get_name() !== $tab_to_delete->get_name() ) {
+                continue;
+            }
+
+            // remove tab from list.
+            unset( $this->tabs[$index] );
+        }
     }
 
     /**
