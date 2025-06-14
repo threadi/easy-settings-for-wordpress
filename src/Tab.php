@@ -179,7 +179,7 @@ class Tab {
         /**
          * Filter the settings of a tabs object.
          *
-         * @since 2.0.0 Available since 2.0.0.
+         * @since 1.0.0 Available since 1.0.0.
          * @param array $settings The settings.
          * @param Tab $this The tab-object.
          */
@@ -237,21 +237,22 @@ class Tab {
         /**
          * Filter the sections of a tabs object.
          *
-         * @since 2.0.0 Available since 2.0.0.
+         * @since 1.8.0 Available since 1.8.0.
          * @param array<int,Section> $sections The settings.
          * @param Tab $this The tab-object.
          */
-        return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_settings', $sections, $this );
+        return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_sections', $sections, $this );
     }
 
     /**
      * Add section to the list of sections in this tab.
      *
      * @param string|Section $section The section as object.
+     * @param int            $position The position.
      *
      * @return Section
      */
-    public function add_section( string|Section $section ): Section {
+    public function add_section( string|Section $section, int $position ): Section {
         // set the section object.
         $section_obj = $section;
 
@@ -264,8 +265,13 @@ class Tab {
         // set the tab where this section is assigned to.
         $section_obj->set_tab( $this );
 
+        // if position is already used, add + 1.
+        if( isset( $this->sections[$position]) ) {
+            $position++;
+        }
+
         // add the section to the list of sections of this tab.
-        $this->sections[] = $section_obj;
+        $this->sections[$position] = $section_obj;
 
         // return the tab object.
         return $section_obj;
@@ -314,11 +320,11 @@ class Tab {
         /**
          * Filter the URL of a tabs object.
          *
-         * @since 2.0.0 Available since 2.0.0.
+         * @since 1.8.0 Available since 1.8.0.
          * @param string $url The settings.
          * @param Tab $this The tab-object.
          */
-        return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_settings', $url, $this );
+        return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_url', $url, $this );
     }
 
     /**
@@ -343,11 +349,11 @@ class Tab {
         /**
          * Filter the URL target of a tabs object.
          *
-         * @since 2.0.0 Available since 2.0.0.
+         * @since 1.8.0 Available since 1.8.0.
          * @param string $url_target The URL target.
          * @param Tab $this The tab-object.
          */
-        return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_settings', $url_target, $this );
+        return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_url_target', $url_target, $this );
     }
 
     /**
@@ -378,11 +384,11 @@ class Tab {
         /**
          * Filter the class of a tabs object.
          *
-         * @since 2.0.0 Available since 2.0.0.
+         * @since 1.8.0 Available since 1.8.0.
          * @param string $tab_class The tab class.
          * @param Tab $this The tab-object.
          */
-        return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_settings', $tab_class, $this );
+        return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_class', $tab_class, $this );
     }
 
     /**

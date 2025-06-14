@@ -47,4 +47,42 @@ jQuery(document).ready(function($) {
       } );
     } )
   } );
+
+  // button handling in settings > permalink.
+  jQuery('.available-structure-permalinkslug ul button').on( 'click', function(e) {
+    e.preventDefault();
+
+    // get target.
+    let target = jQuery('#' + jQuery(this).data('target'));
+
+    // get actual value.
+    let value = target.val();
+
+    // get placeholder of clicked button.
+    let placeholder = jQuery(this).data('placeholder');
+
+    // check if placeholder does not exist in value.
+    if( -1 === value.indexOf(placeholder) ) {
+      // create new value.
+      if ("/" !== value.slice(-1)) {
+        value = value + '/';
+      }
+
+      // set placeholder.
+      value = value + placeholder;
+
+      // set active class on button.
+      jQuery(this).addClass('active');
+    }
+    else {
+      // remove placeholder from value.
+      value = value.replace('/' + placeholder, '');
+
+      // remove active class on button.
+      jQuery(this).removeClass('active');
+    }
+
+    // set placeholder.
+    target.val(value);
+  });
 });

@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.8.0] - 14.06.2025
+
+### Added
+
+- Added positions for sections
+- Added option to move settings before other ones
+- Added option to add complete settings on one rush
+- Added new field PermalinkSlug for using a permalink field with URL-part-selection
+
+### Changed
+
+- Hooks for filter sections got new name
+- Moved JS in subfolder
+- Multiple new hooks
+
 ## [1.7.0] - 14.06.2025
 
 ### Added

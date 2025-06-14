@@ -180,7 +180,10 @@ class Settings {
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_init', array( $this, 'register_fields' ) );
         add_action( 'rest_api_init', array( $this, 'register_settings' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'add_js' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
+
+        // use our own hooks.
+        add_filter( $this->get_slug() . '_settings_tab_sections' , array( $this, 'sort' ), PHP_INT_MAX );
     }
 
     /**
@@ -488,7 +491,7 @@ class Settings {
         $current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
         // sort the tabs.
-        add_filter( $this->get_slug() . '_settings_tabs' , array( $this, 'sort_tabs' ), PHP_INT_MAX );
+        add_filter( $this->get_slug() . '_settings_tabs' , array( $this, 'sort' ), PHP_INT_MAX );
 
         ?>
         <div class="wrap easy-settings-for-wordpress">
@@ -515,7 +518,7 @@ class Settings {
                     }
 
                     if ( ! empty( $tab->get_tab_class() ) ) {
-                        $classes .= ' ' . sanitize_html_class( $tab->get_tab_class() );
+                        $classes .= ' ' . $tab->get_tab_class();
                     }
 
                     // get URL for this tab.
@@ -702,16 +705,7 @@ class Settings {
 
                 if ( function_exists( 'add_settings_section' ) ) {
                     // loop through the sections of this tab.
-                    $section_count = count( $sections );
-                    for ( $sec = 0; $sec < $section_count; $sec ++ ) {
-                        // get the section array entry.
-                        $section = $sections[ $sec ];
-
-                        // bail if section is not Section.
-                        if ( ! $section instanceof Section ) {
-                            continue;
-                        }
-
+                    foreach( $sections as $section ) {
                         // add section.
                         add_settings_section(
                             $section->get_name(),
@@ -1021,7 +1015,7 @@ class Settings {
      *
      * @param Tab $tab The tab as object.
      *
-     * @return array
+     * @return array<int,Setting>
      */
     private function get_settings_for_tab( Tab $tab ): array {
         // list of settings for this tab.
@@ -1033,12 +1027,28 @@ class Settings {
                 continue;
             }
 
-            // bail if setting is not assigned to this tab.
-            if ( $setting->get_section()->get_tab() !== $tab ) {
+            // get the section.
+            $section = $setting->get_section();
+
+            // bail if section could not be loaded.
+            if( ! $section instanceof Section ) {
                 continue;
             }
 
-            // add to the list.
+            // get the tab.
+            $settings_tab = $section->get_tab();
+
+            // bail if tab could not be loaded.
+            if( ! $settings_tab instanceof Tab ) {
+                continue;
+            }
+
+            // bail if setting is not assigned to this tab.
+            if ( $settings_tab->get_name() !== $tab->get_name() ) {
+                continue;
+            }
+
+            // add this setting to the list.
             $tab_settings[] = $setting;
         }
 
@@ -1205,23 +1215,31 @@ class Settings {
     }
 
     /**
-     * Add own JS for backend.
+     * Add own JS and CSS for backend.
      *
      * @return void
      */
-    public function add_js(): void {
+    public function add_js_and_css(): void {
         // bail if URL or path is not set.
         if( empty( $this->get_url() ) || empty( $this->get_path() ) ) {
             return;
         }
 
-        // backend-JS.
+        // add backend JS.
         wp_enqueue_script(
             $this->get_slug() . '-settings',
-            $this->get_url() . 'js.js',
+            $this->get_url() . 'Files/js.js',
             array( 'jquery', 'easy-dialog' ),
-            (string) filemtime( $this->get_path() . 'js.js' ),
+            (string) filemtime( $this->get_path() . 'Files/js.js' ),
             true
+        );
+
+        // add backend CSS.
+        wp_enqueue_style(
+            $this->get_slug() . '-settings',
+            $this->get_url() . 'Files/style.css',
+            array(),
+            (string) filemtime( $this->get_path() . 'Files/style.css' ),
         );
     }
 
@@ -1246,18 +1264,18 @@ class Settings {
     }
 
     /**
-     * Sort the tabs by its given positions.
+     * Sort an array by its given keys.
      *
-     * @param array<int,Tab> $tabs List of tabs.
+     * @param array<int,mixed> $array The array to sort.
      *
-     * @return array<int,Tab>
+     * @return array<int,mixed>
      */
-    public function sort_tabs( array $tabs ): array {
-        // sort the tabs by its keys.
-        ksort( $tabs );
+    public function sort( array $array ): array {
+        // sort the array by its keys.
+        ksort( $array );
 
-        // return resulting list of sorted tabs.
-        return $tabs;
+        // return resulting sorted array.
+        return $array;
     }
 
     /**
@@ -1306,6 +1324,16 @@ class Settings {
             return $page_obj;
         }
 
+        // check if given name is a generic WordPress page.
+        if( in_array( $page_name, array( 'permalink' ), true ) ) {
+            // create the object for this page.
+            $page_obj = new Page();
+            $page_obj->set_name( $page_name );
+
+            // and return it.
+            return $page_obj;
+        }
+
         // return false if not object could be found.
         return false;
     }
@@ -1316,16 +1344,27 @@ class Settings {
      * @return array<int,Page>
      */
     public function get_pages(): array {
-        $tabs = $this->pages;
+        $pages = $this->pages;
 
         /**
          * Filter the list of setting tabs.
          *
          * @since 1.7.0 Available since 1.7.0.
          *
-         * @param array<int,Page> $tabs List of tabs.
+         * @param array<int,Page> $pages List of pages.
          * @param Settings $this The settings-object.
          */
-        return apply_filters( $this->get_slug() . '_settings_pages', $tabs, $this );
+        return apply_filters( $this->get_slug() . '_settings_pages', $pages, $this );
+    }
+
+    /**
+     * Set the given array as settings.
+     *
+     * @param array<int,Settings> $settings List of settings.
+     *
+     * @return void
+     */
+    public function set_settings( array $settings ): void {
+        $this->settings = $settings;
     }
 }

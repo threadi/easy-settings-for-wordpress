@@ -1,0 +1,13 @@
+.available-structure-permalinkslug {
+	padding-top: 8px;
+}
+
+.available-structure-permalinkslug ul {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 8px 0 0;
+}
+
+.available-structure-permalinkslug li {
+	margin-right: 8px;
+}
