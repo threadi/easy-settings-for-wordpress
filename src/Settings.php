@@ -29,9 +29,16 @@ class Settings {
     private string $plugin_slug = '';
 
     /**
+     * List of pages.
+     *
+     * @var array<int,Page>
+     */
+    private array $pages = array();
+
+    /**
      * List of tabs.
      *
-     * @var array
+     * @var array<int,Tab>
      */
     private array $tabs = array();
 
@@ -174,7 +181,6 @@ class Settings {
         add_action( 'admin_init', array( $this, 'register_fields' ) );
         add_action( 'rest_api_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'add_js' ) );
-        add_filter( $this->get_slug() . '_settings_tabs' , array( $this, 'sort_tabs' ), PHP_INT_MAX );
     }
 
     /**
@@ -229,7 +235,7 @@ class Settings {
          * Filter the list of setting tabs.
          *
          * @since 2.0.0 Available since 2.0.0.
-         * @param array $tabs List of tabs.
+         * @param array<int,Tab> $tabs List of tabs.
          * @param Settings $this The settings-object.
          */
         return apply_filters( $this->get_slug() . '_settings_tabs', $tabs, $this );
@@ -398,11 +404,6 @@ class Settings {
 
                 // check tabs for this setting whether they should be visible in menu.
                 foreach ( $this->get_tabs() as $tab ) {
-                    // bail if tab is not Tab object.
-                    if ( ! $tab instanceof Tab ) {
-                        continue;
-                    }
-
                     // bail if tab should not be visible in menu.
                     if ( ! $tab->is_show_in_menu() ) {
                         continue;
@@ -470,8 +471,24 @@ class Settings {
         // get requested page.
         $page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
+        // bail if page is not called.
+        if( is_null( $page ) ) {
+            return;
+        }
+
+        // get the requested page.
+        $page_obj = $this->get_page( $page );
+
+        // bail if page could not be found.
+        if( ! $page_obj instanceof Page ) {
+            return;
+        }
+
         // get tab from request.
         $current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+        // sort the tabs.
+        add_filter( $this->get_slug() . '_settings_tabs' , array( $this, 'sort_tabs' ), PHP_INT_MAX );
 
         ?>
         <div class="wrap easy-settings-for-wordpress">
@@ -479,17 +496,7 @@ class Settings {
             <nav class="nav-tab-wrapper">
                 <?php
                 // loop through the tabs.
-                foreach ( $this->get_tabs() as $tab ) {
-                    // bail if tab is not Tab object.
-                    if ( ! $tab instanceof Tab ) {
-                        continue;
-                    }
-
-                    // bail if page does not match the tab settings.
-                    if( $page !== $tab->get_page() ) {
-                        continue;
-                    }
-
+                foreach ( $page_obj->get_tabs() as $tab ) {
                     // ignore if tab should be a menu item.
                     if ( $tab->is_show_in_menu() ) {
                         continue;
@@ -502,7 +509,7 @@ class Settings {
                     if ( $tab->is_current() ) {
                         $active_tab = $tab;
                         $classes   .= ' nav-tab-active';
-                    } elseif ( is_null( $current_tab ) && $tab === $this->get_default_tab() ) {
+                    } elseif ( is_null( $current_tab ) && $tab === $page_obj->get_default_tab() ) {
                         $active_tab = $tab;
                         $classes   .= ' nav-tab-active';
                     }
@@ -671,79 +678,80 @@ class Settings {
      * @return void
      */
     public function register_fields(): void {
-        // bail if no tabs are set.
-        if ( ! $this->has_tabs() ) {
-            return;
-        }
+        // get the pages.
+        $pages = $this->get_pages();
 
-        // get the tabs.
-        $tabs = $this->get_tabs();
+        // loop through the pages and register their settings from their tabs.
+        $page_count = count( $pages );
+        for ( $p = 0;$p < $page_count; $p++ ) {
+            // get the page array entry.
+            $page = $pages[ $p ];
 
-        // loop through the tabs and register their settings.
-        $tab_count = count( $tabs );
-        for ( $t = 0;$t < $tab_count; $t++ ) {
-            // get the tab array entry.
-            $tab = $tabs[ $t ];
-
-            // bail if tab is not Tab.
-            if ( ! $tab instanceof Tab ) {
+            // bail if object is not Page.
+            if ( ! $page instanceof Page ) {
                 continue;
             }
 
-            // get the sections of this tab.
-            $sections = $tab->get_sections();
+            // get the tabs.
+            $tabs = $page->get_tabs();
 
-            if ( function_exists( 'add_settings_section' ) ) {
-                // loop through the sections of this tab.
-                $section_count = count( $sections );
-                for ( $sec = 0; $sec < $section_count; $sec++ ) {
-                    // get the section array entry.
-                    $section = $sections[ $sec ];
+            // loop through the tabs and register their sections and settings.
+            foreach( $tabs as $tab ) {
+                // get the sections of this tab.
+                $sections = $tab->get_sections();
 
-                    // bail if section is not Section.
-                    if ( ! $section instanceof Section ) {
+                if ( function_exists( 'add_settings_section' ) ) {
+                    // loop through the sections of this tab.
+                    $section_count = count( $sections );
+                    for ( $sec = 0; $sec < $section_count; $sec ++ ) {
+                        // get the section array entry.
+                        $section = $sections[ $sec ];
+
+                        // bail if section is not Section.
+                        if ( ! $section instanceof Section ) {
+                            continue;
+                        }
+
+                        // add section.
+                        add_settings_section(
+                            $section->get_name(),
+                            $section->get_title(),
+                            $section->get_callback(),
+                            $tab->get_name()
+                        );
+                    }
+                }
+
+                // get the settings for this tab.
+                $settings = $this->get_settings_for_tab( $tab );
+
+                // loop through the settings.
+                $settings_count = count( $settings );
+                for ( $set = 0; $set < $settings_count; $set ++ ) {
+                    // get the settings array entry.
+                    $setting = $settings[ $set ];
+
+                    // bail if setting is not Setting.
+                    if ( ! $setting instanceof Setting ) {
                         continue;
                     }
 
-                    // add section.
-                    add_settings_section(
-                        $section->get_name(),
-                        $section->get_title(),
-                        $section->get_callback(),
-                        $tab->get_name()
-                    );
-                }
-            }
+                    // get the field object.
+                    $field = $setting->get_field();
 
-            // get the settings for this tab.
-            $settings = $this->get_settings_for_tab( $tab );
-
-            // loop through the settings.
-            $settings_count = count( $settings );
-            for ( $set = 0; $set < $settings_count; $set++ ) {
-                // get the settings array entry.
-                $setting = $settings[ $set ];
-
-                // bail if setting is not Setting.
-                if ( ! $setting instanceof Setting ) {
-                    continue;
-                }
-
-                // get the field object.
-                $field = $setting->get_field();
-
-                if ( $field instanceof Field_Base && function_exists( 'add_settings_field' ) && $setting->get_section() instanceof Section ) {
-                    // add the field for this setting.
-                    add_settings_field(
-                        $setting->get_name(),
-                        $field->get_title(),
-                        $field->get_callback(),
-                        $tab->get_name(),
-                        $setting->get_section()->get_name(),
-                        array(
-                            'setting' => $setting,
-                        )
-                    );
+                    if ( $field instanceof Field_Base && function_exists( 'add_settings_field' ) && $setting->get_section() instanceof Section ) {
+                        // add the field for this setting.
+                        add_settings_field(
+                            $setting->get_name(),
+                            $field->get_title(),
+                            $field->get_callback(),
+                            $tab->get_name(),
+                            $setting->get_section()->get_name(),
+                            array(
+                                'setting' => $setting,
+                            )
+                        );
+                    }
                 }
             }
         }
@@ -1081,24 +1089,16 @@ class Settings {
      * @return false|Section
      */
     public function get_section( string $section_name ): false|Section {
-        foreach ( $this->get_tabs() as $tab_obj ) {
-            // bail if this is not a Tab object.
-            if ( ! $tab_obj instanceof Tab ) {
-                continue;
-            }
+        foreach ( $this->get_pages() as $page_obj ) {
+            foreach ( $page_obj->get_tabs() as $tab_obj ) {
+                foreach ( $tab_obj->get_sections() as $section_obj ) {
+                    // bail if names does not match.
+                    if ( $section_obj->get_name() !== $section_name ) {
+                        continue;
+                    }
 
-            foreach ( $tab_obj->get_sections() as $section_obj ) {
-                // bail if this is not a Section object.
-                if ( ! $section_obj instanceof Section ) {
-                    continue;
+                    return $section_obj;
                 }
-
-                // bail if names does not match.
-                if ( $section_obj->get_name() !== $section_name ) {
-                    continue;
-                }
-
-                return $section_obj;
             }
         }
 
@@ -1253,23 +1253,79 @@ class Settings {
      * @return array<int,Tab>
      */
     public function sort_tabs( array $tabs ): array {
-        foreach( $tabs as $index => $tab ) {
-            // get the position used by this tab.
-            $tab_position = $tab->get_position();
-
-            // bail if tab position is not used.
-            if( 0 === $tab_position ) {
-                continue;
-            }
-
-            // remove it from its original position.
-            unset( $tabs[ $index ]);
-
-            // add the tab on the given position.
-            $tabs = Helper::add_array_in_array_on_position( $tabs, $tab_position, array( $tab_position => $tab ) );
-        }
+        // sort the tabs by its keys.
+        ksort( $tabs );
 
         // return resulting list of sorted tabs.
         return $tabs;
+    }
+
+    /**
+     * Add a page to the settings.
+     *
+     * @param string|Page $page
+     *
+     * @return Page
+     */
+    public function add_page( string|Page $page ): Page {
+        // get the object.
+        $page_obj = $page;
+
+        // create the object, if it is a string.
+        if( is_string( $page ) ) {
+            $page_obj = new Page();
+            $page_obj->set_name( $page );
+        }
+
+        // add to the list.
+        $this->pages[] = $page_obj;
+
+        // return the page object.
+        return $page_obj;
+    }
+
+    /**
+     * Return the requested page object.
+     *
+     * @param string $page_name The page name.
+     *
+     * @return false|Page
+     */
+    public function get_page( string $page_name ): false|Page {
+        foreach ( $this->get_pages() as $page_obj ) {
+            // bail if this is not a Page object.
+            if ( ! $page_obj instanceof Page ) {
+                continue;
+            }
+
+            // bail if names does not match.
+            if ( $page_obj->get_name() !== $page_name ) {
+                continue;
+            }
+
+            return $page_obj;
+        }
+
+        // return false if not object could be found.
+        return false;
+    }
+
+    /**
+     * Return list of pages.
+     *
+     * @return array<int,Page>
+     */
+    public function get_pages(): array {
+        $tabs = $this->pages;
+
+        /**
+         * Filter the list of setting tabs.
+         *
+         * @since 1.7.0 Available since 1.7.0.
+         *
+         * @param array<int,Page> $tabs List of tabs.
+         * @param Settings $this The settings-object.
+         */
+        return apply_filters( $this->get_slug() . '_settings_pages', $tabs, $this );
     }
 }

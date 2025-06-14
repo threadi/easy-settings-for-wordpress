@@ -101,9 +101,9 @@ class Tab {
     /**
      * The page slug.
      *
-     * @var string|false
+     * @var Page|false
      */
-    private string|false $page = false;
+    private Page|false $page = false;
 
     /**
      * Constructor.
@@ -229,7 +229,7 @@ class Tab {
     /**
      * Return list of sections in this tab.
      *
-     * @return array
+     * @return array<int,Section>
      */
     public function get_sections(): array {
         $sections = $this->sections;
@@ -238,7 +238,7 @@ class Tab {
          * Filter the sections of a tabs object.
          *
          * @since 2.0.0 Available since 2.0.0.
-         * @param array $sections The settings.
+         * @param array<int,Section> $sections The settings.
          * @param Tab $this The tab-object.
          */
         return apply_filters( Settings::get_instance()->get_slug() . '_settings_tab_settings', $sections, $this );
@@ -517,11 +517,11 @@ class Tab {
     /**
      * Set page this tab is assigned to.
      *
-     * @param string $page The page slug.
+     * @param Page $page The page object.
      *
      * @return void
      */
-    public function set_page( string $page ): void {
+    public function set_page( Page $page ): void {
         $this->page = $page;
     }
 }
