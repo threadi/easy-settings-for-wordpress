@@ -233,7 +233,7 @@ class Field_Base {
      *
      * @return string
      */
-    protected function get_depend(): string {
+    public function get_depend(): string {
         // bail if no depends fields are set.
         if( empty( $this->depends ) ) {
             return '';

@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.7.0] - 14.06.2025
+
+### Added
+
+- New Page object for pages where settings can be placed
+
+### Changed
+
+- Tabs are now assigned to Page and not to the main Settings object
+- Changed `get_depend()` from protected to public
+
+## [1.6.1] - 13.06.2025
+
+### Changed
+
+- version number fixed
+
 ## [1.6.0] - 13.06.2025
 
 ### Added
