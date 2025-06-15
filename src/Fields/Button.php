@@ -83,14 +83,15 @@ class Button extends Field_Base {
 		}
 
 		// output.
-		?>
-		<a href="<?php echo esc_url( $this->get_button_url() ); ?>"<?php echo wp_kses_post( $this->get_custom_attributes() ); ?> class="button button-primary
-							<?php
-							echo esc_attr( $this->get_classes() );
-							echo ( $this->is_readonly() ? ' disabled' : '' );
-							?>
-		" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"><?php echo esc_html( $this->get_button_title() ); ?></a>
-		<?php
+        ?>
+        <a href="<?php echo esc_url( $this->get_button_url() ); ?>"<?php echo wp_kses_post( $this->get_custom_attributes() ); ?> class="button button-primary
+            <?php
+            echo esc_attr( $this->get_classes() );
+            ?>"<?php
+            echo ( $this->is_readonly() ? ' disabled' : '' );
+            ?>
+           data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo $this->get_data(); ?>><?php echo esc_html( $this->get_button_title() ); ?></a>
+        <?php
 
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {
@@ -220,10 +221,7 @@ class Button extends Field_Base {
 
         // loop through the data attributes.
         foreach( $this->data as $key => $value ) {
-            if( ! empty( $output ) ) {
-                $output .= ' ';
-            }
-            $output .= $key . '="' . $value . '"';
+            $output .= ' data-' . $key . '="' . esc_attr( $value ) . '"';
         }
 
         // return the resulting string.

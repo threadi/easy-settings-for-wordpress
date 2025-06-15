@@ -14,6 +14,14 @@ This composer packages add a simple wrapper for settings for plugins and themes.
 
 _TODO_
 
+### Sorting
+
+* Pages are not sortable
+* Tabs are sorted by its given position
+* Sections are sorted by its given position
+* Settings are sorted in the order they are added
+-> use Setting->`move_before_setting()` to move a setting on a specific position
+
 ## For changes of this package
 
 ### Check for WordPress Coding Standards

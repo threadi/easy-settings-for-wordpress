@@ -99,6 +99,13 @@ class Setting {
     private array $vars = array();
 
     /**
+     * Do not register.
+     *
+     * @var bool
+     */
+    private bool $do_not_register = false;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
@@ -443,5 +450,66 @@ class Setting {
      */
     public function add_custom_var( string $key, mixed $value ): void {
         $this->vars[$key] = $value;
+    }
+
+    /**
+     * Move a setting before another one.
+     *
+     * @param Setting $target_setting The setting before the actual object could be moved.
+     *
+     * @return void
+     */
+    public function move_before_setting( Setting $target_setting ): void {
+        // get the settings object.
+        $settings_obj = Settings::get_instance();
+
+        // get all settings.
+        $settings = $settings_obj->get_settings();
+
+        // get position of target setting.
+        $target_position = 0;
+        $actual_position = 0;
+        foreach( $settings as $index => $setting ) {
+            // get the position for the search target setting.
+            if( $setting->get_name() === $target_setting->get_name() ) {
+                // get the index as position.
+                $target_position = $index;
+            }
+
+            // get the position of the actual setting.
+            if( $setting->get_name() === $this->get_name() ) {
+                $actual_position = $index;
+            }
+        }
+
+        // remove the setting from its original position.
+        unset( $settings[$actual_position] );
+
+        // add the setting on the new position.
+        $settings = Helper::add_array_in_array_on_position( $settings, $target_position, array( $target_position => $this ) );
+
+        // save the new settings.
+        $settings_obj->set_settings( $settings );
+    }
+
+    /**
+     * Return whether this setting should not be registered. It will only be used as field.
+     *
+     * @return bool
+     */
+    public function should_not_be_registered(): bool {
+        return $this->do_not_register;
+    }
+
+    /**
+     * Mark setting to not register it. It will only be used as field.
+     *
+     * @param bool $do_not_register True if setting should not be registered.
+     *
+     * @return void
+     */
+    public function do_not_register( bool $do_not_register ): void {
+        $this->do_not_register = $do_not_register;
+        $this->prevent_export( $do_not_register );
     }
 }

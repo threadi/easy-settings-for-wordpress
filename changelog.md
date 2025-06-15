@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.9.0] - 15.06.2025
+
+### Added
+
+- Added new fields File and Files to select single or multiple files
+- Added new field MultiField to show one field type multiple times for one setting
+- Added new field SelectPostTypeObject which allows to search for any post type and let choose them for a setting
+- Added function `is_settings_page()` to check if a settings page is called
+- Added option to prevent registering of a setting, it will only be used as field
+
+### Changed
+
+- Number fields now using the default value for initial input value
+
+### Fixed
+
+- Fixed missing usage of data attributes on Button field
+
+## [1.8.0] - 14.06.2025
+
+### Added
+
+- Added positions for sections
+- Added option to move settings before other ones
+- Added option to add complete settings on one rush
+- Added new field PermalinkSlug for using a permalink field with URL-part-selection
+
+### Changed
+
+- Hooks for filter sections got new name
+- Moved JS in subfolder
+- Multiple new hooks
+
 ## [1.7.0] - 14.06.2025
 
 ### Added

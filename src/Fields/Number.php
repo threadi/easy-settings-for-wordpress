@@ -75,7 +75,7 @@ class Number extends Field_Base {
         ?>
         <input type="number" id="<?php echo esc_attr( $setting->get_name() ); ?>"
                name="<?php echo esc_attr( $setting->get_name() ); ?>"
-               value="<?php echo absint( get_option( $setting->get_name(), 0 ) ); ?>"
+               value="<?php echo absint( get_option( $setting->get_name(), $setting->get_default() ) ); ?>"
             <?php
             echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
             ?>
