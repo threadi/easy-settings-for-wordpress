@@ -32,6 +32,13 @@ class PermalinkSlug extends Field_Base {
     protected array $options = array();
 
     /**
+     * The list title.
+     *
+     * @var string
+     */
+    private string $list_title;
+
+    /**
      * Return the HTML-code to display this field.
      *
      * @param array $attr Attributes for this field.
@@ -73,7 +80,7 @@ class PermalinkSlug extends Field_Base {
 
         <div class="available-structure-<?php echo esc_attr( strtolower( $this->get_type_name() ) ); ?> hide-if-no-js">
             <fieldset>
-                <legend><?php echo esc_html__( 'Available tags:', 'wp-personio-integration' ); ?></legend>
+                <legend><?php echo esc_html( $this->get_list_title() ); ?></legend>
                 <ul role="list">
                     <?php
                     foreach ( $this->get_options() as $key => $label ) {
@@ -140,5 +147,24 @@ class PermalinkSlug extends Field_Base {
      */
     public function set_options( array $options ): void {
         $this->options = $options;
+    }
+
+    /**
+     * Return the list title.
+     *
+     * @return string
+     */
+    private function get_list_title(): string {
+        return $this->list_title;
+    }
+
+    /**
+     * Set the list title.
+     *
+     * @param string $title
+     * @return void
+     */
+    public function set_list_title( string $title ): void {
+        $this->list_title = $title;
     }
 }

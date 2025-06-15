@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.9.1] - 15.06.2025
+
+### Changed
+
+- Field PermalinkSlug now also used a title for its list
+
 ## [1.9.0] - 15.06.2025
 
 ### Added
