@@ -85,4 +85,203 @@ jQuery(document).ready(function($) {
     // set placeholder.
     target.val(value);
   });
+
+  /**
+   * Image handling: on upload button click.
+   */
+  $('.esfw-settings-image-choose').on( 'click', function(e){
+    e.preventDefault();
+    let button = $(this),
+        custom_uploader = wp.media({
+          title: esfwJsVars.title_add_image,
+          library : {
+            type : 'image'
+          },
+          button: {
+            text: esfwJsVars.button_add_image
+          },
+          multiple: false
+        }).on('select', function() { // it also has "open" and "close" events
+          let attachment = custom_uploader.state().get('selection').first().toJSON();
+          button.html('<img src="' + attachment.url + '">').next().show().next().val(attachment.id);
+        }).open();
+
+  });
+
+  /**
+   * Image handling: on remove button click.
+   */
+  $('.esfw-settings-image-remove').on('click', function(e){
+    e.preventDefault();
+    let button = $(this);
+    button.next().val('');
+    button.hide().prev().html(esfwJsVars.lbl_upload_image);
+  });
+
+  /**
+   * File handling: on upload button click to choose multiple file for setting.
+   */
+  $('.esfw-settings-files-choose').on('click', function (e) {
+    e.preventDefault();
+    let button = $(this),
+        custom_uploader = wp.media({
+          title: esfwJsVars.title_add_files,
+          library: {
+            type: 'application/pdf' // TODO variabel machen.
+          },
+          button: {
+            text: esfwJsVars.button_add_files
+          },
+          multiple: true
+        }).on('select', function (){
+          let file_ids = custom_uploader.state().get('selection').map( function( attachment ) {
+            attachment = attachment.toJSON();
+            return attachment.id;
+          });
+
+          // create params array.
+          let params = new FormData();
+          params.append( button.data('setting'), file_ids );
+
+          // send request to server to save this value.
+          $.ajax(
+              {
+                type: "POST",
+                url: esfwJsVars.rest_settings,
+                dataType: 'json',
+                data: params,
+                processData: false,
+                contentType: false,
+                beforeSend: function (xhr) {
+                  // set header for authentication.
+                  xhr.setRequestHeader('X-WP-Nonce', esfwJsVars.rest_nonce);
+                },
+              }
+          );
+        }).open();
+  });
+
+  /**
+   * File handling: remove file from setting via AJAX.
+   */
+  jQuery('.esfw-settings-files-choose-remove').on('click', function (e) {
+    e.preventDefault();
+
+    // get the button object.
+    let button = $(this);
+
+    // create params array.
+    let params = new FormData();
+    params.append( button.data('setting'), button.data('setting-value') );
+
+    // send request to server to save this value.
+    $.ajax(
+        {
+          type: "POST",
+          url: esfwJsVars.rest_settings,
+          dataType: 'json',
+          data: params,
+          processData: false,
+          contentType: false,
+          beforeSend: function (xhr) {
+            // set header for authentication.
+            xhr.setRequestHeader('X-WP-Nonce', esfwJsVars.rest_nonce);
+          },
+          success: function() {
+            button.parents('li').remove();
+          }
+        }
+    );
+  });
+
+    /**
+     * Load list of pages.
+     */
+    $('.esfw-settings-post-type-search').on( 'keyup', function() {
+        // get content of the field.
+        let search_string = $(this).val();
+
+        // get the target element for the search results.
+        let target = $(this).parents('.esfw-settings-overlay').find('.esfw-settings-post-type-listing');
+
+        // get the element where the chosen result should be set.
+        let field = $("#" + $(this).data('field'));
+
+        // get the open button.
+        let open_button = $(this).parents('td').find('.esfw-settings-open-popup');
+
+        // get the closing button.
+        let closing_button = $(this).parents('.esfw-settings-overlay').find('.esfw-settings-overlay-closing');
+
+        // get the chosen title.
+        let chosen_title = $(this).data('chosen-title')
+
+        // get the endpoint to use.
+        let endpoint = $(this).data('endpoint');
+
+        // get the limit to use.
+        let limit = $(this).data('limit');
+
+        // bail if some of the required settings are not available.
+        if( search_string.length === 0 || target.length === 0 || field.length === 0 || closing_button.length === 0 || endpoint.length === 0 ) {
+            return;
+        }
+
+        // set limit to default value of less or equal than 0.
+        if( limit <= 0 ) {
+            limit = 5;
+        }
+
+        // send request to server to save this value.
+        $.ajax(
+            {
+                type: "GET",
+                url: endpoint + '?search=' + search_string + '&per_page=' + limit,
+                dataType: 'json',
+                beforeSend: function (xhr) {
+                    // set header for authentication.
+                    xhr.setRequestHeader('X-WP-Nonce', esfwJsVars.rest_nonce);
+                },
+                success: function( data ) {
+                    // clear the resulting list.
+                    target.html('');
+
+                    // add each result.
+                    $.each( data, function( key, obj ) {
+                        let element = $('<a>');
+                        element.addClass( 'button button-secondary' );
+                        element.html( obj.title.rendered );
+                        element.attr( 'href', '#' );
+                        element.data( 'object-id', obj.id );
+                        element.data( 'object-url', obj.url );
+                        element.data( 'object-title', obj.title.rendered );
+                        element.appendTo( target );
+                    });
+
+                    // set event on the links to choose the object.
+                    target.find('a').on( 'click', function( e ) {
+                        e.preventDefault();
+
+                        // set the value.
+                        field.val( $(this).data('object-id') );
+
+                        // get the actual chosen object output.
+                        let chosen = $(this).parents('td').find('.esfw-settings-post-type-chosen');
+
+                        // remove existing info.
+                        chosen.remove();
+
+                        // add new info.
+                        let element = $('<p>');
+                        element.addClass( 'esfw-settings-post-type-chosen' );
+                        element.html( chosen_title + ': <a href="' + $(this).data( 'object-url' ) + '" target="_blank">' + $(this).data( 'object-title' ) + '</a>' );
+                        open_button.after( element );
+
+                        // trigger popup closing.
+                        closing_button.trigger( 'click' );
+                    });
+                }
+            }
+        );
+    })
 });

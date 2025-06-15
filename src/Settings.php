@@ -619,6 +619,11 @@ class Settings {
                 continue;
             }
 
+            // bail if setting should not be registered.
+            if( $setting->should_not_be_registered() ) {
+                continue;
+            }
+
             // get the section.
             $section = $setting->get_section();
 
@@ -1241,6 +1246,17 @@ class Settings {
             array(),
             (string) filemtime( $this->get_path() . 'Files/style.css' ),
         );
+
+        // add php-vars to our js-script.
+        wp_localize_script(
+            $this->get_slug() . '-settings',
+            'esfwJsVars',
+            array(
+                'title_add_image' => __( 'Add file' ),
+                'button_add_image' => __( 'Choose file' ),
+                'lbl_upload_image' => __( 'Upload or choose image' )
+            )
+        );
     }
 
     /**
@@ -1366,5 +1382,24 @@ class Settings {
      */
     public function set_settings( array $settings ): void {
         $this->settings = $settings;
+    }
+
+    /**
+     * Return whether a specific settings page is called.
+     *
+     * @param string $settings_page The requested settings page.
+     *
+     * @return bool
+     */
+    public static function is_settings_page( string $settings_page ): bool {
+        $tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+        // bail if no value is set.
+        if ( is_null( $tab ) ) {
+            return false;
+        }
+
+        // compare the values.
+        return $tab === $settings_page;
     }
 }

@@ -99,6 +99,13 @@ class Setting {
     private array $vars = array();
 
     /**
+     * Do not register.
+     *
+     * @var bool
+     */
+    private bool $do_not_register = false;
+
+    /**
      * Constructor.
      */
     public function __construct() {}
@@ -483,5 +490,26 @@ class Setting {
 
         // save the new settings.
         $settings_obj->set_settings( $settings );
+    }
+
+    /**
+     * Return whether this setting should not be registered. It will only be used as field.
+     *
+     * @return bool
+     */
+    public function should_not_be_registered(): bool {
+        return $this->do_not_register;
+    }
+
+    /**
+     * Mark setting to not register it. It will only be used as field.
+     *
+     * @param bool $do_not_register True if setting should not be registered.
+     *
+     * @return void
+     */
+    public function do_not_register( bool $do_not_register ): void {
+        $this->do_not_register = $do_not_register;
+        $this->prevent_export( $do_not_register );
     }
 }

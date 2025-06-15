@@ -11,3 +11,51 @@
 .available-structure-permalinkslug li {
 	margin-right: 8px;
 }
+
+.esfw-image-choose img, .esfw-settings-image-choose img { width: 240px; }
+
+.easy-settings-for-wordpress label { cursor: pointer }
+
+.esfw-settings-overlay {
+	min-width: 400px;
+	padding: 2rem 2rem;
+	transition: opacity 0.5s;
+	opacity: 1;
+	border: 1px solid #fff;
+	background-color: #fff;
+	border-radius: 8px;
+}
+
+.esfw-settings-overlay > * {
+	margin: 0 0 1em;
+}
+
+.esfw-settings-overlay > *:last-child {
+	margin-bottom: 0;
+}
+
+.esfw-settings-overlay label {
+	cursor: pointer;
+	display: block;
+	font-weight: bold;
+	margin-bottom: .4em;
+}
+
+.wp-core-ui .esfw-settings-post-type-listing .button {
+	display: block;
+	margin-bottom: .4em;
+}
+
+@media (min-width: 960px) {
+	.esfw-settings-overlay {
+		max-height: 70%;
+	}
+}
+
+.esfw-settings-overlay::backdrop {
+	background: #00000059;
+	transition: opacity 0.5s;
+	opacity: 1;
+}
+
+
