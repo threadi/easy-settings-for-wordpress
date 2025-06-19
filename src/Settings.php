@@ -468,8 +468,11 @@ class Settings {
             return;
         }
 
-        // set active tab.
-        $active_tab = false;
+        // set active main tab.
+        $main_active_tab = false;
+
+        // set active sub tab.
+        $sub_active_tab = false;
 
         // get requested page.
         $page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
@@ -487,8 +490,11 @@ class Settings {
             return;
         }
 
-        // get tab from request.
+        // get main tab from request.
         $current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+        // get sub tab from request.
+        $current_sub_tab = filter_input( INPUT_GET, 'sub_tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
         // sort the tabs.
         add_filter( $this->get_slug() . '_settings_tabs' , array( $this, 'sort' ), PHP_INT_MAX );
@@ -506,19 +512,19 @@ class Settings {
                     }
 
                     // set additional classes.
-                    $classes = '';
+                    $css_classes = '';
 
                     // check for current tab.
                     if ( $tab->is_current() ) {
-                        $active_tab = $tab;
-                        $classes   .= ' nav-tab-active';
+                        $main_active_tab = $tab;
+                        $css_classes   .= ' nav-tab-active';
                     } elseif ( is_null( $current_tab ) && $tab === $page_obj->get_default_tab() ) {
-                        $active_tab = $tab;
-                        $classes   .= ' nav-tab-active';
+                        $main_active_tab = $tab;
+                        $css_classes   .= ' nav-tab-active';
                     }
 
                     if ( ! empty( $tab->get_tab_class() ) ) {
-                        $classes .= ' ' . $tab->get_tab_class();
+                        $css_classes .= ' ' . $tab->get_tab_class();
                     }
 
                     // get URL for this tab.
@@ -538,23 +544,65 @@ class Settings {
                     if( $tab->is_not_linked() ) {
                         // output.
                         ?>
-                        <span class="nav-tab<?php echo esc_attr( $classes ); ?>"><?php echo wp_kses_post( $tab->get_title() ); ?></span>
+                        <span class="nav-tab<?php echo esc_attr( $css_classes ); ?>"><?php echo wp_kses_post( $tab->get_title() ); ?></span>
                         <?php
                         continue;
                     }
 
                     // output.
                     ?>
-                    <a href="<?php echo esc_url( $url ); ?>" target="<?php echo esc_attr( $target ); ?>" class="nav-tab<?php echo esc_attr( $classes ); ?>"><?php echo esc_html( $tab->get_title() ); ?></a>
+                    <a href="<?php echo esc_url( $url ); ?>" target="<?php echo esc_attr( $target ); ?>" class="nav-tab<?php echo esc_attr( $css_classes ); ?>"><?php echo esc_html( $tab->get_title() ); ?></a>
                     <?php
                 }
                 ?>
             </nav>
 
+            <?php
+            // show sub-tabs of the active tab as breadcrumb-like sub-navigation.
+            $sub_tabs = $main_active_tab ? $main_active_tab->get_tabs() : array();
+            if( ! empty( $sub_tabs) ) {
+                ?><nav class="nav-subtab-wrapper"><ul><?php
+                    foreach( $sub_tabs as $tab ) {
+                        // get URL for this tab.
+                        $url    = add_query_arg(
+                            array(
+                                'page' => $page,
+                                'tab'  => $main_active_tab->get_name(),
+                                'subtab' => $tab->get_name()
+                            ),
+                            get_admin_url() . $this->get_menu_parent_slug()
+                        );
+                        $target = $tab->get_url_target();
+                        if ( ! empty( $tab->get_url() ) ) {
+                            $url = $tab->get_url();
+                        }
+
+                        // collect classes.
+                        $css_classes = '';
+
+                        // check for current tab.
+                        if ( $tab->is_current_sub_tab() ) {
+                            $sub_active_tab = $tab;
+                            $css_classes   .= 'active';
+                        } elseif ( ! $sub_active_tab instanceof Tab && $tab === $main_active_tab->get_default_tab() ) {
+                            $sub_active_tab = $tab;
+                            $css_classes   .= 'active';
+                        }
+
+                        // output.
+                        ?><li><a href="<?php echo esc_url( $url ); ?>" target="<?php echo esc_attr( $target ); ?>" class="<?php echo esc_attr( $css_classes ); ?>"><?php echo esc_html( $tab->get_title() ); ?></a></li><?php
+                    }
+                    ?></ul></nav><?php
+            }
+            ?>
+
             <div class="tab-content">
                 <?php
-                if ( $active_tab && is_callable( $active_tab->get_callback() ) ) {
-                    call_user_func( $active_tab->get_callback() );
+                if ( $main_active_tab instanceof Tab && is_callable( $main_active_tab->get_callback() ) ) {
+                    call_user_func( $main_active_tab->get_callback() );
+                }
+                if ( $sub_active_tab instanceof Tab && is_callable( $sub_active_tab->get_callback() ) ) {
+                    call_user_func( $sub_active_tab->get_callback() );
                 }
                 ?>
             </div>
@@ -681,7 +729,7 @@ class Settings {
     }
 
     /**
-     * Register the fields, visible in backend.
+     * Register the fields with its sections, visible in backend.
      *
      * @return void
      */
@@ -705,53 +753,67 @@ class Settings {
 
             // loop through the tabs and register their sections and settings.
             foreach( $tabs as $tab ) {
-                // get the sections of this tab.
-                $sections = $tab->get_sections();
-
-                if ( function_exists( 'add_settings_section' ) ) {
-                    // loop through the sections of this tab.
-                    foreach( $sections as $section ) {
-                        // add section.
-                        add_settings_section(
-                            $section->get_name(),
-                            $section->get_title(),
-                            $section->get_callback(),
-                            $tab->get_name()
-                        );
-                    }
+                foreach( $tab->get_tabs() as $sub_tab ) {
+                    $this->register_tab( $sub_tab );
                 }
+                $this->register_tab( $tab );
+            }
+        }
+    }
 
-                // get the settings for this tab.
-                $settings = $this->get_settings_for_tab( $tab );
+    /**
+     * Register tab with its sub-tabs, sections and fields.
+     *
+     * @param Tab $tab The tab to use.
+     *
+     * @return void
+     */
+    private function register_tab( Tab $tab ): void {
+        // get the sections of this tab.
+        $sections = $tab->get_sections();
 
-                // loop through the settings.
-                $settings_count = count( $settings );
-                for ( $set = 0; $set < $settings_count; $set ++ ) {
-                    // get the settings array entry.
-                    $setting = $settings[ $set ];
+        if ( function_exists( 'add_settings_section' ) ) {
+            // loop through the sections of this tab.
+            foreach( $sections as $section ) {
+                // add section.
+                add_settings_section(
+                    $section->get_name(),
+                    $section->get_title(),
+                    $section->get_callback(),
+                    $tab->get_name()
+                );
+            }
+        }
 
-                    // bail if setting is not Setting.
-                    if ( ! $setting instanceof Setting ) {
-                        continue;
-                    }
+        // get the settings for this tab.
+        $settings = $this->get_settings_for_tab( $tab );
 
-                    // get the field object.
-                    $field = $setting->get_field();
+        // loop through the settings.
+        $settings_count = count( $settings );
+        for ( $set = 0; $set < $settings_count; $set ++ ) {
+            // get the settings array entry.
+            $setting = $settings[ $set ];
 
-                    if ( $field instanceof Field_Base && function_exists( 'add_settings_field' ) && $setting->get_section() instanceof Section ) {
-                        // add the field for this setting.
-                        add_settings_field(
-                            $setting->get_name(),
-                            $field->get_title(),
-                            $field->get_callback(),
-                            $tab->get_name(),
-                            $setting->get_section()->get_name(),
-                            array(
-                                'setting' => $setting,
-                            )
-                        );
-                    }
-                }
+            // bail if setting is not Setting.
+            if ( ! $setting instanceof Setting ) {
+                continue;
+            }
+
+            // get the field object.
+            $field = $setting->get_field();
+
+            if ( $field instanceof Field_Base && function_exists( 'add_settings_field' ) && $setting->get_section() instanceof Section ) {
+                // add the field for this setting.
+                add_settings_field(
+                    $setting->get_name(),
+                    $field->get_title(),
+                    $field->get_callback(),
+                    $tab->get_name(),
+                    $setting->get_section()->get_name(),
+                    array(
+                        'setting' => $setting,
+                    )
+                );
             }
         }
     }

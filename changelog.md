@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0] - 19.06.2025
+
+### Added
+
+- Added possibility for sub-tabs
+- Added output of sub-tabs in settings page
+
 ## [1.9.1] - 15.06.2025
 
 ### Changed

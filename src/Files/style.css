@@ -58,4 +58,29 @@
 	opacity: 1;
 }
 
+.easy-settings-for-wordpress .nav-subtab-wrapper {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
 
+.easy-settings-for-wordpress .nav-subtab-wrapper ul {
+	margin: 0;
+	padding: 0;
+}
+
+.easy-settings-for-wordpress .nav-subtab-wrapper li {
+	display: inline-block;
+	padding-right: .5em;
+}
+
+.easy-settings-for-wordpress .nav-subtab-wrapper li:after {
+	content: '|';
+	display: inline-block;
+	padding-left: .5em;
+}
+
+.easy-settings-for-wordpress .nav-subtab-wrapper li:last-child:after { display: none }
+
+.easy-settings-for-wordpress .nav-subtab-wrapper a.active {
+	font-weight: bold;
+}
