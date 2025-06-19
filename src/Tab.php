@@ -99,6 +99,20 @@ class Tab {
     private int $position = 0;
 
     /**
+     * List of tabs.
+     *
+     * @var array<int,Tab>
+     */
+    private array $tabs = array();
+
+    /**
+     * Set the default tab.
+     *
+     * @var Tab|null
+     */
+    private ?Tab $default_tab = null;
+
+    /**
      * The page slug.
      *
      * @var Page|false
@@ -216,6 +230,29 @@ class Tab {
 
         // get tab from request.
         $tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+        // bail if no tab is set.
+        if ( is_null( $tab ) ) {
+            return false;
+        }
+
+        // return whether the name matches.
+        return $this->get_name() === $tab;
+    }
+
+    /**
+     * Return whether this is the current sub-tab in backend settings view.
+     *
+     * @return bool
+     */
+    public function is_current_sub_tab(): bool {
+        // bail if this is not wp-admin.
+        if ( ! is_admin() ) {
+            return false;
+        }
+
+        // get tab from request.
+        $tab = filter_input( INPUT_GET, 'subtab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
         // bail if no tab is set.
         if ( is_null( $tab ) ) {
@@ -529,5 +566,100 @@ class Tab {
      */
     public function set_page( Page $page ): void {
         $this->page = $page;
+    }
+
+    /**
+     * Add tab with its settings for this setting object.
+     *
+     * @param string|Tab $tab The tab object or its internal name.
+     * @param int        $position The position to use.
+     *
+     * @return Tab
+     */
+    public function add_tab( string|Tab $tab, int $position ): Tab {
+        // set the tab object.
+        $tab_obj = $tab;
+
+        // if value is a string, create the tab object first.
+        if ( is_string( $tab ) ) {
+            $tab_obj = new Tab();
+            $tab_obj->set_name( $tab );
+        }
+
+        // if position is already used, add + 1.
+        if( isset( $this->tabs[$position]) ) {
+            $position++;
+        }
+
+        // add the tab to the list of tabs of these settings.
+        $this->tabs[$position] = $tab_obj;
+
+        // return the tab object.
+        return $tab_obj;
+    }
+
+    /**
+     * Return tab object by its name.
+     *
+     * @param string $tab_name The tab name.
+     *
+     * @return false|Tab
+     */
+    public function get_tab( string $tab_name ): false|Tab {
+        foreach ( $this->get_tabs() as $tab_obj ) {
+            // bail if this is not a Tab object.
+            if ( ! $tab_obj instanceof Tab ) {
+                continue;
+            }
+
+            // bail if names does not match.
+            if ( $tab_obj->get_name() !== $tab_name ) {
+                continue;
+            }
+
+            return $tab_obj;
+        }
+
+        // return false if not object could be found.
+        return false;
+    }
+
+    /**
+     * Return list of tabs.
+     *
+     * @return array<int,Tab>
+     */
+    public function get_tabs(): array {
+        $tabs = $this->tabs;
+
+        $instance = $this;
+        /**
+         * Filter the list of setting tabs.
+         *
+         * @since 1.10.0 Available since 1.10.0.
+         * @param array<int,Tab> $tabs List of tabs.
+         * @param Tab $instance The settings-object.
+         */
+        return apply_filters( Settings::get_instance()->get_slug() . '_settings_subtabs', $tabs, $instance );
+    }
+
+    /**
+     * Return the default tab.
+     *
+     * @return ?Tab
+     */
+    public function get_default_tab(): ?Tab {
+        return $this->default_tab;
+    }
+
+    /**
+     * Set the default tab.
+     *
+     * @param Tab $tab The tab for set as default tab.
+     *
+     * @return void
+     */
+    public function set_default_tab( Tab $tab ): void {
+        $this->default_tab = $tab;
     }
 }
