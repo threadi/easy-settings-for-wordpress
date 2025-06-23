@@ -1,6 +1,16 @@
 # Changelog
 
-## [1.10.1] - 20.06.2025
+## [1.10.2] - 23.05.2025
+
+### Added
+
+- Added error output
+
+## Fixed
+
+- Revert the change for support for easy dialog for WordPress
+
+## [1.10.1] - 23.06.2025
 
 ### Added
 
