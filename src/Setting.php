@@ -512,4 +512,13 @@ class Setting {
         $this->do_not_register = $do_not_register;
         $this->prevent_export( $do_not_register );
     }
+
+    /**
+     * Delete this setting from WP-own table.
+     *
+     * @return void
+     */
+    public function delete(): void {
+        delete_option( $this->get_name() );
+    }
 }
