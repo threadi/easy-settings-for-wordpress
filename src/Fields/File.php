@@ -11,6 +11,7 @@ namespace easySettingsForWordPress\Fields;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
+use easySettingsForWordPress\Setting;
 
 /**
  * Object to handle a file field for single setting.

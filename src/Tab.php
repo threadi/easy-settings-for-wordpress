@@ -304,7 +304,7 @@ class Tab {
 
         // if position is already used, add + 1.
         if( isset( $this->sections[$position]) ) {
-            $position++;
+            $position = Helper::get_next_free_index_in_array( $this->sections, $position );
         }
 
         // add the section to the list of sections of this tab.
@@ -586,9 +586,9 @@ class Tab {
             $tab_obj->set_name( $tab );
         }
 
-        // if position is already used, add + 1.
+        // if position is already used, search for the next free index.
         if( isset( $this->tabs[$position]) ) {
-            $position++;
+            $position = Helper::get_next_free_index_in_array( $this->tabs, $position );
         }
 
         // add the tab to the list of tabs of these settings.

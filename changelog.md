@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.10.1] - 20.06.2025
+
+### Added
+
+- Added function to delete a setting from DB
+
+### Changed
+
+- Use next free index in each array if the target index is already used
+
+### Fixed
+
+- Fixed missing import of setting tab in File field
+- Fixed support for easy dialog for WordPress
+
 ## [1.10.0] - 19.06.2025
 
 ### Added

@@ -45,7 +45,7 @@ class Settings {
     /**
      * List of settings.
      *
-     * @var array
+     * @var array<int,Setting>
      */
     private array $settings = array();
 
@@ -1009,7 +1009,7 @@ class Settings {
     /**
      * Return the actual settings.
      *
-     * @return array
+     * @return array<int,Setting>
      */
     public function get_settings(): array {
         return $this->settings;
@@ -1296,7 +1296,7 @@ class Settings {
         wp_enqueue_script(
             $this->get_slug() . '-settings',
             $this->get_url() . 'Files/js.js',
-            array( 'jquery', 'easy-dialog' ),
+            array( 'jquery', 'easy-dialog-for-wordpress' ),
             (string) filemtime( $this->get_path() . 'Files/js.js' ),
             true
         );

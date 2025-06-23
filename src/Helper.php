@@ -126,4 +126,39 @@ class Helper {
 
         return $array_to_change;
     }
+
+    /**
+     * Get the next free index in array.
+     *
+     * @param array $source The source array.
+     * @param int   $index The index where we start to search.
+     *
+     * @return int
+     */
+    public static function get_next_free_index_in_array( array $source, int $index ): int {
+        // set max iteration.
+        $max = 0;
+        if( ! empty( $source ) ) {
+            $max = absint( max( array_keys($source ) ) );
+        }
+
+        // loop through the possible iterations.
+        for ($i=$index; $i<$max; ++$i) {
+            // bail is index does exist.
+            if ( isset( $source[$i] ) ) {
+                continue;
+            }
+
+            // return this index as it is free.
+            return $i;
+        }
+
+        // return default index for empty arrays.
+        if( empty( $source ) ) {
+            return 10;
+        }
+
+        // return the max key + 10.
+        return $max + 10;
+    }
 }
