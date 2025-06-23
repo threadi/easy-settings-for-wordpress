@@ -273,4 +273,13 @@ class Field_Base {
     public function get_placeholder(): string {
         return '';
     }
+
+    /**
+     * Set the field value.
+     *
+     * @param mixed $value The value.
+     *
+     * @return void
+     */
+    public function set_value( mixed $value ): void {}
 }
