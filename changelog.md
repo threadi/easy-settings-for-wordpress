@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.3] - 24.05.2025
+
+### Fixed
+
+- Fixed version number
+
 ## [1.10.2] - 23.05.2025
 
 ### Added
