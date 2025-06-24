@@ -1,6 +1,6 @@
 {
   "name": "threadi/easy-settings-for-wordpress",
-  "version": "1.10.1",
+  "version": "1.10.3",
   "description": "Provides a settings wrapper for WordPress plugins and themes.",
   "type": "library",
   "license": "GPL-3.0-or-later",
