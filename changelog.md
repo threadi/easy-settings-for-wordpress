@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.4] - 24.05.2025
+
+### Added
+
+- Added readonly-attribute for select field
+
 ## [1.10.3] - 24.05.2025
 
 ### Fixed
