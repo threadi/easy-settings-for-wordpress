@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.05] - 28.05.2025
+
+### Fixed
+
+- Fixed usage of widefat on Multiselect fields
+
 ## [1.10.4] - 24.05.2025
 
 ### Added
