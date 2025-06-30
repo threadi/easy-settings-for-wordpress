@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.11.0] - 30.06.2025
+
+### Added
+
+- Added warning if settings form is leaved without saving it
+
 ## [1.10.6] - 30.06.2025
 
 ### Fixed

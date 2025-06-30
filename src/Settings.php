@@ -1301,6 +1301,15 @@ class Settings {
             true
         );
 
+        // add dirty.js.
+        wp_enqueue_script(
+            $this->get_slug() . '-dirty',
+            $this->get_url() . 'Files/jquery.dirty.js',
+            array( 'jquery' ),
+            (string) filemtime( $this->get_path() . 'Files/jquery.dirty.js' ),
+            true
+        );
+
         // add backend CSS.
         wp_enqueue_style(
             $this->get_slug() . '-settings',
