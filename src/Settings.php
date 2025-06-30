@@ -1314,6 +1314,7 @@ class Settings {
             $this->get_slug() . '-settings',
             'esfwJsVars',
             array(
+                'rest_nonce' => wp_create_nonce( 'wp_rest' ),
                 'title_add_image' => __( 'Add file' ),
                 'button_add_image' => __( 'Choose file' ),
                 'lbl_upload_image' => __( 'Upload or choose image' )
