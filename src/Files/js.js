@@ -284,4 +284,9 @@ jQuery(document).ready(function($) {
             }
         );
     })
+
+    /**
+     * Add dirty.js
+     */
+    $('.easy-settings-for-wordpress form').dirty({preventLeaving: true});
 });

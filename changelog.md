@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.11.1] - 01.07.2025
+
+### Fixed
+
+- Fixed missing execution of dirty.js
+
 ## [1.11.0] - 30.06.2025
 
 ### Added
