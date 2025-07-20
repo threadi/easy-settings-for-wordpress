@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.11.2] - 20.07.2025
+
+### Fixed
+
+- Fixed usage of easy dialog for WordPress script dependency
+
 ## [1.11.1] - 01.07.2025
 
 ### Fixed
