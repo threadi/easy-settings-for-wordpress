@@ -289,4 +289,48 @@ jQuery(document).ready(function($) {
      * Add dirty.js
      */
     $('.easy-settings-for-wordpress form').dirty({preventLeaving: true});
+
+    /**
+     * Drag & Drop for multiselect-fields.
+     */
+    $('.easy-settings-for-wordpress select.custom-sortable').each(function() {
+        // get select-object.
+        let select_obj = $(this);
+
+        // Convert select to ul-list.
+        let ul_list = $('<ul class="sortable">');
+        ul_list.data( 'depends', select_obj.data( 'depends' ) );
+
+        // Loop through the option-fields of the select-field.
+        select_obj.find('option').each(function() {
+            let field_id = select_obj.attr('id') + $(this).val();
+            let input_field = $('<input>').attr({
+                type: 'checkbox',
+                id: field_id,
+                name: select_obj.attr( 'name' ),
+                value: $(this).val(),
+                disabled: $(this).attr( 'disabled' )
+            });
+            if( $(this).is(':selected') ) {
+                input_field.prop('checked', true);
+            }
+            input_field.data( 'depends', select_obj.data( 'depends' ) );
+            let label = $('<label>').attr({
+                for: field_id
+            }).html( $(this).html() );
+            let li_item = $('<li>').attr({
+                title: esfwJsVars.label_sortable_title
+            }).html(label).prepend(input_field);
+            ul_list.append(li_item);
+        });
+
+        // add list to DOM.
+        $(this).parent().append(ul_list);
+
+        // set sortable.
+        $('ul.sortable').sortable();
+
+        // remove original select.
+        select_obj.remove();
+    });
 });

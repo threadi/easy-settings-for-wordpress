@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.12.0] - 21.07.2025
+
+### Added
+
+- Added sortable option for MultiSelect field
+- Added hide animation for settings if they are dependent
+
+### Changed
+
+- Moved easy dialog support to import/export
+
 ## [1.11.2] - 20.07.2025
 
 ### Fixed
