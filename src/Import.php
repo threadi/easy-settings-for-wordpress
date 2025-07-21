@@ -78,7 +78,7 @@ class Import {
         wp_enqueue_script(
             'esfw-import-admin',
             Settings::get_instance()->get_url() . 'Files/import.js',
-            array( 'jquery' ),
+            array( 'jquery', 'easy-dialog-for-wordpress' ),
             filemtime( __DIR__ . '/Files/import.js' ),
             true
         );

@@ -84,3 +84,32 @@
 .easy-settings-for-wordpress .nav-subtab-wrapper a.active {
 	font-weight: bold;
 }
+
+.easy-settings-for-wordpress tr.hide { display: none }
+
+.easy-settings-for-wordpress tr.show_with_animation {
+	animation: easy-settings-animation 1s ease-in forwards;
+}
+
+@keyframes easy-settings-animation {
+	0% {
+		opacity: 0;
+		background-color: #fca15b00;
+	}
+	25% {
+		opacity: .25;
+		background-color: #fca15b20;
+	}
+	50% {
+		opacity: .5;
+		background-color: #fca15b40;
+	}
+	75% {
+		opacity: .75;
+		background-color: #fca15b60;
+	}
+	100% {
+		opacity: 1;
+		background-color: transparent;
+	}
+}

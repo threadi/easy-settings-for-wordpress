@@ -32,6 +32,13 @@ class MultiSelect extends Field_Base {
 	 */
 	protected array $options = array();
 
+    /**
+     * Sortable marker.
+     *
+     * @var bool
+     */
+    private bool $sortable = false;
+
 	/**
 	 * Return the HTML-code to display this field.
 	 *
@@ -62,7 +69,7 @@ class MultiSelect extends Field_Base {
 		$values = (array) get_option( $setting->get_name(), array() );
 
 		?>
-		<select multiple="multiple" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>[]" class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
+        <select multiple="multiple" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>[]" class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width<?php echo $this->is_sortable() ? ' custom-sortable' : ''; ?>" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 			<?php
 			foreach ( $this->get_options() as $key => $label ) {
 				?>
@@ -77,6 +84,11 @@ class MultiSelect extends Field_Base {
 		if ( ! empty( $this->get_description() ) ) {
 			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
+
+        // add field for dependent fields if sortable is enabled.
+        if( $this->is_sortable() ) {
+            echo '<input type="hidden" name="' . esc_attr( $setting->get_name() ) . '_helper" value="" data-depends="' . esc_attr( $this->get_depend() ) . '">';
+        }
 	}
 
 	/**
@@ -115,4 +127,24 @@ class MultiSelect extends Field_Base {
 	public function set_options( array $options ): void {
 		$this->options = $options;
 	}
+
+    /**
+     * Return whether this field is sortable.
+     *
+     * @return bool
+     */
+    private function is_sortable(): bool {
+        return $this->sortable;
+    }
+
+    /**
+     * Set sortable.
+     *
+     * @param bool $sortable
+     *
+     * @return void
+     */
+    public function set_sortable( bool $sortable ): void {
+        $this->sortable = $sortable;
+    }
 }
