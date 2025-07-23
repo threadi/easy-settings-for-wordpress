@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.12.1] - 23.07.2025
+
+### Fixed
+
+- Fixed active marker for subtab navigation
+
 ## [1.12.0] - 21.07.2025
 
 ### Added
