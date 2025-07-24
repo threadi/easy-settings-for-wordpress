@@ -1,10 +1,27 @@
 # Changelog
 
-## [1.11.3] - 24.07.2025
+## [1.12.2] - 24.07.2025
 
 ### Fixed
 
 - Do not show double error or success on options page
+
+## [1.12.1] - 23.07.2025
+
+### Fixed
+
+- Fixed active marker for subtab navigation
+
+## [1.12.0] - 21.07.2025
+
+### Added
+
+- Added sortable option for MultiSelect field
+- Added hide animation for settings if they are dependent
+
+### Changed
+
+- Moved easy dialog support to import/export
 
 ## [1.11.2] - 20.07.2025
 

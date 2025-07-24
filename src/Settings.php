@@ -494,7 +494,7 @@ class Settings {
         $current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
         // get sub tab from request.
-        $current_sub_tab = filter_input( INPUT_GET, 'sub_tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+        $current_sub_tab = filter_input( INPUT_GET, 'subtab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
         // sort the tabs.
         add_filter( $this->get_slug() . '_settings_tabs' , array( $this, 'sort' ), PHP_INT_MAX );
@@ -584,7 +584,7 @@ class Settings {
                         if ( $tab->is_current_sub_tab() ) {
                             $sub_active_tab = $tab;
                             $css_classes   .= 'active';
-                        } elseif ( ! $sub_active_tab instanceof Tab && $tab === $main_active_tab->get_default_tab() ) {
+                        } elseif ( is_null( $current_sub_tab ) && $tab === $main_active_tab->get_default_tab() ) {
                             $sub_active_tab = $tab;
                             $css_classes   .= 'active';
                         }
@@ -1296,7 +1296,7 @@ class Settings {
         wp_enqueue_script(
             $this->get_slug() . '-settings',
             $this->get_url() . 'Files/js.js',
-            array( 'jquery', 'easy-dialog-for-wordpress' ),
+            array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-draggable', 'jquery-ui-droppable' ),
             (string) filemtime( $this->get_path() . 'Files/js.js' ),
             true
         );
@@ -1326,7 +1326,8 @@ class Settings {
                 'rest_nonce' => wp_create_nonce( 'wp_rest' ),
                 'title_add_image' => __( 'Add file' ),
                 'button_add_image' => __( 'Choose file' ),
-                'lbl_upload_image' => __( 'Upload or choose image' )
+                'lbl_upload_image' => __( 'Upload or choose image' ),
+                'label_sortable_title' => __( 'Hold to drag & drop' )
             )
         );
     }
