@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.11.3] - 24.07.2025
+
+### Fixed
+
+- Do not show double error or success on options page
+
 ## [1.11.2] - 20.07.2025
 
 ### Fixed
