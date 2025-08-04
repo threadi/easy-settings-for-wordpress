@@ -209,7 +209,7 @@ class Tab {
         ?>
         <form method="POST" action="<?php echo esc_url( get_admin_url() ); ?>options.php">
             <?php
-            settings_errors();
+            'options-general.php' !== Settings::get_instance()->get_menu_parent_slug() ? settings_errors() : '';
             settings_fields( $this->get_name() );
             do_settings_sections( $this->get_name() );
             $this->is_save_hidden() ? '' : submit_button();

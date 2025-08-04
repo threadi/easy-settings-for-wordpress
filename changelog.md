@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.12.2] - 04.08.2025
+## [1.12.3] - 04.08.2025
 
 ### Changed
 
@@ -9,6 +9,12 @@
 ### Fixed
 
 - Fixed usage of easy dialog for WordPress script dependency
+
+## [1.12.2] - 24.07.2025
+
+### Fixed
+
+- Do not show double error or success on options page
 
 ## [1.12.1] - 23.07.2025
 
