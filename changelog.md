@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.12.2] - 04.08.2025
+
+### Changed
+
+- Extended field Button to return its custom attributes as array
+
 ## [1.12.1] - 23.07.2025
 
 ### Fixed

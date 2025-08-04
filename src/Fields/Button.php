@@ -170,6 +170,15 @@ class Button extends Field_Base {
 		return $attributes;
 	}
 
+    /**
+     * Return the custom attributes as array.
+     *
+     * @return array
+     */
+    public function get_custom_attributes_as_array(): array {
+        return $this->button_custom_attributes;
+    }
+
 	/**
 	 * Set custom attributes.
 	 *
