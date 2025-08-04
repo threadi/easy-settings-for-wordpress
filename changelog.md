@@ -6,6 +6,10 @@
 
 - Extended field Button to return its custom attributes as array
 
+### Fixed
+
+- Fixed usage of easy dialog for WordPress script dependency
+
 ## [1.12.1] - 23.07.2025
 
 ### Fixed
