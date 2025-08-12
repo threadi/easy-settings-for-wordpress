@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.12.4] - 12.08.2025
+
+### Changed
+
+- Embed media library for file chooser
+
 ## [1.12.3] - 04.08.2025
 
 ### Changed
