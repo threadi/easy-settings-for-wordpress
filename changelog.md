@@ -1,10 +1,20 @@
 # Changelog
 
-## [1.12.3] - 12.08.2025
+## [1.12.4] - 12.08.2025
 
 ### Changed
 
 - Embed media library for file chooser
+
+## [1.12.3] - 04.08.2025
+
+### Changed
+
+- Extended field Button to return its custom attributes as array
+
+### Fixed
+
+- Fixed usage of easy dialog for WordPress script dependency
 
 ## [1.12.2] - 24.07.2025
 

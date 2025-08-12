@@ -70,7 +70,7 @@ class Import {
      */
     public function add_script( string $hook ): void {
         // bail if page is used where we do not use it.
-        if ( ! in_array( $hook, array( 'media-new.php', 'appearance_page_easy-settings-for-wordpress', 'post.php', 'settings_page_' . Settings::get_instance()->get_slug() . '_settings' ), true ) ) {
+        if ( ! in_array( $hook, array( 'media-new.php', 'appearance_page_easy-settings-for-wordpress', 'post.php', 'settings_page_' . Settings::get_instance()->get_slug() . '_settings', 'personioposition_page_personioPositions' ), true ) ) {
             return;
         }
 
