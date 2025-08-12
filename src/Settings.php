@@ -1330,6 +1330,9 @@ class Settings {
                 'label_sortable_title' => __( 'Hold to drag & drop' )
             )
         );
+
+        // add media library.
+        wp_enqueue_media();
     }
 
     /**
