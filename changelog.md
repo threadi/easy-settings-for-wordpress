@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.12.5] - 16.08.2025
+
+### Changed
+
+- Changed attributes for save callback from 2 to 3
+
 ## [1.12.4] - 12.08.2025
 
 ### Changed

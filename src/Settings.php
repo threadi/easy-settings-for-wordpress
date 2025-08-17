@@ -718,7 +718,7 @@ class Settings {
 
             // run custom callback before updating an option.
             if ( $setting->has_save_callback() ) {
-                add_filter( 'pre_update_option_' . $setting->get_name(), $setting->get_save_callback(), 10, 2 );
+                add_filter( 'pre_update_option_' . $setting->get_name(), $setting->get_save_callback(), 10, 3 );
             }
         }
 
