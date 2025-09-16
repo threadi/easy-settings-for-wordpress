@@ -99,7 +99,7 @@ class Files extends Field_Base {
 				unset( $new_files[$index] );
 
 				// show the file entry.
-				?><li class="esfw-settings-file esfw-settings-file-type-<?php echo esc_attr( sanitize_html_class( $attachment->post_mime_type ) ); ?>"><a href="<?php echo get_edit_post_link( $attachment->ID ); ?>"><?php echo esc_html( $attachment->post_title ) ?></a> <a href="#" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>" data-setting-value="<?php echo esc_attr( implode( ',', $new_files ) ); ?>" class="esfw-settings-files-choose-remove"><span class="dashicons dashicons-trash"></span></a></li><?php
+				?><li class="esfw-settings-file esfw-settings-file-type-<?php echo esc_attr( sanitize_html_class( $attachment->post_mime_type ) ); ?>"><a href="<?php echo esc_url( get_edit_post_link( $attachment->ID ) ); ?>"><?php echo esc_html( $attachment->post_title ) ?></a> <a href="#" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>" data-setting-value="<?php echo esc_attr( implode( ',', $new_files ) ); ?>" class="esfw-settings-files-choose-remove"><span class="dashicons dashicons-trash"></span></a></li><?php
 			}
 			?></ul><?php
 		}

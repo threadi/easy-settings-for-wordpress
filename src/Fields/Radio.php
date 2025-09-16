@@ -67,7 +67,7 @@ class Radio extends Field_Base {
 				       value="<?php echo esc_attr( $key ); ?>"
 					<?php
 					echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
-					echo ( $key === get_option( $setting->get_name(), '' ) ? ' checked="checked"' : '' );
+					echo ( get_option( $setting->get_name(), '' ) === $key ? ' checked="checked"' : '' );
 					?>
 					   class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
 					   title="<?php echo esc_attr( $this->get_title() ); ?>"

@@ -111,12 +111,12 @@ class Helper {
     public static function add_array_in_array_on_position( array|null $array_to_change, mixed $key, array $array_to_add ): array {
         $index = array_search( $key, array_keys( $array_to_change ), true );
 
-        // key is not found, add to the end of the array
-        if( $index === false ){
+        // key is not found, add to the end of the array.
+        if( false === $index ){
             $array_to_change = array_merge( $array_to_change, $array_to_add );
         }
-        // split the array into two parts and insert a new element between them
         else{
+            // split the array into two parts and insert a new element between them.
             $array_to_change = array_merge(
                 array_slice( $array_to_change, 0, $index + 1, true ),
                 $array_to_add,

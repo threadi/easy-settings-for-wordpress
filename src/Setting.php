@@ -299,7 +299,7 @@ class Setting {
     /**
      * Set the read callback.
      *
-     * @param array $read_callback
+     * @param array $read_callback The callback.
      *
      * @return void
      */
@@ -426,7 +426,7 @@ class Setting {
     /**
      * Return the custom var for this setting.
      *
-     * @param string $key
+     * @param string $key The key.
      *
      * @return mixed
      */
@@ -444,7 +444,7 @@ class Setting {
      * Add a custom var to this setting.
      *
      * @param string $key The key.
-     * @param string $value The value.
+     * @param mixed $value The value.
      *
      * @return void
      */

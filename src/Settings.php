@@ -134,6 +134,13 @@ class Settings {
     private bool $show_settings_link_in_plugin_list = false;
 
     /**
+     * List of translations.
+     *
+     * @var array<string,string>
+     */
+    private array $translations = array();
+
+    /**
      * Instance of actual object.
      *
      * @var ?Settings
@@ -1229,8 +1236,13 @@ class Settings {
      * @return array
      */
     public function add_setting_link( array $links ): array {
-        $links[] = '<a href="' . esc_url( $this->get_settings_link() ) . '">' . __( 'Settings', 'easy-settings-for-wordpress' ) . '</a>';
+        // get the translations.
+        $translations = $this->get_translations();
 
+        // add link.
+        $links[] = '<a href="' . esc_url( $this->get_settings_link() ) . '">' . $translations['plugin_settings_title'] . '</a>';
+
+        // return resulting list of links.
         return $links;
     }
 
@@ -1318,16 +1330,19 @@ class Settings {
             (string) filemtime( $this->get_path() . 'Files/style.css' ),
         );
 
+        // get the translations.
+        $translations = $this->get_translations();
+
         // add php-vars to our js-script.
         wp_localize_script(
             $this->get_slug() . '-settings',
             'esfwJsVars',
             array(
                 'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-                'title_add_image' => __( 'Add file' ),
-                'button_add_image' => __( 'Choose file' ),
-                'lbl_upload_image' => __( 'Upload or choose image' ),
-                'label_sortable_title' => __( 'Hold to drag & drop' )
+                'title_add_image' => $translations['file_add_file'],
+                'button_add_image' => $translations['file_choose_file'],
+                'lbl_upload_image' => $translations['file_choose_image'],
+                'label_sortable_title' => $translations['drag_n_drop']
             )
         );
 
@@ -1358,22 +1373,22 @@ class Settings {
     /**
      * Sort an array by its given keys.
      *
-     * @param array<int,mixed> $array The array to sort.
+     * @param array<int,mixed> $array_to_sort The array to sort.
      *
      * @return array<int,mixed>
      */
-    public function sort( array $array ): array {
+    public function sort( array $array_to_sort ): array {
         // sort the array by its keys.
-        ksort( $array );
+        ksort( $array_to_sort );
 
         // return resulting sorted array.
-        return $array;
+        return $array_to_sort;
     }
 
     /**
      * Add a page to the settings.
      *
-     * @param string|Page $page
+     * @param string|Page $page The page.
      *
      * @return Page
      */
@@ -1477,5 +1492,62 @@ class Settings {
 
         // compare the values.
         return $tab === $settings_page;
+    }
+
+    /**
+     * Return the list of translations.
+     *
+     * @return array<string,string>
+     */
+    public function get_translations(): array {
+        // set the translations.
+        $translations = array(
+            'title_settings_import_file_missing' => 'Required file missing',
+            'text_settings_import_file_missing'  => 'Please choose a JSON-file with settings to import.',
+            'lbl_ok'                             => 'OK',
+            'lbl_cancel' => 'Cancel',
+            'import_title' => 'Import',
+            'dialog_import_title' => 'Import plugin settings',
+            'dialog_import_text' => 'Click on the button below to chose your JSON-file with the settings.',
+            'dialog_import_button' => 'Import now',
+            'dialog_import_error_title' => 'Error during import',
+            'dialog_import_error_text' => 'The file could not be imported!',
+            'dialog_import_error_no_file' => 'No file was uploaded.',
+            'dialog_import_error_no_size' => 'The uploaded file is no size.',
+            'dialog_import_error_no_json' => 'The uploaded file is not a valid JSON-file.',
+            'dialog_import_error_no_json_ext' => 'The uploaded file does not have the file extension <i>.json</i>.',
+            'dialog_import_error_not_saved' => 'The uploaded file could not be saved. Contact your hoster about this problem.',
+            'dialog_import_error_not_our_json' => 'The uploaded file is not a valid JSON-file with settings for this plugin.',
+            'dialog_import_success_title' => 'Settings have been imported',
+            'dialog_import_success_text' => 'Import has been run successfully.',
+            'dialog_import_success_text_2' => 'The new settings are now active. Click on the button below to reload the page and see the settings.',
+            'export_title' => 'Export',
+            'dialog_export_title' => 'Export plugin settings',
+            'dialog_export_text' => 'Click on the button below to export the actual settings.',
+            'dialog_export_text_2' => 'You can import this JSON-file in other projects using this WordPress plugin or theme.',
+            'dialog_export_button' => 'Export now',
+            'table_options' => 'Options',
+            'table_entry' => 'Entry',
+            'table_no_entries' => 'No entries found.',
+            'plugin_settings_title' => 'Settings',
+            'file_add_file' => 'Add file',
+            'file_choose_file' => 'Choose file',
+            'file_choose_image' => 'Upload or choose image',
+            'drag_n_drop' => 'Hold to drag & drop'
+        );
+
+        // return combined list of translations.
+        return array_merge( $translations, $this->translations );
+    }
+
+    /**
+     * Set the list of custom translations.
+     *
+     * @param array<string,string> $translations The translations.
+     *
+     * @return void
+     */
+    public function set_translations( array $translations ): void {
+        $this->translations = $translations;
     }
 }

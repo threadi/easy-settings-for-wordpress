@@ -10,6 +10,7 @@ namespace easySettingsForWordPress\Tables;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use easySettingsForWordPress\Settings;
 use WP_List_Table;
 
 /**
@@ -56,9 +57,12 @@ class Table extends WP_List_Table {
 	 * @return array
 	 */
 	public function get_columns(): array {
+        // get the translations.
+        $translations = Settings::get_instance()->get_translations();
+
 		return array(
-			'options' => __( 'Options', 'easy-settings-for-wordpress' ),
-			'entry'   => __( 'Entry', 'easy-settings-for-wordpress' ),
+			'options' => $translations['table_options'],
+			'entry'   => $translations['table_entry'],
 		);
 	}
 
@@ -130,7 +134,11 @@ class Table extends WP_List_Table {
 	 * Message to be displayed when there are no items.
 	 */
 	public function no_items(): void {
-		echo esc_html__( 'No entries found.', 'easy-settings-for-wordpress' );
+        // get the translations.
+        $translations = Settings::get_instance()->get_translations();
+
+        // output.
+		echo esc_html( $translations['table_no_entries'] );
 	}
 
 	/**

@@ -161,7 +161,7 @@ class PermalinkSlug extends Field_Base {
     /**
      * Set the list title.
      *
-     * @param string $title
+     * @param string $title The list title.
      * @return void
      */
     public function set_list_title( string $title ): void {

@@ -140,7 +140,7 @@ class MultiSelect extends Field_Base {
     /**
      * Set sortable.
      *
-     * @param bool $sortable
+     * @param bool $sortable Whether this is sortable (true) or not (false).
      *
      * @return void
      */
