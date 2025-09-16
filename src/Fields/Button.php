@@ -90,7 +90,7 @@ class Button extends Field_Base {
             ?>"<?php
             echo ( $this->is_readonly() ? ' disabled' : '' );
             ?>
-           data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo $this->get_data(); ?>><?php echo esc_html( $this->get_button_title() ); ?></a>
+           data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo wp_kses_post( $this->get_data() ); ?>><?php echo esc_html( $this->get_button_title() ); ?></a>
         <?php
 
 		// show optional description for this checkbox.

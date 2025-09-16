@@ -149,7 +149,7 @@ class SelectPostTypeObject extends Field_Base {
 		?>
 		<div id="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>" popover class="esfw-settings-overlay">
 			<h2><?php echo esc_html( $this->get_popup_title() ); ?></h2>
-			<?php echo $this->get_popup_description(); ?>
+			<?php echo wp_kses_post( $this->get_popup_description() ); ?>
 			<label for="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>-search"><?php echo esc_html( $this->get_label_title() ); ?></label>
 			<input type="text" name="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>-search" id="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>-search" placeholder="<?php echo esc_attr( $this->get_placeholder() ); ?>" value="" class="widefat esfw-settings-post-type-search" data-field="<?php echo esc_attr( $setting->get_name() ); ?>" data-endpoint="<?php echo esc_attr( $this->get_endpoint() ); ?>" data-limit="<?php echo esc_attr( $this->get_limit() ); ?>" data-chosen-title="<?php echo esc_attr( $this->get_chosen_title() ); ?>">
 			<div class="esfw-settings-post-type-listing"></div>

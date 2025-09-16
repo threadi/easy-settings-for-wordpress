@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.13.0] - 16.09.2025
+
+### Added
+
+- Added possibility to translate all texts in this package
+
+### Changed
+
+- Optimized for WordPress Coding Standards
+
 ## [1.12.5] - 16.08.2025
 
 ### Changed

@@ -77,23 +77,26 @@ class Export {
 			get_admin_url() . 'admin.php'
 		);
 
+        // get the translations.
+        $translations = Settings::get_instance()->get_translations();
+
 		// create export dialog.
 		$dialog = array(
-			'title'   => __( 'Export plugin settings', 'easy-settings-for-wordpress' ),
+			'title'   => $translations['dialog_export_title'],
 			'texts'   => array(
-				'<p><strong>' . __( 'Click on the button below to export the actual settings.', 'easy-settings-for-wordpress' ) . '</strong></p>',
-				'<p>' . __( 'You can import this JSON-file in other projects using this WordPress plugin or theme.', 'easy-settings-for-wordpress' ) . '</p>',
+				'<p><strong>' . $translations['dialog_export_text'] . '</strong></p>',
+				'<p>' . $translations['dialog_export_text_2'] . '</p>',
 			),
 			'buttons' => array(
 				array(
 					'action'  => 'closeDialog();location.href="' . $export_url . '";',
 					'variant' => 'primary',
-					'text'    => __( 'Export now', 'easy-settings-for-wordpress' ),
+					'text'    => $translations['dialog_export_button'],
 				),
 				array(
 					'action'  => 'closeDialog();',
 					'variant' => 'secondary',
-					'text'    => __( 'Cancel', 'easy-settings-for-wordpress' ),
+					'text'    => $translations['lbl_cancel'],
 				),
 			),
 		);
@@ -104,11 +107,11 @@ class Export {
 		$setting->set_autoload( false );
 		$setting->prevent_export( true );
 		$field = new Button();
-		$field->set_title( __( 'Export', 'easy-settings-for-wordpress' ) );
-		$field->set_button_title( __( 'Export now', 'easy-settings-for-wordpress' ) );
+		$field->set_title( $translations['export_title'] );
+		$field->set_button_title( $translations['dialog_export_button'] );
 		$field->set_button_url( $export_url );
 		$field->add_class( 'easy-dialog-for-wordpress' );
-		$field->set_custom_attributes( array( 'data-dialog' => wp_json_encode( $dialog ) ) );
+		$field->set_custom_attributes( array( 'data-dialog' => (string)wp_json_encode( $dialog ) ) );
 		$setting->set_field( $field );
 	}
 

@@ -67,8 +67,11 @@ class MultiField extends Field_Base {
 		// get values.
 		$values = (array) get_option( $setting->get_name(), array() );
 
+        // get the quantity.
+        $quantity = $this->get_quantity();
+
 		// show the fields in a loop.
-		for( $q = 0;$q<$this->get_quantity();$q++ ) {
+		for( $q = 0;$q<$quantity;$q++ ) {
 			// create a custom setting we need to show the field.
 			$field_setting = new Setting();
 			$field_setting->set_name( $setting->get_name() . '[' . $q . ']' );

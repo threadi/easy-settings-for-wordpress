@@ -83,6 +83,9 @@ class Import {
             true
         );
 
+        // get the translations.
+        $translations = Settings::get_instance()->get_translations();
+
         // add php-vars to our js-script.
         wp_localize_script(
             'esfw-import-admin',
@@ -90,9 +93,9 @@ class Import {
             array(
                 'ajax_url'                           => admin_url( 'admin-ajax.php' ),
                 'settings_import_file_nonce'         => wp_create_nonce( 'settings-import' ),
-                'title_settings_import_file_missing' => __( 'Required file missing', 'easy-settings-for-wordpress' ),
-                'text_settings_import_file_missing'  => __( 'Please choose a JSON-file with settings to import.', 'easy-settings-for-wordpress' ),
-                'lbl_ok'                             => __( 'OK', 'easy-settings-for-wordpress' ),
+                'title_settings_import_file_missing' => $translations['title_settings_import_file_missing'],
+                'text_settings_import_file_missing'  => $translations['text_settings_import_file_missing'],
+                'lbl_ok'                             => $translations['lbl_ok'],
             )
         );
     }
@@ -106,23 +109,26 @@ class Import {
      * @return void
      */
     public function add_settings( Settings $settings_obj, Section $section ): void {
+        // get the translations.
+        $translations = Settings::get_instance()->get_translations();
+
         // create import dialog.
         $dialog = array(
-            'title'   => __( 'Import plugin settings', 'easy-settings-for-wordpress' ),
+            'title'   => $translations['dialog_import_title'],
             'texts'   => array(
-                '<p><strong>' . __( 'Click on the button below to chose your JSON-file with the settings.', 'easy-settings-for-wordpress' ) . '</strong></p>',
+                '<p><strong>' . $translations['dialog_import_text'] . '</strong></p>',
                 '<input type="file" accept="application/json" name="import_settings_file" id="import_settings_file">',
             ),
             'buttons' => array(
                 array(
                     'action'  => 'settings_import_file();',
                     'variant' => 'primary',
-                    'text'    => __( 'Import now', 'easy-settings-for-wordpress' ),
+                    'text'    => $translations['dialog_import_button']
                 ),
                 array(
                     'action'  => 'closeDialog();',
                     'variant' => 'secondary',
-                    'text'    => __( 'Cancel', 'easy-settings-for-wordpress' ),
+                    'text'    => $translations['lbl_cancel']
                 ),
             ),
         );
@@ -133,15 +139,15 @@ class Import {
         $setting->set_autoload( false );
         $setting->prevent_export( true );
         $field = new Button();
-        $field->set_title( __( 'Import', 'easy-settings-for-wordpress' ) );
-        $field->set_button_title( __( 'Import now', 'easy-settings-for-wordpress' ) );
+        $field->set_title( $translations['import_title'] );
+        $field->set_button_title( $translations['dialog_import_button'] );
         $field->add_class( 'easy-dialog-for-wordpress' );
-        $field->set_custom_attributes( array( 'data-dialog' => wp_json_encode( $dialog ) ) );
+        $field->set_custom_attributes( array( 'data-dialog' => (string)wp_json_encode( $dialog ) ) );
         $setting->set_field( $field );
     }
 
     /**
-     * Run import via request.
+     * Run import via AJAX.
      *
      * @return void
      */
@@ -149,18 +155,22 @@ class Import {
         // check nonce.
         check_ajax_referer( 'settings-import', 'nonce' );
 
+        // get the translations.
+        $translations = Settings::get_instance()->get_translations();
+
         // create dialog for response.
+
         $dialog = array(
             'detail' => array(
-                'title'   => __( 'Error during import', 'easy-settings-for-wordpress' ),
+                'title'   => $translations['dialog_import_error_title'],
                 'texts'   => array(
-                    '<p><strong>' . __( 'The file could not be imported!', 'easy-settings-for-wordpress' ) . '</strong></p>',
+                    '<p><strong>' . $translations['dialog_import_error_text'] . '</strong></p>',
                 ),
                 'buttons' => array(
                     array(
                         'action'  => 'closeDialog();',
                         'variant' => 'primary',
-                        'text'    => __( 'OK', 'easy-settings-for-wordpress' ),
+                        'text'    => $translations['lbl_ok']
                     ),
                 ),
             ),
@@ -168,19 +178,19 @@ class Import {
 
         // bail if no file is given.
         if ( ! isset( $_FILES ) ) {
-            $dialog['detail']['texts'][1] = '<p>' . __( 'No file was uploaded.', 'easy-settings-for-wordpress' ) . '</p>';
+            $dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_no_file'] . '</p>';
             wp_send_json( $dialog );
         }
 
         // bail if file has no size.
         if ( isset( $_FILES['file']['size'] ) && 0 === $_FILES['file']['size'] ) {
-            $dialog['detail']['texts'][1] = '<p>' . __( 'The uploaded file is no size.', 'easy-settings-for-wordpress' ) . '</p>';
+            $dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_no_size'] . '</p>';
             wp_send_json( $dialog );
         }
 
         // bail if file type is not JSON.
         if ( isset( $_FILES['file']['type'] ) && 'application/json' !== $_FILES['file']['type'] ) {
-            $dialog['detail']['texts'][1] = '<p>' . __( 'The uploaded file is not a valid JSON-file.', 'easy-settings-for-wordpress' ) . '</p>';
+            $dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_no_json'] . '</p>';
             wp_send_json( $dialog );
         }
 
@@ -191,20 +201,20 @@ class Import {
         if ( isset( $_FILES['file']['name'] ) ) {
             $filetype = wp_check_filetype( sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) );
             if ( 'json' !== $filetype['ext'] ) {
-                $dialog['detail']['texts'][1] = '<p>' . __( 'The uploaded file does not have the file extension <i>.json</i>.', 'easy-settings-for-wordpress' ) . '</p>';
+                $dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_no_json_ext'] . '</p>';
                 wp_send_json( $dialog );
             }
         }
 
         // bail if no tmp_name is available.
         if ( ! isset( $_FILES['file']['tmp_name'] ) ) {
-            $dialog['detail']['texts'][1] = '<p>' . __( 'The uploaded file could not be saved. Contact your hoster about this problem.', 'easy-settings-for-wordpress' ) . '</p>';
+            $dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_not_saved'] . '</p>';
             wp_send_json( $dialog );
         }
 
         // bail if uploaded file is not readable.
         if ( isset( $_FILES['file']['tmp_name'] ) && ! file_exists( sanitize_text_field( $_FILES['file']['tmp_name'] ) ) ) {
-            $dialog['detail']['texts'][1] = '<p>' . __( 'The uploaded file could not be saved. Contact your hoster about this problem.', 'easy-settings-for-wordpress' ) . '</p>';
+            $dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_not_saved'] . '</p>';
             wp_send_json( $dialog );
         }
 
@@ -219,7 +229,7 @@ class Import {
 
         // bail if JSON-code does not contain one of our settings.
         if ( ! isset( $settings_array[ Settings::get_instance()->get_settings()[0]->get_name() ] ) ) {
-            $dialog['detail']['texts'][1] = '<p>' . __( 'The uploaded file is not a valid JSON-file with settings for this plugin.', 'easy-settings-for-wordpress' ) . '</p>';
+            $dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_not_our_json'] . '</p>';
             wp_send_json( $dialog );
         }
 
@@ -245,9 +255,9 @@ class Import {
         }
 
         // return that import was successfully.
-        $dialog['detail']['title']                = __( 'Settings have been imported', 'easy-settings-for-wordpress' );
-        $dialog['detail']['texts'][0]             = '<p><strong>' . __( 'Import has been run successfully.', 'easy-settings-for-wordpress' ) . '</strong></p>';
-        $dialog['detail']['texts'][1]             = '<p>' . __( 'The new settings are now active. Click on the button below to reload the page and see the settings.', 'easy-settings-for-wordpress' ) . '</p>';
+        $dialog['detail']['title']                = $translations['dialog_import_success_title'];
+        $dialog['detail']['texts'][0]             = '<p><strong>' . $translations['dialog_import_success_text'] . '</strong></p>';
+        $dialog['detail']['texts'][1]             = '<p>' . $translations['dialog_import_success_text_2'] . '</p>';
         $dialog['detail']['buttons'][0]['action'] = 'location.reload();';
         wp_send_json( $dialog );
     }
