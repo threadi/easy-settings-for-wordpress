@@ -153,12 +153,21 @@ class Export {
 			$export_settings[ $settings_obj->get_name() ] = $settings_obj->get_value();
 		}
 
+        /**
+         * Filter the exported settings.
+         *
+         * @since 1.14.0 Available since 1.14.0.
+         *
+         * @param array<string,mixed> $export_settings The settings to export.
+         */
+        $export_settings = apply_filters( Settings::get_instance()->get_slug() . '_settings_export', $export_settings );
+
 		// create filename for JSON-download-file.
 		$filename = gmdate( 'YmdHi' ) . '_' . get_option( 'blogname' ) . '_settings.json';
 		/**
 		 * File the filename for JSON-download of all settings.
 		 *
-		 * @since 2.0.0 Available since 2.0.0.
+		 * @since 1.0.0 Available since 1.0.0.
 		 *
 		 * @param string $filename The generated filename.
 		 */
