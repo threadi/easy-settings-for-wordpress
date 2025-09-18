@@ -236,9 +236,11 @@ class Import {
         /**
          * Run additional tasks before running the import of settings.
          *
-         * @since 2.0.0 Available since 2.0.0.
+         * @since 1.0.0 Available since 1.0.0.
+         *
+         * @param array $settings_array The settings to import.
          */
-        do_action( Settings::get_instance()->get_slug() . '_settings_import' );
+        do_action( Settings::get_instance()->get_slug() . '_settings_import', $settings_array );
 
         // get the settings object.
         $settings_obj = Settings::get_instance();
