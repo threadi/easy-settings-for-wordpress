@@ -56,7 +56,6 @@ class Import {
      */
     public function init(): void {
         // use hooks.
-        add_action( 'admin_action_settings_import', array( $this, 'import_via_request' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'add_script' ) );
         add_action( 'wp_ajax_settings_import_file', array( $this, 'import_via_ajax' ) );
     }

@@ -160,7 +160,7 @@ class Export {
          *
          * @param array<string,mixed> $export_settings The settings to export.
          */
-        $export_settings = apply_filters( Settings::get_instance()->get_slug() . '_settings_export', $export_settings );
+        $export_settings = apply_filters( Settings::get_instance()->get_slug() . '_settings_export_settings', $export_settings );
 
 		// create filename for JSON-download-file.
 		$filename = gmdate( 'YmdHi' ) . '_' . get_option( 'blogname' ) . '_settings.json';
