@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.14.1] - 22.09.2025
+
+### Fixed
+
+- Fixed wrong hook name for export settings
+
+### Removed
+
+- Removed possibility to import settings via request
+
 ## [1.14.0] - 18.09.2025
 
 ### Added
