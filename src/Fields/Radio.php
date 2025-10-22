@@ -58,24 +58,41 @@ class Radio extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-		// show each option.
-		foreach( $this->get_options() as $key => $title ) {
-			?>
-			<div>
-				<input type="radio" id="<?php echo esc_attr( $setting->get_name() . $key ); ?>"
-				       name="<?php echo esc_attr( $setting->get_name() ); ?>"
-				       value="<?php echo esc_attr( $key ); ?>"
-					<?php
-					echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
-					echo ( get_option( $setting->get_name(), '' ) === $key ? ' checked="checked"' : '' );
-					?>
-					   class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
-					   title="<?php echo esc_attr( $this->get_title() ); ?>"
-				>
-				<label for="<?php echo esc_attr( $setting->get_name() . $key ); ?>"><?php echo esc_html( $title ) ; ?></label>
-			</div>
-			<?php
-		}
+        // show each option.
+        foreach( $this->get_options() as $key => $settings ) {
+            $title = '';
+            $description = '';
+            // if settings is a string, then it is the title.
+            if( is_string( $settings ) ) {
+                $title = $settings;
+            }
+            elseif( is_array( $settings ) ) {
+                // otherwise it is an array and the title is the label.
+                $title = $settings['label'];
+
+                // get the description.
+                $description = isset( $settings['description'] ) ? $settings['description'] : '';
+            }
+
+            ?>
+            <div>
+                <input type="radio" id="<?php echo esc_attr( $setting->get_name() . $key ); ?>"
+                       name="<?php echo esc_attr( $setting->get_name() ); ?>"
+                       value="<?php echo esc_attr( $key ); ?>"
+                        <?php
+                        echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
+                        echo ( get_option( $setting->get_name(), '' ) === $key ? ' checked="checked"' : '' );
+                        ?>
+                       class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
+                       title="<?php echo esc_attr( $this->get_title() ); ?>"
+                >
+                <label for="<?php echo esc_attr( $setting->get_name() . $key ); ?>"><?php echo esc_html( $title ) ; ?></label>
+                <?php if ( ! empty( $description ) ) { ?>
+                    <p class="description"><?php echo esc_html( $description ); ?></p>
+                <?php } ?>
+            </div>
+            <?php
+        }
 
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {

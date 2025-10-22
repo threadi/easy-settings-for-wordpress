@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.0] - 22.10.2025
+
+### Added
+
+- Added support for description in Radio and Checkboxes fields
+
 ## [1.14.1] - 22.09.2025
 
 ### Fixed
