@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.4] - 29.10.2025
+
+### Changed
+
+- Run settings registering also on WP CLI
+
 ## [1.15.3] - 29.10.2025
 
 ### Removed
