@@ -189,6 +189,12 @@ class Settings {
         add_action( 'rest_api_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
 
+        // register the settings during WP CLI run.
+        if( defined( 'WP_CLI' ) && WP_CLI ) {
+            add_action( 'init', array( $this, 'register_settings' ), 200 );
+        }
+
+        // register the settings during WP Cron run.
         if( defined( 'DOING_CRON' ) && DOING_CRON ) {
             add_action('init', array($this, 'register_settings'), 200);
         }
