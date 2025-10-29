@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.3] - 29.10.2025
+
+### Removed
+
+- Removed the package version from composer.json as suggested here: https://blog.packagist.com/tagged-a-new-release-for-composer-and-it-wont-show-up-on-packagist/
+
 ## [1.15.2] - 29.10.2025
 
 ### Changed
