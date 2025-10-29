@@ -68,7 +68,7 @@ class Textarea extends Field_Base {
 			   class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
 			   title="<?php echo esc_attr( $this->get_title() ); ?>"
 			   data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
-		><?php echo esc_attr( get_option( $setting->get_name(), '' ) ); ?></textarea>
+		><?php echo esc_html( get_option( $setting->get_name(), '' ) ); ?></textarea>
 		<?php
 
 		// show optional description for this checkbox.

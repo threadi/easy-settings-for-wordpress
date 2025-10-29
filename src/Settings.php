@@ -189,6 +189,10 @@ class Settings {
         add_action( 'rest_api_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
 
+        if( defined( 'DOING_CRON' ) && DOING_CRON ) {
+            add_action('init', array($this, 'register_settings'), 200);
+        }
+
         // use our own hooks.
         add_filter( $this->get_slug() . '_settings_tab_sections' , array( $this, 'sort' ), PHP_INT_MAX );
     }
