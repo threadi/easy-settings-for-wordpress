@@ -1,11 +1,16 @@
 # Changelog
 
+## [1.15.2] - 29.10.2025
+
+### Changed
+
+- Run settings registering also on cron tasks 
+
 ## [1.15.1] - 26.10.2025
 
 ### Changed
 
 - Small optimizations for WCS
-- Run settings registering also on cron tasks
 
 ## [1.15.0] - 22.10.2025
 
