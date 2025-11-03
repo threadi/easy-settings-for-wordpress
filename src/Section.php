@@ -56,6 +56,13 @@ class Section {
      */
     private string|false $page = false;
 
+    /**
+     * Set hidden section.
+     *
+     * @var bool
+     */
+    private bool $hidden = false;
+
 	/**
 	 * Constructor.
 	 */
@@ -195,7 +202,7 @@ class Section {
 	}
 
     /**
-     * Set page this tab is assigned to.
+     * Set page this section is assigned to.
      *
      * @param string $page The page slug.
      *
@@ -203,5 +210,25 @@ class Section {
      */
     public function set_page( string $page ): void {
         $this->page = $page;
+    }
+
+    /**
+     * Return whether this section is hidden.
+     *
+     * @return bool
+     */
+    public function is_hidden(): bool {
+        return $this->hidden;
+    }
+
+    /**
+     * Set this section as hidden.
+     *
+     * @param bool $hidden
+     *
+     * @return void
+     */
+    public function set_hidden( bool $hidden ): void {
+        $this->hidden = $hidden;
     }
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.16.0] - 03.11.2025
+
+### Added
+
+- Added a new field FieldTable to display a table with settings
+- Added a new option for the field Checkbox to show the label with the checkbox
+- Added option to hide a section in output
+
 ## [1.15.4] - 29.10.2025
 
 ### Changed
