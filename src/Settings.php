@@ -792,6 +792,11 @@ class Settings {
         if ( function_exists( 'add_settings_section' ) ) {
             // loop through the sections of this tab.
             foreach( $sections as $section ) {
+                // do not show hidden sections.
+                if( $section->is_hidden() ) {
+                    continue;
+                }
+
                 // add section.
                 add_settings_section(
                     $section->get_name(),

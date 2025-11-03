@@ -25,6 +25,13 @@ class Checkbox extends Field_Base {
 	 */
 	protected string $type_name = 'Checkbox';
 
+    /**
+     * Show the label with the checkbox.
+     *
+     * @var bool
+     */
+    private bool $with_label = false;
+
 	/**
 	 * Return the HTML-code to display this field.
 	 *
@@ -65,6 +72,11 @@ class Checkbox extends Field_Base {
 		>
 		<?php
 
+        // show the label with the checkbox.
+        if ( $this->get_with_label() ) {
+            ?><label for="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_title() ); ?></label><?php
+        }
+
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {
 			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
@@ -87,4 +99,24 @@ class Checkbox extends Field_Base {
 		// return the value.
 		return absint( $value );
 	}
+
+    /**
+     * Return whether we show the label with the checkbox.
+     *
+     * @return bool
+     */
+    private function get_with_label(): bool {
+        return $this->with_label;
+    }
+
+    /**
+     * Set to show the label with the checkbox.
+     *
+     * @param bool $with_label True to show the label.
+     *
+     * @return void
+     */
+    public function set_with_label( bool $with_label ): void {
+        $this->with_label = $with_label;
+    }
 }
