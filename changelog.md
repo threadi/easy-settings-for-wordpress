@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.16.1] - 14.11.2025
+
+### Added
+
+- Added option to show label on text field
+
 ## [1.16.0] - 03.11.2025
 
 ### Added

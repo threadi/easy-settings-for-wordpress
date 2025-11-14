@@ -40,6 +40,13 @@ class Text extends Field_Base {
     private string $value = '';
 
     /**
+     * Show the label with the field.
+     *
+     * @var bool
+     */
+    private bool $with_label = false;
+
+    /**
      * Return the HTML-code to display this field.
      *
      * @param array $attr Attributes for this field.
@@ -71,6 +78,11 @@ class Text extends Field_Base {
         // use value from object, if set.
         if( ! empty( $this->get_value() ) ) {
             $value = $this->get_value();
+        }
+
+        // show the label with the checkbox.
+        if ( $this->get_with_label() ) {
+            ?><label for="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_title() ); ?></label><?php
         }
 
         ?>
@@ -148,5 +160,25 @@ class Text extends Field_Base {
      */
     public function set_value( mixed $value ): void {
         $this->value = (string) $value;
+    }
+
+    /**
+     * Return whether we show the label with the checkbox.
+     *
+     * @return bool
+     */
+    private function get_with_label(): bool {
+        return $this->with_label;
+    }
+
+    /**
+     * Set to show the label with the checkbox.
+     *
+     * @param bool $with_label True to show the label.
+     *
+     * @return void
+     */
+    public function set_with_label( bool $with_label ): void {
+        $this->with_label = $with_label;
     }
 }
