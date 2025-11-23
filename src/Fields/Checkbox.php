@@ -58,6 +58,11 @@ class Checkbox extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
+        // show hidden field if this is set to readonly.
+        if( $this->is_readonly() ) {
+            ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? 1 : 0 ); ?>"><?php
+        }
+
 		?>
 		<input type="checkbox" id="<?php echo esc_attr( $setting->get_name() ); ?>"
 				name="<?php echo esc_attr( $setting->get_name() ); ?>"

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.17.0] - 23.11.2025
+
+### Added
+
+- Added new field Password
+
+### Fixed
+
+- Fixed to preserve field values of they are set to readonly.
+
 ## [1.16.1] - 14.11.2025
 
 ### Added

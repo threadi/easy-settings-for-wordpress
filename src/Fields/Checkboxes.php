@@ -77,6 +77,11 @@ class Checkboxes extends Field_Base {
                 $description = isset( $settings['description'] ) ? $settings['description'] : '';
             }
 
+            // show hidden field if this is set to readonly.
+            if( $this->is_readonly() ) {
+                ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo ( isset( $values[$key] ) ? 1 : 0 ); ?>"><?php
+            }
+
             ?>
             <div>
                 <input type="checkbox" id="<?php echo esc_attr( $setting->get_name() . $key ); ?>"
