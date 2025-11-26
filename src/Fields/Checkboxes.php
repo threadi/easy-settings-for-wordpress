@@ -94,9 +94,9 @@ class Checkboxes extends Field_Base {
                        class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
                        title="<?php echo esc_attr( $this->get_title() ); ?>"
                 >
-                <label for="<?php echo esc_attr( $setting->get_name() . $key ); ?>"><?php echo esc_html( $title ) ; ?></label>
+                <label for="<?php echo esc_attr( $setting->get_name() . $key ); ?>"><?php echo wp_kses_post( $title ) ; ?></label>
                 <?php if ( ! empty( $description ) ) { ?>
-                    <p class="description"><?php echo esc_html( $description ); ?></p>
+                    <p class="description"><?php echo wp_kses_post( $description ); ?></p>
                 <?php } ?>
             </div>
             <?php
