@@ -834,6 +834,7 @@ class Settings {
                     $setting->get_section()->get_name(),
                     array(
                         'setting' => $setting,
+                        'class' => sanitize_title( $setting->get_name() )
                     )
                 );
             }

@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.17.1] - 26.11.2025
+
+### Added
+
+- Added class on every settings field to allow custom styling of the field
+
+### Changed
+
+- Checkbox, Checkboxes and Radio label and descriptions can now also contain HTML codes
+
 ## [1.17.0] - 23.11.2025
 
 ### Added
@@ -14,7 +24,7 @@
 
 ### Added
 
-- Added option to show label on text field
+- Added option to show a label on the text field
 
 ## [1.16.0] - 03.11.2025
 

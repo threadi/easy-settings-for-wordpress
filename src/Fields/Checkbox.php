@@ -79,7 +79,7 @@ class Checkbox extends Field_Base {
 
         // show the label with the checkbox.
         if ( $this->get_with_label() ) {
-            ?><label for="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_title() ); ?></label><?php
+            ?><label for="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo wp_kses_post( $this->get_title() ); ?></label><?php
         }
 
 		// show optional description for this checkbox.
