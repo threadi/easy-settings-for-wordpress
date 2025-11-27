@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.17.2] - 27.11.2025
+
+### Fixed
+
+- Fixed wrong name for Checkboxes readonly fields
+
 ## [1.17.1] - 26.11.2025
 
 ### Added
