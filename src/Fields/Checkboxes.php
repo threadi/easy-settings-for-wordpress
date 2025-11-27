@@ -79,7 +79,7 @@ class Checkboxes extends Field_Base {
 
             // show hidden field if this is set to readonly.
             if( $this->is_readonly() ) {
-                ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo ( isset( $values[$key] ) ? 1 : 0 ); ?>"><?php
+                ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>[<?php echo esc_attr( $key ); ?>]; ?>" value="<?php echo ( isset( $values[$key] ) ? 1 : 0 ); ?>"><?php
             }
 
             ?>
