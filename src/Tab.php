@@ -402,8 +402,8 @@ class Tab {
      * @return void
      */
     public function set_url_target( string $url_target ): void {
-        // bail if target does not have a valid value.
-        if ( ! in_array( $url_target, array( '_self', '_blank', '_top', '_parent' ), true ) ) {
+        // bail if the target does not have a valid value.
+        if ( ! in_array( $url_target, array( '', '_self', '_blank', '_top', '_parent' ), true ) ) {
             return;
         }
 

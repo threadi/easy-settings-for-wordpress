@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.17.3] - 28.11.2025
+
+### Changed
+
+- Also allow an empty target value for tab links
+
 ## [1.17.2] - 27.11.2025
 
 ### Fixed
