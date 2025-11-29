@@ -79,7 +79,7 @@ class MultiField extends Field_Base {
 
 			// get the field object.
 			$obj = $this->get_field();
-			$obj->set_title( $this->get_title() . ' #' . $q+1 );
+			$obj->set_title( $this->get_title() . ' #' . ( $q+1 ) );
             $obj->set_value( isset( $values[$q] ) ? $values[$q] : '' );
 
 			// show the field.
