@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.17.3] - 29.11.2025
+
+### Fixed
+
+- Fixed missing parenthesis
+
 ## [1.17.2] - 27.11.2025
 
 ### Fixed
