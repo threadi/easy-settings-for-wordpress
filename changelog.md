@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.4] - 12.12.2025
+
+### Changed
+
+- Dependent handling now also works on radio fields
+- value of select fields now stay present if field is readonly
+
 ## [1.17.3] - 29.11.2025
 
 ### Fixed

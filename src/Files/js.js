@@ -1,14 +1,14 @@
 jQuery(document).ready(function($) {
   /**
-   * Handle depending settings on settings page.
+   * Handle depending settings on the settings page.
    *
-   * Get all fields which depends from another.
-   * Hide fields where the dependends does not match.
-   * Set handler on depending fields to show or hide the dependend fields.
+   * Get all fields that depend on another.
+   * Hide fields where the dependents do not match.
+   * Set handler on depending on fields to show or hide the dependent fields.
    *
    * Hint: hide the surrounding "tr"-element.
    */
-  $( '.easy-settings-for-wordpress input[type="checkbox"], .easy-settings-for-wordpress input[type="hidden"], .easy-settings-for-wordpress select' ).each( function () {
+  $( '.easy-settings-for-wordpress input[type="checkbox"], .easy-settings-for-wordpress input[type="radio"], .easy-settings-for-wordpress input[type="hidden"], .easy-settings-for-wordpress select' ).each( function () {
     let form_field = $( this );
 
     // check on load to hide some fields.
