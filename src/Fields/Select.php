@@ -61,6 +61,11 @@ class Select extends Field_Base {
 		// get value.
 		$value = (string) get_option( $setting->get_name(), '' );
 
+        // show hidden field if this is set to readonly.
+        if( $this->is_readonly() ) {
+            ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( $value ); ?>"><?php
+        }
+
 		?>
 		<select id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>" class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo ( $this->is_readonly() ? ' disabled="disabled"' : '' ); ?>>
 			<?php
