@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.17.5] - 27.12.2025
+
+### Changed
+
+- Trigger save callbacks on activation of the plugin
+
 ## [1.17.4] - 12.12.2025
 
 ### Changed

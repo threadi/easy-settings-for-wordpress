@@ -1062,6 +1062,9 @@ class Settings {
 
             // add the option.
             add_option( $setting->get_name(), $setting->get_default(), '', $setting->is_autoloaded() );
+
+            // update the option to trigger callbacks.
+            update_option( $setting->get_name(), $setting->get_default() );
         }
     }
 
