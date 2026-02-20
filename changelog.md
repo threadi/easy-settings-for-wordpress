@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.18.0] - 20.02.2026
+
+### Added
+
+- Added option to restrict file selection from the media library by mime type
+
+### Fixed
+
+- Fixed missing usage of settings REST API url
+- Fixed missing save of the chosen file in File field
+
 ## [1.17.5] - 27.12.2025
 
 ### Changed

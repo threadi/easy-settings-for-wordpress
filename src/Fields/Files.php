@@ -15,7 +15,7 @@ use easySettingsForWordPress\Setting;
 use WP_Post;
 
 /**
- * Object to handle a multiple file field for single setting.
+ * Object to handle a multiple file field for a single setting.
  */
 class Files extends Field_Base {
 	/**
@@ -39,8 +39,17 @@ class Files extends Field_Base {
 	 */
 	private string $remove_file_title = '';
 
+    /**
+     * List of allowed file types.
+     *
+     * @var array<int,string>
+     */
+    private array $file_types = array(
+        'image'
+    );
+
 	/**
-	 * Return the HTML-code to display this field.
+	 * Return the HTML code to display this field.
 	 *
 	 * @param array $attr Attributes for this field.
 	 *
@@ -70,7 +79,7 @@ class Files extends Field_Base {
 
 		if( ! empty( $files ) ) {
 			?><ul><?php
-			foreach ( $files as $file ) {
+			foreach ( $files as $index => $file ) {
 				// get the attachment object.
 				$attachment = get_post( absint( $file ) );
 
@@ -87,14 +96,6 @@ class Files extends Field_Base {
 				// prepare the setting without this file.
 				$new_files = $files;
 
-				// get position of this file in list.
-				$index = array_search( (string)$attachment->ID, $new_files, true );
-
-				// bail if none entry has been found.
-				if( false === $index ) {
-					continue;
-				}
-
 				// remove the file from list.
 				unset( $new_files[$index] );
 
@@ -106,7 +107,7 @@ class Files extends Field_Base {
 
 		// output.
 		?>
-		<a href="#" class="esfw-settings-files-choose" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
+		<a href="#" class="esfw-settings-files-choose" data-file-types="<?php echo esc_attr( wp_json_encode( $this->get_file_types() ) ); ?>" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
 		<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( implode( ',', $files ) ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 		<?php
 
@@ -135,4 +136,24 @@ class Files extends Field_Base {
 	public function set_add_file_title( string $title ): void {
 		$this->add_file_title = $title;
 	}
+
+    /**
+     * Return the list of allowed file types.
+     *
+     * @return array<int,string>
+     */
+    private function get_file_types(): array {
+        return $this->file_types;
+    }
+
+    /**
+     * Set allowed file types.
+     *
+     * @param array<int,string> $file_types List of allowed file types.
+     *
+     * @return void
+     */
+    public function set_file_types( array $file_types ): void {
+        $this->file_types = $file_types;
+    }
 }
