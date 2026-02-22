@@ -68,8 +68,13 @@ class MultiSelect extends Field_Base {
 		// get values.
 		$values = (array) get_option( $setting->get_name(), array() );
 
+        // show hidden field if this is set to readonly.
+        if( $this->is_readonly() ) {
+            ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( $value ); ?>"><?php
+        }
+
 		?>
-        <select multiple="multiple" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>[]" class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width<?php echo $this->is_sortable() ? ' custom-sortable' : ''; ?>" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
+        <select multiple="multiple" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>[]" class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width<?php echo $this->is_sortable() ? ' custom-sortable' : ''; ?>" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo ( $this->is_readonly() ? ' disabled="disabled"' : '' ); ?>>
 			<?php
 			foreach ( $this->get_options() as $key => $label ) {
 				?>
