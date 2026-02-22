@@ -14,7 +14,7 @@ use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Setting;
 
 /**
- * Object to handle a file field for single setting.
+ * Object to handle a file field for a single setting.
  */
 class File extends Field_Base {
 	/**
@@ -37,6 +37,15 @@ class File extends Field_Base {
 	 * @var string
 	 */
 	private string $remove_file_title = '';
+
+    /**
+     * List of allowed file types.
+     *
+     * @var array<int,string>
+     */
+    private array $file_types = array(
+        'image'
+    );
 
 	/**
 	 * Return the HTML-code to display this field.
@@ -132,4 +141,24 @@ class File extends Field_Base {
 	public function set_remove_file_title( string $title ): void {
 		$this->remove_file_title = $title;
 	}
+
+    /**
+     * Return the list of allowed file types.
+     *
+     * @return array<int,string>
+     */
+    private function get_file_types(): array {
+        return $this->file_types;
+    }
+
+    /**
+     * Set allowed file types.
+     *
+     * @param array<int,string> $file_types List of allowed file types.
+     *
+     * @return void
+     */
+    public function set_file_types( array $file_types ): void {
+        $this->file_types = $file_types;
+    }
 }

@@ -1357,6 +1357,7 @@ class Settings {
             $this->get_slug() . '-settings',
             'esfwJsVars',
             array(
+                'rest_settings' => rest_url( 'wp/v2/settings' ),
                 'rest_nonce' => wp_create_nonce( 'wp_rest' ),
                 'title_add_image' => $translations['file_add_file'],
                 'button_add_image' => $translations['file_choose_file'],

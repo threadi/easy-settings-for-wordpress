@@ -95,7 +95,7 @@ jQuery(document).ready(function($) {
         custom_uploader = wp.media({
           title: esfwJsVars.title_add_image,
           library : {
-            type : 'image'
+            type : button.data('file-types')
           },
           button: {
             text: esfwJsVars.button_add_image
@@ -119,7 +119,7 @@ jQuery(document).ready(function($) {
   });
 
   /**
-   * File handling: on upload button click to choose multiple file for setting.
+   * File handling: on upload button click to choose multiple files for setting.
    */
   $('.esfw-settings-files-choose').on('click', function (e) {
     e.preventDefault();
@@ -127,7 +127,7 @@ jQuery(document).ready(function($) {
         custom_uploader = wp.media({
           title: esfwJsVars.title_add_files,
           library: {
-            type: 'application/pdf' // TODO variabel machen.
+            type: button.data('file-types'),
           },
           button: {
             text: esfwJsVars.button_add_files
@@ -139,25 +139,28 @@ jQuery(document).ready(function($) {
             return attachment.id;
           });
 
-          // create params array.
+          // create the params array.
           let params = new FormData();
           params.append( button.data('setting'), file_ids );
 
-          // send request to server to save this value.
-          $.ajax(
-              {
-                type: "POST",
-                url: esfwJsVars.rest_settings,
-                dataType: 'json',
-                data: params,
-                processData: false,
-                contentType: false,
-                beforeSend: function (xhr) {
-                  // set header for authentication.
-                  xhr.setRequestHeader('X-WP-Nonce', esfwJsVars.rest_nonce);
-                },
-              }
-          );
+            // send a request to the server to save this value.
+            $.ajax(
+                {
+                    type: "POST",
+                    url: esfwJsVars.rest_settings,
+                    dataType: 'json',
+                    data: params,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function (xhr) {
+                        // set the header for authentication.
+                        xhr.setRequestHeader('X-WP-Nonce', esfwJsVars.rest_nonce);
+                    },
+                    success: function( response ) {
+                        jQuery('input[name="' + button.data('setting') + '"]').val(file_ids)
+                    }
+                }
+            );
         }).open();
   });
 
