@@ -1,10 +1,14 @@
 # Changelog
 
-## [1.18.0] - 20.02.2026
+## [1.18.0] - 22.02.2026
 
 ### Added
 
 - Added option to restrict file selection from the media library by mime type
+
+### Changed
+
+- Surround TextInfo descriptions with a paragraph for clean formatting, if not already set.
 
 ### Fixed
 

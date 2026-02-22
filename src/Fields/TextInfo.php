@@ -47,9 +47,12 @@ class TextInfo extends Field_Base {
 			return;
 		}
 
+        // check if paragraphs should be added.
+        $add_paragraphs = strpos( $this->get_description(), '<p>' );
+
 		// output the value.
 		echo '<div data-depends="' . esc_attr( $this->get_depend() ) . '">';
-        echo wp_kses_post( $this->get_description() );
+        echo ( $add_paragraphs ? '<p>' : '' ) . wp_kses_post( $this->get_description() ) . ( $add_paragraphs ? '<p>' : '' );
         echo '</div>';
 	}
 }
