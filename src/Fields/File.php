@@ -82,13 +82,13 @@ class File extends Field_Base {
 				$image = array();
 			}
 			?>
-			<a href="#" class="esfw-settings-image-choose"><img src="<?php echo esc_url( isset( $image[0] ) ? $image[0] : '' ); ?>" alt="" /></a>
+			<a href="#" class="esfw-settings-image-choose" data-file-types="<?php echo esc_attr( wp_json_encode( $this->get_file_types() ) ); ?>"><img src="<?php echo esc_url( isset( $image[0] ) ? $image[0] : '' ); ?>" alt="" /></a>
 			<a href="#" class="esfw-settings-image-remove"><?php echo esc_html( $this->get_remove_file_title() ); ?></a>
 			<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo absint( $image_id ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 			<?php
 		} else {
 			?>
-			<a href="#" class="esfw-settings-image-choose"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
+			<a href="#" class="esfw-settings-image-choose" data-file-types="<?php echo esc_attr( wp_json_encode( $this->get_file_types() ) ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
 			<a href="#" class="esfw-settings-image-remove" style="display:none"><?php echo esc_html( $this->get_remove_file_title() ); ?></a>
 			<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 			<?php
