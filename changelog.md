@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.18.1] - 27.02.2026
+
+### Fixed
+
+- Missing restriction for file selection on single file field
+
 ## [1.18.0] - 20.02.2026
 
 ### Added
