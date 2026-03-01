@@ -15,6 +15,7 @@
 ### Changed
 
 - Surround TextInfo descriptions with a paragraph for clean formatting, if not already set.
+- Extend MultiSelect to be readonly
 
 ### Fixed
 
