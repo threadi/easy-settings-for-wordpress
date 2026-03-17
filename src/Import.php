@@ -157,8 +157,7 @@ class Import {
         // get the translations.
         $translations = Settings::get_instance()->get_translations();
 
-        // create dialog for response.
-
+        // create a dialog for response.
         $dialog = array(
             'detail' => array(
                 'title'   => $translations['dialog_import_error_title'],
@@ -255,7 +254,7 @@ class Import {
             update_option( $field_name, $field_value );
         }
 
-        // return that import was successfully.
+        // return info that import was successfully.
         $dialog['detail']['title']                = $translations['dialog_import_success_title'];
         $dialog['detail']['texts'][0]             = '<p><strong>' . $translations['dialog_import_success_text'] . '</strong></p>';
         $dialog['detail']['texts'][1]             = '<p>' . $translations['dialog_import_success_text_2'] . '</p>';
@@ -266,9 +265,9 @@ class Import {
     /**
      * Allow SVG as file-type.
      *
-     * @param array $file_types List of file types.
+     * @param array<string,string> $file_types List of file types.
      *
-     * @return array
+     * @return array<string,string>
      */
     public function allow_json( array $file_types ): array {
         $new_filetypes         = array();

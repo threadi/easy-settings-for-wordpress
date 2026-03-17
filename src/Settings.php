@@ -10,6 +10,8 @@ namespace easySettingsForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use Composer\InstalledVersions;
+
 /**
  * Initialize the settings object.
  */
@@ -150,7 +152,15 @@ class Settings {
     /**
      * Constructor, not used as this a Singleton object.
      */
-    private function __construct() {}
+    private function __construct() {
+        try {
+            $this->path = InstalledVersions::getInstallPath('threadi/easy-settings-for-wordpress');
+            $this->url = trailingslashit( plugins_url('', $this->path ) ) . 'easy-settings-for-wordpress/';
+        }
+        catch ( \Exception $e ) {
+            return;
+        }
+    }
 
     /**
      * Prevent cloning of this object.
@@ -188,6 +198,7 @@ class Settings {
         add_action( 'admin_init', array( $this, 'register_fields' ) );
         add_action( 'rest_api_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'add_dialog' ) );
 
         // register the settings during WP CLI run.
         if( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -389,10 +400,13 @@ class Settings {
      */
     public function set_menu_slug( string $menu_slug ): void {
         $this->menu_slug = $menu_slug;
+
+        // add this as page.
+        $this->add_page( $menu_slug );
     }
 
     /**
-     * Add the menu in backend to show the settings there.
+     * Add the menu in the backend to show the settings there.
      *
      * @return void
      */
@@ -507,7 +521,7 @@ class Settings {
             return;
         }
 
-        // get main tab from request.
+        // get the main tab from request.
         $current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
         // get sub tab from request.
@@ -1313,16 +1327,13 @@ class Settings {
     }
 
     /**
-     * Add own JS and CSS for backend.
+     * Add own JS and CSS for the backend.
+     *
+     * TODO restrict to when it is really required.
      *
      * @return void
      */
     public function add_js_and_css(): void {
-        // bail if URL or path is not set.
-        if( empty( $this->get_url() ) || empty( $this->get_path() ) ) {
-            return;
-        }
-
         // add backend JS.
         wp_enqueue_script(
             $this->get_slug() . '-settings',
@@ -1373,10 +1384,12 @@ class Settings {
     /**
      * Return the path.
      *
+     * It has a trailing flash.
+     *
      * @return string
      */
     private function get_path(): string {
-        return $this->path;
+        return trailingslashit( $this->path );
     }
 
     /**
@@ -1387,7 +1400,7 @@ class Settings {
      * @return void
      */
     public function set_path( string $path ): void {
-        $this->path = trailingslashit( $path );
+        $this->path = $path;
     }
 
     /**
@@ -1570,4 +1583,55 @@ class Settings {
     public function set_translations( array $translations ): void {
         $this->translations = $translations;
     }
+
+    /**
+     * Add the dialog script.
+     *
+     * @return void
+     */
+    public function add_dialog(): void {
+        // get the path to the easy dialog for wordpress package.
+        try {
+            $path = trailingslashit( InstalledVersions::getInstallPath('threadi/easy-dialog-for-wordpress' ) );
+        } catch ( \Exception $e ) {
+            return;
+        }
+
+        // bail if path does not exist.
+        if( ! file_exists( $path ) ) {
+            return;
+        }
+
+        // get the URL.
+        $url = trailingslashit( plugins_url('', $path ) ) . 'easy-dialog-for-wordpress/';
+
+        // get assets path.
+        $script_asset_path = $path . 'build/index.asset.php';
+
+        // bail if assets does not exist.
+        if( ! file_exists( $script_asset_path ) ) {
+            return;
+        }
+
+        // embed the dialog-components JS-script.
+        $script_asset      = require( $script_asset_path );
+        wp_enqueue_script(
+                'easy-dialog-for-wordpress',
+                $url . 'build/index.js',
+                $script_asset['dependencies'],
+                $script_asset['version'],
+                true
+        );
+
+        // embed the dialog-components CSS-script.
+        $admin_css      = $url . 'build/style-index.css';
+        $admin_css_path = $path . 'build/style-index.css';
+        wp_enqueue_style(
+                'easy-dialog-for-wordpress',
+                $admin_css,
+                array( 'wp-components' ),
+                filemtime( $admin_css_path )
+        );
+    }
+
 }

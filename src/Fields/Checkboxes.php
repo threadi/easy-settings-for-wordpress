@@ -70,7 +70,7 @@ class Checkboxes extends Field_Base {
                 $title = $settings;
             }
             elseif( is_array( $settings ) ) {
-                // otherwise it is an array and the title is the label.
+                // otherwise it is an array, and the title is the label.
                 $title = $settings['label'];
 
                 // get the description.

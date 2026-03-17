@@ -242,7 +242,15 @@ class Setting {
     }
 
     /**
-     * Set the type of this setting (one of: "boolean", "integer", "string", "number", "array", "object").
+     * Set the type. One of:
+     * - boolean
+     * - integer
+     * - string
+     * - number
+     * - array
+     * - object
+     *
+     * @see https://developer.wordpress.org/reference/functions/register_setting/
      *
      * @param string $type The type.
      *

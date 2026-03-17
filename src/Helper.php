@@ -86,7 +86,7 @@ class Helper {
 	 *
 	 * @source https://developer.wordpress.org/reference/functions/register_setting/
 	 *
-	 * @return array
+	 * @return array<int,string>
 	 */
 	private static function get_setting_types(): array {
 		return array(
