@@ -1,9 +1,9 @@
 name: Testing
 
 on:
-  push:
-    tags:
-      - '*'
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -24,6 +24,9 @@ jobs:
     steps:
       - name: Check out source code
         uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: composer install
 
       - name: PHPStan check
         run: vendor/bin/phpstan analyse
