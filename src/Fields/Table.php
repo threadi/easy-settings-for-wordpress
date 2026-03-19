@@ -27,14 +27,14 @@ class Table extends Field_Base {
 	/**
 	 * List of options for each entry.
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	private array $table_options = array();
 
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -68,6 +68,7 @@ class Table extends Field_Base {
 
 		// create table object.
 		$table_obj = new \easySettingsForWordPress\Tables\Table();
+		$table_obj->set_settings_obj( $this->get_settings_obj() );
 		$table_obj->set_table_data( $values );
 		$table_obj->set_table_options( $this->table_options );
 		$table_obj->prepare_items();
@@ -80,8 +81,8 @@ class Table extends Field_Base {
 		}
 
 		// show optional description for this checkbox.
-		if ( ! empty( $field->get_description() ) ) {
-			echo '<p>' . wp_kses_post( $field->get_description() ) . '</p>';
+		if ( ! empty( $this->get_description() ) ) {
+			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
 	}
 
@@ -94,7 +95,7 @@ class Table extends Field_Base {
 	 *     'icon' => 'icon_to_use'
 	 * )
 	 *
-	 * @param array $options List of options.
+	 * @param array<string,mixed> $options List of options.
 	 *
 	 * @return void
 	 */

@@ -1,5 +1,25 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Revamped the structure
+- Requires new embedding of this package in WordPress plugins
+- Tabs now could have descriptions
+
+### Changed
+
+- Checkboxes and Radio fields can now also be dependent from other fields
+- Optimized check for allowed JSON settings during import
+- Now also valid regarding WordPress Coding Standards and PHPStan Level 8
+- Minimum value for Number field is now 0 (previous it was 1)
+
+### Fixed
+
+- Fixed a wrong usage of settings for MultiSelect if it is set to readonly
+- Fixed missing description on PermalinkSlug field
+
 ## [1.18.1] - 27.02.2026
 
 ### Fixed
@@ -97,7 +117,7 @@
 
 ### Changed
 
-- Run settings registering also on cron tasks 
+- Run settings registering also on cron tasks
 
 ## [1.15.1] - 26.10.2025
 
@@ -217,7 +237,7 @@
 ### Added
 
 - Added readonly-attribute for select field
-- Added default WordPress backend class "widefat" on some fields 
+- Added default WordPress backend class "widefat" on some fields
 
 ## [1.10.3] - 24.05.2025
 

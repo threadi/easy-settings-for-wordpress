@@ -23,11 +23,13 @@ function settings_import_file() {
     return;
   }
 
+  // get the form data.
   let request = new FormData();
   request.append( 'file', file);
   request.append( 'action', 'settings_import_file' );
   request.append( 'nonce', settingsImportJsVars.settings_import_file_nonce );
 
+  // submit the request.
   jQuery.ajax({
     url: settingsImportJsVars.ajax_url,
     type: "POST",

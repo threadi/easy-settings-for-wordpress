@@ -41,7 +41,7 @@ class MultiField extends Field_Base {
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -67,20 +67,20 @@ class MultiField extends Field_Base {
 		// get values.
 		$values = (array) get_option( $setting->get_name(), array() );
 
-        // get the quantity.
-        $quantity = $this->get_quantity();
+		// get the quantity.
+		$quantity = $this->get_quantity();
 
 		// show the fields in a loop.
-		for( $q = 0;$q<$quantity;$q++ ) {
+		for ( $q = 0;$q < $quantity;$q++ ) {
 			// create a custom setting we need to show the field.
-			$field_setting = new Setting();
+			$field_setting = new Setting( $this->get_settings_obj() );
 			$field_setting->set_name( $setting->get_name() . '[' . $q . ']' );
-			$field_setting->add_custom_var( 'value', isset( $values[$q] ) ? $values[$q] : '' );
+			$field_setting->add_custom_var( 'value', isset( $values[ $q ] ) ? $values[ $q ] : '' );
 
 			// get the field object.
 			$obj = $this->get_field();
-			$obj->set_title( $this->get_title() . ' #' . ( $q+1 ) );
-            $obj->set_value( isset( $values[$q] ) ? $values[$q] : '' );
+			$obj->set_title( $this->get_title() . ' #' . ( $q + 1 ) );
+			$obj->set_value( isset( $values[ $q ] ) ? $values[ $q ] : '' );
 
 			// show the field.
 			$obj->display( array( 'setting' => $field_setting ) );

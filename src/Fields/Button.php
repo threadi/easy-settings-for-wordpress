@@ -41,28 +41,28 @@ class Button extends Field_Base {
 	/**
 	 * Custom attributes for the button.
 	 *
-	 * @var array
+	 * @var array<string,string>
 	 */
 	private array $button_custom_attributes = array();
 
 	/**
 	 * List of additional classes for the button.
 	 *
-	 * @var array
+	 * @var array<int,string>
 	 */
 	private array $button_classes = array();
 
-    /**
-     * List of data attributes.
-     *
-     * @var array
-     */
-    private array $data = array();
+	/**
+	 * List of data attributes.
+	 *
+	 * @var array<string,string>
+	 */
+	private array $data = array();
 
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -83,15 +83,17 @@ class Button extends Field_Base {
 		}
 
 		// output.
-        ?>
-        <a href="<?php echo esc_url( $this->get_button_url() ); ?>"<?php echo wp_kses_post( $this->get_custom_attributes() ); ?> class="button button-primary
-            <?php
-            echo esc_attr( $this->get_classes() );
-            ?>"<?php
-            echo ( $this->is_readonly() ? ' disabled' : '' );
-            ?>
-           data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo wp_kses_post( $this->get_data() ); ?>><?php echo esc_html( $this->get_button_title() ); ?></a>
-        <?php
+		?>
+		<a href="<?php echo esc_url( $this->get_button_url() ); ?>"<?php echo wp_kses_post( $this->get_custom_attributes() ); ?> class="button button-primary
+			<?php
+			echo esc_attr( $this->get_classes() );
+			?>
+			"
+				<?php
+				echo ( $this->is_readonly() ? ' disabled' : '' );
+				?>
+			data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo wp_kses_post( $this->get_data() ); ?>><?php echo esc_html( $this->get_button_title() ); ?></a>
+		<?php
 
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {
@@ -104,7 +106,7 @@ class Button extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return int
 	 */
 	public function sanitize_callback( mixed $value ): int {
 		// bail if value is null.
@@ -170,19 +172,19 @@ class Button extends Field_Base {
 		return $attributes;
 	}
 
-    /**
-     * Return the custom attributes as array.
-     *
-     * @return array
-     */
-    public function get_custom_attributes_as_array(): array {
-        return $this->button_custom_attributes;
-    }
+	/**
+	 * Return the custom attributes as array.
+	 *
+	 * @return array<string,string>
+	 */
+	public function get_custom_attributes_as_array(): array {
+		return $this->button_custom_attributes;
+	}
 
 	/**
 	 * Set custom attributes.
 	 *
-	 * @param array $custom_attributes List of custom attributes.
+	 * @param array<string,string> $custom_attributes List of custom attributes.
 	 *
 	 * @return void
 	 */
@@ -219,33 +221,33 @@ class Button extends Field_Base {
 		$this->button_classes[] = $class_name;
 	}
 
-    /**
-     * Return list of data-attributes as string for output on button.
-     *
-     * @return string
-     */
-    private function get_data(): string {
-        // collect the output.
-        $output = '';
+	/**
+	 * Return list of data-attributes as string for output on button.
+	 *
+	 * @return string
+	 */
+	private function get_data(): string {
+		// collect the output.
+		$output = '';
 
-        // loop through the data attributes.
-        foreach( $this->data as $key => $value ) {
-            $output .= ' data-' . $key . '="' . esc_attr( $value ) . '"';
-        }
+		// loop through the data attributes.
+		foreach ( $this->data as $key => $value ) {
+			$output .= ' data-' . $key . '="' . esc_attr( $value ) . '"';
+		}
 
-        // return the resulting string.
-        return $output;
-    }
+		// return the resulting string.
+		return $output;
+	}
 
-    /**
-     * Add single class to the list of classes for the button.
-     *
-     * @param string $key The data key.
-     * @param string $value The data value.
-     *
-     * @return void
-     */
-    public function add_data( string $key, string $value ): void {
-        $this->data[$key] = $value;
-    }
+	/**
+	 * Add single class to the list of classes for the button.
+	 *
+	 * @param string $key The data key.
+	 * @param string $value The data value.
+	 *
+	 * @return void
+	 */
+	public function add_data( string $key, string $value ): void {
+		$this->data[ $key ] = $value;
+	}
 }

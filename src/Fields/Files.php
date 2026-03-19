@@ -11,6 +11,7 @@ namespace easySettingsForWordPress\Fields;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
+use easySettingsForWordPress\Helper;
 use easySettingsForWordPress\Setting;
 use WP_Post;
 
@@ -33,25 +34,18 @@ class Files extends Field_Base {
 	private string $add_file_title = '';
 
 	/**
-	 * The add file title.
+	 * List of allowed file types.
 	 *
-	 * @var string
+	 * @var array<int,string>
 	 */
-	private string $remove_file_title = '';
-
-    /**
-     * List of allowed file types.
-     *
-     * @var array<int,string>
-     */
-    private array $file_types = array(
-        'image'
-    );
+	private array $file_types = array(
+		'image',
+	);
 
 	/**
 	 * Return the HTML code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -77,19 +71,20 @@ class Files extends Field_Base {
 		// get value from config.
 		$files = get_option( $setting->get_name() );
 
-		if( ! empty( $files ) ) {
-			?><ul><?php
+		if ( ! empty( $files ) ) {
+			?><ul>
+			<?php
 			foreach ( $files as $index => $file ) {
 				// get the attachment object.
 				$attachment = get_post( absint( $file ) );
 
 				// bail if attachment could not be loaded.
-				if( ! $attachment instanceof WP_Post ) {
+				if ( ! $attachment instanceof WP_Post ) {
 					continue;
 				}
 
 				// bail if post type is not "attachment".
-				if( 'attachment' !== $attachment->post_type ) {
+				if ( 'attachment' !== $attachment->post_type ) {
 					continue;
 				}
 
@@ -97,17 +92,21 @@ class Files extends Field_Base {
 				$new_files = $files;
 
 				// remove the file from list.
-				unset( $new_files[$index] );
+				unset( $new_files[ $index ] );
 
 				// show the file entry.
-				?><li class="esfw-settings-file esfw-settings-file-type-<?php echo esc_attr( sanitize_html_class( $attachment->post_mime_type ) ); ?>"><a href="<?php echo esc_url( get_edit_post_link( $attachment->ID ) ); ?>"><?php echo esc_html( $attachment->post_title ) ?></a> <a href="#" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>" data-setting-value="<?php echo esc_attr( implode( ',', $new_files ) ); ?>" class="esfw-settings-files-choose-remove"><span class="dashicons dashicons-trash"></span></a></li><?php
+				?>
+				<li class="esfw-settings-file esfw-settings-file-type-<?php echo esc_attr( sanitize_html_class( $attachment->post_mime_type ) ); ?>"><a href="<?php echo esc_url( (string) get_edit_post_link( $attachment->ID ) ); ?>"><?php echo esc_html( $attachment->post_title ); ?></a> <a href="#" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>" data-setting-value="<?php echo esc_attr( implode( ',', $new_files ) ); ?>" class="esfw-settings-files-choose-remove"><span class="dashicons dashicons-trash"></span></a></li>
+				<?php
 			}
-			?></ul><?php
+			?>
+			</ul>
+			<?php
 		}
 
 		// output.
 		?>
-		<a href="#" class="esfw-settings-files-choose" data-file-types="<?php echo esc_attr( wp_json_encode( $this->get_file_types() ) ); ?>" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
+		<a href="#" class="esfw-settings-files-choose" data-file-types="<?php echo esc_attr( Helper::get_json( $this->get_file_types() ) ); ?>" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
 		<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( implode( ',', $files ) ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 		<?php
 
@@ -137,23 +136,23 @@ class Files extends Field_Base {
 		$this->add_file_title = $title;
 	}
 
-    /**
-     * Return the list of allowed file types.
-     *
-     * @return array<int,string>
-     */
-    private function get_file_types(): array {
-        return $this->file_types;
-    }
+	/**
+	 * Return the list of allowed file types.
+	 *
+	 * @return array<int,string>
+	 */
+	private function get_file_types(): array {
+		return $this->file_types;
+	}
 
-    /**
-     * Set allowed file types.
-     *
-     * @param array<int,string> $file_types List of allowed file types.
-     *
-     * @return void
-     */
-    public function set_file_types( array $file_types ): void {
-        $this->file_types = $file_types;
-    }
+	/**
+	 * Set allowed file types.
+	 *
+	 * @param array<int,string> $file_types List of allowed file types.
+	 *
+	 * @return void
+	 */
+	public function set_file_types( array $file_types ): void {
+		$this->file_types = $file_types;
+	}
 }
