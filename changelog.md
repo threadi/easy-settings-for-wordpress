@@ -13,7 +13,7 @@
 - Checkboxes and Radio fields can now also be dependent from other fields
 - Optimized check for allowed JSON settings during import
 - Now also valid regarding WordPress Coding Standards and PHPStan Level 8
-- Minimum value for Number field is now 0 (previous it was 1)
+- Minimum value for Number field is now 0 (previous it was 1)a
 
 ### Fixed
 
