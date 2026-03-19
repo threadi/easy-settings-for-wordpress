@@ -1,13 +1,13 @@
 name: Testing
 
 on:
-  pull_request:
-    branches:
-      - master
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
 jobs:
-  phpunit:
+  build:
     name: Run tests
     runs-on: ubuntu-latest
     strategy:
