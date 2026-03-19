@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="EasySettingsForWordPress" namespace="EasySettingsForWordPress\EasySettingsForWordPress" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+
+    <description>Easy settings for WordPress Coding Standards</description>
+
+    <!--
+        Only scan files with .php extension.
+    -->
+    <arg name="extensions" value="php" />
+
+    <!--
+        Directories to exclude.
+    -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
+    <!-- Use additional rulesets -->
+    <rule ref="WordPress-Docs"/>
+    <rule ref="WordPress-Extra"/>
+    <rule ref="WordPress">
+        <!-- Excluded in favour to match PSR-4-namings of classes. -->
+        <exclude name="WordPress.Files.FileName"/>
+
+        <!-- Exclude override of globals -->
+        <exclude name="WordPress.WP.GlobalVariablesOverride"/>
+    </rule>
+</ruleset>

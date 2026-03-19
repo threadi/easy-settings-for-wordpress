@@ -25,17 +25,17 @@ class Checkbox extends Field_Base {
 	 */
 	protected string $type_name = 'Checkbox';
 
-    /**
-     * Show the label with the checkbox.
-     *
-     * @var bool
-     */
-    private bool $with_label = false;
+	/**
+	 * Show the label with the checkbox.
+	 *
+	 * @var bool
+	 */
+	private bool $with_label = false;
 
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -58,29 +58,32 @@ class Checkbox extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-        // show hidden field if this is set to readonly.
-        if( $this->is_readonly() ) {
-            ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? 1 : 0 ); ?>"><?php
-        }
+		// show hidden field if this is set to readonly.
+		if ( $this->is_readonly() ) {
+			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? 1 : 0 ); ?>">
+			<?php
+		}
 
 		?>
 		<input type="checkbox" id="<?php echo esc_attr( $setting->get_name() ); ?>"
 				name="<?php echo esc_attr( $setting->get_name() ); ?>"
 				value="1"
-			<?php
-			echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
-			echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? ' checked="checked"' : '' );
-			?>
-				class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
+				<?php
+				echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
+				echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? ' checked="checked"' : '' );
+				?>
+				class="<?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width"
 				title="<?php echo esc_attr( $this->get_title() ); ?>"
-                data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
+				data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
 		>
 		<?php
 
-        // show the label with the checkbox.
-        if ( $this->get_with_label() ) {
-            ?><label for="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo wp_kses_post( $this->get_title() ); ?></label><?php
-        }
+		// show the label with the checkbox.
+		if ( $this->get_with_label() ) {
+			?>
+			<label for="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo wp_kses_post( $this->get_title() ); ?></label>
+			<?php
+		}
 
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {
@@ -93,7 +96,7 @@ class Checkbox extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return int
 	 */
 	public function sanitize_callback( mixed $value ): int {
 		// bail if value is null.
@@ -105,23 +108,23 @@ class Checkbox extends Field_Base {
 		return absint( $value );
 	}
 
-    /**
-     * Return whether we show the label with the checkbox.
-     *
-     * @return bool
-     */
-    private function get_with_label(): bool {
-        return $this->with_label;
-    }
+	/**
+	 * Return whether we show the label with the checkbox.
+	 *
+	 * @return bool
+	 */
+	private function get_with_label(): bool {
+		return $this->with_label;
+	}
 
-    /**
-     * Set to show the label with the checkbox.
-     *
-     * @param bool $with_label True to show the label.
-     *
-     * @return void
-     */
-    public function set_with_label( bool $with_label ): void {
-        $this->with_label = $with_label;
-    }
+	/**
+	 * Set to show the label with the checkbox.
+	 *
+	 * @param bool $with_label True to show the label.
+	 *
+	 * @return void
+	 */
+	public function set_with_label( bool $with_label ): void {
+		$this->with_label = $with_label;
+	}
 }

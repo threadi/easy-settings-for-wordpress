@@ -11,6 +11,7 @@ namespace easySettingsForWordPress\Fields;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
+use easySettingsForWordPress\Helper;
 use easySettingsForWordPress\Setting;
 use easySettingsForWordPress\Settings;
 
@@ -28,21 +29,21 @@ class MultiSelect extends Field_Base {
 	/**
 	 * The options for this field.
 	 *
-	 * @var array
+	 * @var array<string,string>
 	 */
 	protected array $options = array();
 
-    /**
-     * Sortable marker.
-     *
-     * @var bool
-     */
-    private bool $sortable = false;
+	/**
+	 * Sortable marker.
+	 *
+	 * @var bool
+	 */
+	private bool $sortable = false;
 
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -68,13 +69,14 @@ class MultiSelect extends Field_Base {
 		// get values.
 		$values = (array) get_option( $setting->get_name(), array() );
 
-        // show hidden field if this is set to readonly.
-        if( $this->is_readonly() ) {
-            ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( $value ); ?>"><?php
-        }
+		// show hidden field if this is set to readonly.
+		if ( $this->is_readonly() ) {
+			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( Helper::get_json( $values ) ); ?>">
+			<?php
+		}
 
 		?>
-        <select multiple="multiple" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>[]" class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width<?php echo $this->is_sortable() ? ' custom-sortable' : ''; ?>" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo ( $this->is_readonly() ? ' disabled="disabled"' : '' ); ?>>
+		<select multiple="multiple" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>[]" class="widefat <?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width<?php echo $this->is_sortable() ? ' custom-sortable' : ''; ?>" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo ( $this->is_readonly() ? ' disabled="disabled"' : '' ); ?>>
 			<?php
 			foreach ( $this->get_options() as $key => $label ) {
 				?>
@@ -90,10 +92,10 @@ class MultiSelect extends Field_Base {
 			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
 
-        // add field for dependent fields if sortable is enabled.
-        if( $this->is_sortable() ) {
-            echo '<input type="hidden" name="' . esc_attr( $setting->get_name() ) . '_helper" value="" data-depends="' . esc_attr( $this->get_depend() ) . '">';
-        }
+		// add a field for dependent fields if sortable is enabled.
+		if ( $this->is_sortable() ) {
+			echo '<input type="hidden" name="' . esc_attr( $setting->get_name() ) . '_helper" value="" data-depends="' . esc_attr( $this->get_depend() ) . '">';
+		}
 	}
 
 	/**
@@ -101,7 +103,7 @@ class MultiSelect extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return array<string,mixed>
 	 */
 	public function sanitize_callback( mixed $value ): array {
 		// bail if value is null.
@@ -116,16 +118,16 @@ class MultiSelect extends Field_Base {
 	/**
 	 * Return the options for this field.
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
-    public function get_options(): array {
+	public function get_options(): array {
 		return $this->options;
 	}
 
 	/**
 	 * Set the options for this field.
 	 *
-	 * @param array $options List of options.
+	 * @param array<string,string> $options List of options.
 	 *
 	 * @return void
 	 */
@@ -133,23 +135,23 @@ class MultiSelect extends Field_Base {
 		$this->options = $options;
 	}
 
-    /**
-     * Return whether this field is sortable.
-     *
-     * @return bool
-     */
-    private function is_sortable(): bool {
-        return $this->sortable;
-    }
+	/**
+	 * Return whether this field is sortable.
+	 *
+	 * @return bool
+	 */
+	private function is_sortable(): bool {
+		return $this->sortable;
+	}
 
-    /**
-     * Set sortable.
-     *
-     * @param bool $sortable Whether this is sortable (true) or not (false).
-     *
-     * @return void
-     */
-    public function set_sortable( bool $sortable ): void {
-        $this->sortable = $sortable;
-    }
+	/**
+	 * Set sortable.
+	 *
+	 * @param bool $sortable Whether this is sortable (true) or not (false).
+	 *
+	 * @return void
+	 */
+	public function set_sortable( bool $sortable ): void {
+		$this->sortable = $sortable;
+	}
 }

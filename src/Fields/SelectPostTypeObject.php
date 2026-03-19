@@ -91,7 +91,7 @@ class SelectPostTypeObject extends Field_Base {
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -112,7 +112,7 @@ class SelectPostTypeObject extends Field_Base {
 		}
 
 		// bail if no REST endpoint is set.
-		if( empty( $this->get_endpoint() ) ) {
+		if ( empty( $this->get_endpoint() ) ) {
 			return;
 		}
 
@@ -126,16 +126,16 @@ class SelectPostTypeObject extends Field_Base {
 		<input type="button" class="button button-primary esfw-settings-open-popup" popovertarget="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>" popovertargetaction="toggle" value="<?php echo esc_attr( $this->get_button_title() ); ?>">
 		<?php
 
-		// show info about chosen object.
-		if( $value > 0 ) {
+		// show info about the chosen object.
+		if ( $value > 0 ) {
 			// get the post object.
 			$post = get_post( $value );
 
 			// show only if post could be loaded.
-			if( $post instanceof WP_Post ) {
+			if ( $post instanceof WP_Post ) {
 				// get the permalink of this post.
 				$url = get_permalink( $post->ID );
-				if( ! $url ) {
+				if ( ! $url ) {
 					$url = '';
 				}
 
@@ -151,12 +151,11 @@ class SelectPostTypeObject extends Field_Base {
 			<h2><?php echo esc_html( $this->get_popup_title() ); ?></h2>
 			<?php echo wp_kses_post( $this->get_popup_description() ); ?>
 			<label for="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>-search"><?php echo esc_html( $this->get_label_title() ); ?></label>
-			<input type="text" name="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>-search" id="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>-search" placeholder="<?php echo esc_attr( $this->get_placeholder() ); ?>" value="" class="widefat esfw-settings-post-type-search" data-field="<?php echo esc_attr( $setting->get_name() ); ?>" data-endpoint="<?php echo esc_attr( $this->get_endpoint() ); ?>" data-limit="<?php echo esc_attr( $this->get_limit() ); ?>" data-chosen-title="<?php echo esc_attr( $this->get_chosen_title() ); ?>">
+			<input type="text" name="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>-search" id="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>-search" placeholder="<?php echo esc_attr( $this->get_placeholder() ); ?>" value="" class="widefat esfw-settings-post-type-search" data-field="<?php echo esc_attr( $setting->get_name() ); ?>" data-endpoint="<?php echo esc_attr( $this->get_endpoint() ); ?>" data-limit="<?php echo absint( $this->get_limit() ); ?>" data-chosen-title="<?php echo esc_attr( $this->get_chosen_title() ); ?>">
 			<div class="esfw-settings-post-type-listing"></div>
 			<input type="button" popovertarget="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>" popovertargetaction="hide" value="<?php echo esc_attr( $this->get_cancel_button_title() ); ?>" class="button button-primary esfw-settings-overlay-closing">
 		</div>
 		<?php
-
 
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {

@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Setting;
-use easySettingsForWordPress\Settings;
 
 /**
  * Object to handle a select field for single setting.
@@ -28,14 +27,14 @@ class Select extends Field_Base {
 	/**
 	 * The options for this field.
 	 *
-	 * @var array
+	 * @var array<string,string>
 	 */
 	protected array $options = array();
 
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -61,13 +60,14 @@ class Select extends Field_Base {
 		// get value.
 		$value = (string) get_option( $setting->get_name(), '' );
 
-        // show hidden field if this is set to readonly.
-        if( $this->is_readonly() ) {
-            ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( $value ); ?>"><?php
-        }
+		// show hidden field if this is set to readonly.
+		if ( $this->is_readonly() ) {
+			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( $value ); ?>">
+			<?php
+		}
 
 		?>
-		<select id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>" class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo ( $this->is_readonly() ? ' disabled="disabled"' : '' ); ?>>
+		<select id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>" class="widefat <?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width" title="<?php echo esc_attr( $this->get_title() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo ( $this->is_readonly() ? ' disabled="disabled"' : '' ); ?>>
 			<?php
 			foreach ( $this->get_options() as $key => $label ) {
 				?>
@@ -87,7 +87,7 @@ class Select extends Field_Base {
 	/**
 	 * Return the options for this field.
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	public function get_options(): array {
 		return $this->options;
@@ -96,7 +96,7 @@ class Select extends Field_Base {
 	/**
 	 * Set the options for this field.
 	 *
-	 * @param array $options List of options.
+	 * @param array<string,string> $options List of options.
 	 *
 	 * @return void
 	 */

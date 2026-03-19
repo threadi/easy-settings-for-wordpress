@@ -13,14 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Object to hold single section within a tab in settings.
  */
-class Section {
-	/**
-	 * The internal name of this section.
-	 *
-	 * @var string
-	 */
-	private string $name = '';
-
+class Section extends Base_Object {
 	/**
 	 * The title of this section.
 	 *
@@ -45,28 +38,32 @@ class Section {
 	/**
 	 * The callback for section header.
 	 *
-	 * @var string|array
+	 * @var callable
 	 */
-	private string|array $callback = '__return_true';
+	private $callback = '__return_true';
 
-    /**
-     * The page slug.
-     *
-     * @var string|false
-     */
-    private string|false $page = false;
+	/**
+	 * The page object.
+	 *
+	 * @var Page
+	 */
+	private Page $page;
 
-    /**
-     * Set hidden section.
-     *
-     * @var bool
-     */
-    private bool $hidden = false;
+	/**
+	 * Set hidden section.
+	 *
+	 * @var bool
+	 */
+	private bool $hidden = false;
 
 	/**
 	 * Constructor.
+	 *
+	 * @param Settings $settings_obj The settings object.
 	 */
-	public function __construct() {}
+	public function __construct( Settings $settings_obj ) {
+		$this->settings_obj = $settings_obj;
+	}
 
 	/**
 	 * Return the internal name.
@@ -76,25 +73,15 @@ class Section {
 	public function get_name(): string {
 		$name = $this->name;
 
+		$instance = $this;
 		/**
 		 * Filter the name of a section object.
 		 *
 		 * @since 2.0.0 Available since 2.0.0.
 		 * @param string $name The name.
-		 * @param Tab $this The tab-object.
+		 * @param Section $instance The tab-object.
 		 */
-		return apply_filters( Settings::get_instance()->get_slug() . '_settings_section_name', $name, $this );
-	}
-
-	/**
-	 * Set internal name.
-	 *
-	 * @param string $name The name to use.
-	 *
-	 * @return void
-	 */
-	public function set_name( string $name ): void {
-		$this->name = $name;
+		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_section_name', $name, $instance );
 	}
 
 	/**
@@ -105,18 +92,19 @@ class Section {
 	public function get_title(): string {
 		$title = $this->title;
 
+		$instance = $this;
 		/**
 		 * Filter the title of a section object.
 		 *
 		 * @since 2.0.0 Available since 2.0.0.
 		 * @param string $title The title.
-		 * @param Tab $this The tab-object.
+		 * @param Section $instance The tab-object.
 		 */
-		return apply_filters( Settings::get_instance()->get_slug() . '_settings_section_title', $title, $this );
+		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_section_title', $title, $instance );
 	}
 
 	/**
-	 * Set internal name.
+	 * Set the title.
 	 *
 	 * @param string $title The title to use.
 	 *
@@ -127,25 +115,26 @@ class Section {
 	}
 
 	/**
-	 * Return the setting this section belongs to.
+	 * Return the settings this section belongs to.
 	 *
 	 * @return ?Settings
 	 */
 	public function get_setting(): ?Settings {
-		$setting = $this->setting;
+		$settings = $this->setting;
 
+		$instance = $this;
 		/**
-		 * Filter the settings of a tabs object.
+		 * Filter the settings object of a section object.
 		 *
 		 * @since 2.0.0 Available since 2.0.0.
-		 * @param Settings $setting The settings.
-		 * @param Tab $this The tab-object.
+		 * @param ?Settings $settings The settings.
+		 * @param Section $instance The tab-object.
 		 */
-		return apply_filters( Settings::get_instance()->get_slug() . '_settings_section_setting', $setting, $this );
+		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_section_setting', $settings, $instance );
 	}
 
 	/**
-	 * Set the setting this section belongs to.
+	 * Set the settings this section belongs to.
 	 *
 	 * @param Settings $settings_obj The settings object this section belongs to.
 	 *
@@ -158,33 +147,27 @@ class Section {
 	/**
 	 * Return the callback.
 	 *
-	 * @return string|array
+	 * @return callable
 	 */
-	public function get_callback(): string|array {
+	public function get_callback(): callable {
 		return $this->callback;
 	}
 
 	/**
 	 * Set the callback.
 	 *
-	 * @param string|array $callback The callback.
+	 * @param callable $callback The callback.
 	 *
 	 * @return void
 	 */
-	public function set_callback( string|array $callback ): void {
-		// bail if given callback is not callable.
-		if ( ! is_callable( $callback ) ) {
-			return;
-		}
-
-		// set the callback.
+	public function set_callback( callable $callback ): void {
 		$this->callback = $callback;
 	}
 
 	/**
 	 * Return the tab this section is assigned to.
 	 *
-	 * @return Tab|null
+	 * @return Tab|false
 	 */
 	public function get_tab(): Tab|false {
 		return $this->tab;
@@ -201,34 +184,43 @@ class Section {
 		$this->tab = $tab;
 	}
 
-    /**
-     * Set page this section is assigned to.
-     *
-     * @param string $page The page slug.
-     *
-     * @return void
-     */
-    public function set_page( string $page ): void {
-        $this->page = $page;
-    }
+	/**
+	 * Return the page this section is assigned to.
+	 *
+	 * @return Page|false
+	 */
+	public function get_page(): Page|false {
+		return $this->page;
+	}
 
-    /**
-     * Return whether this section is hidden.
-     *
-     * @return bool
-     */
-    public function is_hidden(): bool {
-        return $this->hidden;
-    }
+	/**
+	 * Set page this section is assigned to.
+	 *
+	 * @param Page $page The page object.
+	 *
+	 * @return void
+	 */
+	public function set_page( Page $page ): void {
+		$this->page = $page;
+	}
 
-    /**
-     * Set this section as hidden.
-     *
-     * @param bool $hidden
-     *
-     * @return void
-     */
-    public function set_hidden( bool $hidden ): void {
-        $this->hidden = $hidden;
-    }
+	/**
+	 * Return whether this section is hidden.
+	 *
+	 * @return bool
+	 */
+	public function is_hidden(): bool {
+		return $this->hidden;
+	}
+
+	/**
+	 * Set this section as hidden.
+	 *
+	 * @param bool $hidden True if this section should be hidden.
+	 *
+	 * @return void
+	 */
+	public function set_hidden( bool $hidden ): void {
+		$this->hidden = $hidden;
+	}
 }

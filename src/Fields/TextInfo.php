@@ -27,7 +27,7 @@ class TextInfo extends Field_Base {
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -47,12 +47,12 @@ class TextInfo extends Field_Base {
 			return;
 		}
 
-        // check if paragraphs should be added.
-        $add_paragraphs = strpos( $this->get_description(), '<p>' );
+		// check if paragraphs should be added.
+		$add_paragraphs = strpos( $this->get_description(), '<p>' );
 
 		// output the value.
 		echo '<div data-depends="' . esc_attr( $this->get_depend() ) . '">';
-        echo ( $add_paragraphs ? '<p>' : '' ) . wp_kses_post( $this->get_description() ) . ( $add_paragraphs ? '<p>' : '' );
-        echo '</div>';
+		echo ( $add_paragraphs ? '<p>' : '' ) . wp_kses_post( $this->get_description() ) . ( $add_paragraphs ? '<p>' : '' );
+		echo '</div>';
 	}
 }

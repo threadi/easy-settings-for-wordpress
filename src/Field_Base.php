@@ -1,6 +1,6 @@
 <?php
 /**
- * This file holds an object for a single checkbox field.
+ * File for an object to handle basic field methods and tasks.
  *
  * @package easy-settings-for-wordpress
  */
@@ -11,9 +11,16 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Object to hold single setting.
+ * Object to handle basis field methods and tasks.
  */
 class Field_Base {
+
+	/**
+	 * Set settings object.
+	 *
+	 * @var Settings
+	 */
+	protected Settings $settings_obj;
 
 	/**
 	 * The type name.
@@ -46,16 +53,16 @@ class Field_Base {
 	/**
 	 * The sanitize callback.
 	 *
-	 * @var array
+	 * @var callable
 	 */
-	private array $sanitize_callback = array();
+	private $sanitize_callback;
 
-    /**
-     * Depending setting.
-     *
-     * @var array
-     */
-    private array $depends = array();
+	/**
+	 * Depending setting.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private array $depends = array();
 
 	/**
 	 * The setting this field belongs to.
@@ -66,13 +73,17 @@ class Field_Base {
 
 	/**
 	 * Constructor.
+	 *
+	 * @param Settings $settings_obj The settings object.
 	 */
-	public function __construct() {}
+	public function __construct( Settings $settings_obj ) {
+		$this->settings_obj = $settings_obj;
+	}
 
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -132,14 +143,15 @@ class Field_Base {
 	 * @return bool
 	 */
 	public function is_readonly(): bool {
+		$instance = $this;
 		/**
 		 * Filter the readonly setting for the actual setting.
 		 *
 		 * @since 2.0.0 Available since 2.0.0.
 		 * @param bool $readonly The actual value.
-		 * @param Field_Base $this The field object.
+		 * @param Field_Base $instance The field object.
 		 */
-		return apply_filters( Settings::get_instance()->get_slug() . '_setting_readonly', $this->readonly, $this );
+		return apply_filters( $this->settings_obj->get_slug() . '_setting_readonly', $this->readonly, $instance );
 	}
 
 	/**
@@ -156,20 +168,20 @@ class Field_Base {
 	/**
 	 * Return the callback for this field.
 	 *
-	 * @return array
+	 * @return callable
 	 */
-	public function get_callback(): array {
+	public function get_callback(): callable {
 		return array( $this, 'display' );
 	}
 
 	/**
 	 * Return the sanitize callback.
 	 *
-	 * @return array
+	 * @return callable
 	 */
-	public function get_sanitize_callback(): array {
+	public function get_sanitize_callback(): callable {
 		// if setting is empty, use our default callback.
-		if ( empty( $this->sanitize_callback ) ) {
+		if ( null === $this->sanitize_callback ) {
 			return array( $this, 'sanitize_callback' );
 		}
 
@@ -180,11 +192,11 @@ class Field_Base {
 	/**
 	 * Set custom sanitize callback.
 	 *
-	 * @param array $sanitize_callback The custom sanitize callback.
+	 * @param callable $sanitize_callback The custom sanitize callback.
 	 *
 	 * @return void
 	 */
-	public function set_sanitize_callback( array $sanitize_callback ): void {
+	public function set_sanitize_callback( callable $sanitize_callback ): void {
 		$this->sanitize_callback = $sanitize_callback;
 	}
 
@@ -228,58 +240,67 @@ class Field_Base {
 		$this->setting = $setting;
 	}
 
-    /**
-     * Return the configured fields this field depends on.
-     *
-     * @return string
-     */
-    public function get_depend(): string {
-        // bail if no depends fields are set.
-        if( empty( $this->depends ) ) {
-            return '';
-        }
+	/**
+	 * Return the configured fields this field depends on.
+	 *
+	 * @return string
+	 */
+	public function get_depend(): string {
+		// bail if no dependent fields are set.
+		if ( empty( $this->depends ) ) {
+			return '';
+		}
 
-        // generate JSON of this setting.
-        $json = wp_json_encode( $this->depends, JSON_FORCE_OBJECT );
+		// generate JSON of this setting.
+		$json = wp_json_encode( $this->depends, JSON_FORCE_OBJECT );
 
-        // bail if JSON could not be generated.
-        if( ! $json ) {
-            return '';
-        }
+		// bail if JSON could not be generated.
+		if ( ! $json ) {
+			return '';
+		}
 
-        // return the JSON string with the configuration.
-        return $json;
-    }
+		// return the JSON string with the configuration.
+		return $json;
+	}
 
-    /**
-     * Add a setting this field depends on.
-     *
-     * This field will only be visible if this setting has the requested value.
-     *
-     * @param Setting $setting The setting this fields depends on.
-     * @param mixed   $value The value it must have.
-     *
-     * @return void
-     */
-    public function add_depend( Setting $setting, mixed $value ): void {
-        $this->depends[$setting->get_name()] = $value;
-    }
+	/**
+	 * Add a setting this field depends on.
+	 *
+	 * This field will only be visible if this setting has the requested value.
+	 *
+	 * @param Setting $setting The setting this fields depends on.
+	 * @param mixed   $value The value it must have.
+	 *
+	 * @return void
+	 */
+	public function add_depend( Setting $setting, mixed $value ): void {
+		$this->depends[ $setting->get_name() ] = $value;
+	}
 
-    /**
-     * Return the placeholder.
-     *
-     * @return string
-     */
-    public function get_placeholder(): string {
-        return '';
-    }
+	/**
+	 * Return the placeholder.
+	 *
+	 * @return string
+	 */
+	public function get_placeholder(): string {
+		return '';
+	}
 
-    /**
-     * Set the field value.
-     *
-     * @param mixed $value The value.
-     *
-     * @return void
-     */
-    public function set_value( mixed $value ): void {}
+	/**
+	 * Set the field value.
+	 *
+	 * @param mixed $value The value.
+	 *
+	 * @return void
+	 */
+	public function set_value( mixed $value ): void {}
+
+	/**
+	 * Return the settings object to use.
+	 *
+	 * @return Settings
+	 */
+	public function get_settings_obj(): Settings {
+		return $this->settings_obj;
+	}
 }

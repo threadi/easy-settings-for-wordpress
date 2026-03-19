@@ -20,21 +20,38 @@ class Table extends WP_List_Table {
 	/**
 	 * Hold the table data.
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	private array $table_data = array();
 
 	/**
 	 * List of options.
 	 *
-	 * @var array
+	 * @var array<string,mixed>
 	 */
 	private array $table_options = array();
 
 	/**
+	 * The settings object.
+	 *
+	 * @var Settings
+	 */
+	private Settings $settings_obj;
+
+	/**
+	 * Set the setting object.
+	 *
+	 * @param Settings $settings_obj The settings object.
+	 * @return void
+	 */
+	public function set_settings_obj( Settings $settings_obj ): void {
+		$this->settings_obj = $settings_obj;
+	}
+
+	/**
 	 * Return the table data array.
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	private function get_table_data(): array {
 		return $this->table_data;
@@ -43,7 +60,7 @@ class Table extends WP_List_Table {
 	/**
 	 * Set the table data.
 	 *
-	 * @param array $data The data to use.
+	 * @param array<string,mixed> $data The data to use.
 	 *
 	 * @return void
 	 */
@@ -54,11 +71,11 @@ class Table extends WP_List_Table {
 	/**
 	 * Override the parent columns method. Defines the columns to use in your listing table
 	 *
-	 * @return array
+	 * @return array<string,string>
 	 */
 	public function get_columns(): array {
-        // get the translations.
-        $translations = Settings::get_instance()->get_translations();
+		// get the translations.
+		$translations = $this->settings_obj->get_translations();
 
 		return array(
 			'options' => $translations['table_options'],
@@ -96,9 +113,9 @@ class Table extends WP_List_Table {
 	}
 
 	/**
-	 * Define which columns are hidden
+	 * Define, which columns are hidden
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function get_hidden_columns(): array {
 		return array();
@@ -107,7 +124,7 @@ class Table extends WP_List_Table {
 	/**
 	 * Define the sortable columns
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
 	public function get_sortable_columns(): array {
 		return array( 'date' => array( 'date', false ) );
@@ -116,8 +133,8 @@ class Table extends WP_List_Table {
 	/**
 	 * Define what data to show on each column of the table
 	 *
-	 * @param  string $item        Data for single column.
-	 * @param  String $column_name - Current iterated column name.
+	 * @param  mixed  $item        Data for single column.
+	 * @param  string $column_name - Current iterated column name.
 	 *
 	 * @return string
 	 * @noinspection PhpMissingReturnTypeInspection
@@ -131,13 +148,13 @@ class Table extends WP_List_Table {
 	}
 
 	/**
-	 * Message to be displayed when there are no items.
+	 * Message to be displayed when we have no items.
 	 */
 	public function no_items(): void {
-        // get the translations.
-        $translations = Settings::get_instance()->get_translations();
+		// get the translations.
+		$translations = $this->settings_obj->get_translations();
 
-        // output.
+		// output.
 		echo esc_html( $translations['table_no_entries'] );
 	}
 
@@ -150,7 +167,7 @@ class Table extends WP_List_Table {
 	 *     'icon' => 'icon_to_use'
 	 * )
 	 *
-	 * @param array $options List of options.
+	 * @param array<string,mixed> $options List of options.
 	 *
 	 * @return void
 	 */
@@ -189,7 +206,7 @@ class Table extends WP_List_Table {
 	/**
 	 * Hide any nav elements and nonces.
 	 *
-	 * @param bool $which Necessary parameter.
+	 * @param string $which The necessary parameter.
 	 *
 	 * @return void
 	 */
@@ -198,7 +215,7 @@ class Table extends WP_List_Table {
 	/**
 	 * Override columns to hide footer of table.
 	 *
-	 * @param bool $with_id Necessary parameter.
+	 * @param bool $with_id The necessary parameter.
 	 *
 	 * @return void
 	 */

@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Setting;
-use easySettingsForWordPress\Settings;
 
 /**
  * Object to handle a checkbox for multiple radio fields.
@@ -28,14 +27,14 @@ class Radio extends Field_Base {
 	/**
 	 * The options for this field.
 	 *
-	 * @var array
+	 * @var array<string,string|array<string,string>>
 	 */
 	protected array $options = array();
 
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -58,46 +57,47 @@ class Radio extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-        // show hidden field if this is set to readonly.
-        if( $this->is_readonly() ) {
-            ?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( get_option( $setting->get_name(), '' ) ); ?>"><?php
-        }
+		// show hidden field if this is set to readonly.
+		if ( $this->is_readonly() ) {
+			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( get_option( $setting->get_name(), '' ) ); ?>">
+			<?php
+		}
 
-        // show each option.
-        foreach( $this->get_options() as $key => $settings ) {
-            $title = '';
-            $description = '';
-            // if settings is a string, then it is the title.
-            if( is_string( $settings ) ) {
-                $title = $settings;
-            }
-            elseif( is_array( $settings ) ) {
-                // otherwise it is an array and the title is the label.
-                $title = $settings['label'];
+		// show each option.
+		foreach ( $this->get_options() as $key => $settings ) {
+			$title       = '';
+			$description = '';
+			// if settings is a string, then it is the title.
+			if ( is_string( $settings ) ) {
+				$title = $settings;
+			} elseif ( is_array( $settings ) ) {
+				// otherwise it is an array, and the title is the label.
+				$title = $settings['label'];
 
-                // get the description.
-                $description = isset( $settings['description'] ) ? $settings['description'] : '';
-            }
+				// get the description.
+				$description = isset( $settings['description'] ) ? $settings['description'] : '';
+			}
 
-            ?>
-            <div>
-                <input type="radio" id="<?php echo esc_attr( $setting->get_name() . $key ); ?>"
-                       name="<?php echo esc_attr( $setting->get_name() ); ?>"
-                       value="<?php echo esc_attr( $key ); ?>"
-                        <?php
-                        echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
-                        echo ( get_option( $setting->get_name(), '' ) === $key ? ' checked="checked"' : '' );
-                        ?>
-                       class="<?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
-                       title="<?php echo esc_attr( $this->get_title() ); ?>"
-                >
-                <label for="<?php echo esc_attr( $setting->get_name() . $key ); ?>"><?php echo wp_kses_post( $title ) ; ?></label>
-                <?php if ( ! empty( $description ) ) { ?>
-                    <p class="description"><?php echo esc_html( $description ); ?></p>
-                <?php } ?>
-            </div>
-            <?php
-        }
+			?>
+			<div>
+				<input type="radio" id="<?php echo esc_attr( $setting->get_name() . $key ); ?>"
+						name="<?php echo esc_attr( $setting->get_name() ); ?>"
+						value="<?php echo esc_attr( $key ); ?>"
+						<?php
+						echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
+						echo ( get_option( $setting->get_name(), '' ) === $key ? ' checked="checked"' : '' );
+						?>
+						class="<?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width"
+						title="<?php echo esc_attr( $this->get_title() ); ?>"
+						data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
+				>
+				<label for="<?php echo esc_attr( $setting->get_name() . $key ); ?>"><?php echo wp_kses_post( $title ); ?></label>
+				<?php if ( ! empty( $description ) ) { ?>
+					<p class="description"><?php echo esc_html( $description ); ?></p>
+				<?php } ?>
+			</div>
+			<?php
+		}
 
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {
@@ -110,7 +110,7 @@ class Radio extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return int
 	 */
 	public function sanitize_callback( mixed $value ): int {
 		// bail if value is null.
@@ -125,7 +125,7 @@ class Radio extends Field_Base {
 	/**
 	 * Return the options for this field.
 	 *
-	 * @return array
+	 * @return array<string,string|array<string,string>>
 	 */
 	public function get_options(): array {
 		return $this->options;
@@ -134,7 +134,7 @@ class Radio extends Field_Base {
 	/**
 	 * Set the options for this field.
 	 *
-	 * @param array $options List of options.
+	 * @param array<string,string|array<string,string>> $options List of options.
 	 *
 	 * @return void
 	 */

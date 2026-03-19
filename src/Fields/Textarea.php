@@ -35,7 +35,7 @@ class Textarea extends Field_Base {
 	/**
 	 * Return the HTML-code to display this field.
 	 *
-	 * @param array $attr Attributes for this field.
+	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
 	 * @return void
 	 */
@@ -60,14 +60,14 @@ class Textarea extends Field_Base {
 
 		?>
 		<textarea id="<?php echo esc_attr( $setting->get_name() ); ?>"
-		       name="<?php echo esc_attr( $setting->get_name() ); ?>"
-		       placeholder="<?php echo esc_attr( $this->get_placeholder() ); ?>"
+				name="<?php echo esc_attr( $setting->get_name() ); ?>"
+				placeholder="<?php echo esc_attr( $this->get_placeholder() ); ?>"
 			<?php
 			echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
 			?>
-			   class="widefat <?php echo esc_attr( Settings::get_instance()->get_slug() ); ?>-field-width"
-			   title="<?php echo esc_attr( $this->get_title() ); ?>"
-			   data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
+				class="widefat <?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width"
+				title="<?php echo esc_attr( $this->get_title() ); ?>"
+				data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
 		><?php echo esc_html( get_option( $setting->get_name(), '' ) ); ?></textarea>
 		<?php
 
