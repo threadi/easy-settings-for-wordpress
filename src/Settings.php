@@ -150,6 +150,13 @@ class Settings {
 	private array $translations = array();
 
 	/**
+	 * The default styling.
+	 *
+	 * @var string
+	 */
+	private string $styling = 'horizontal_tabs';
+
+	/**
 	 * The import object.
 	 *
 	 * @var Import
@@ -496,162 +503,21 @@ class Settings {
 	}
 
 	/**
-	 * Show the menu page.
+	 * Show the navigation of settings.
 	 *
 	 * @return void
 	 */
 	public function display(): void {
-		// bail on missing capabilities.
-		if ( ! current_user_can( $this->get_capability() ) ) {
+		// get the styling object.
+		$styling_object = $this->get_styling_object();
+
+		// bail if no styling object could be found.
+		if( ! $styling_object instanceof Styling_Base ) {
 			return;
 		}
 
-		// set active main tab.
-		$main_active_tab = false;
-
-		// set active sub tab.
-		$sub_active_tab = false;
-
-		// get requested page.
-		$page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-
-		// bail if page is not called.
-		if ( is_null( $page ) ) {
-			return;
-		}
-
-		// get the requested page.
-		$page_obj = $this->get_page( $page );
-
-		// bail if page could not be found.
-		if ( ! $page_obj instanceof Page ) {
-			return;
-		}
-
-		// get the main tab from request.
-		$current_tab = filter_input( INPUT_GET, 'tab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-
-		// get sub tab from request.
-		$current_sub_tab = filter_input( INPUT_GET, 'subtab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-
-		// sort the tabs.
-		add_filter( $this->get_slug() . '_settings_tabs', array( $this, 'sort' ), PHP_INT_MAX );
-
-		?>
-		<div class="wrap easy-settings-for-wordpress">
-			<h1 class="wp-heading-inline"><?php echo esc_html( $this->get_title() ); ?></h1>
-			<nav class="nav-tab-wrapper">
-				<?php
-				// loop through the tabs.
-				foreach ( $page_obj->get_tabs() as $tab ) {
-					// ignore if tab should be a menu item.
-					if ( $tab->is_show_in_menu() ) {
-						continue;
-					}
-
-					// set additional classes.
-					$css_classes = '';
-
-					// check for the current tab.
-					if ( $tab->is_current() ) {
-						$main_active_tab = $tab;
-						$css_classes    .= ' nav-tab-active';
-					} elseif ( is_null( $current_tab ) && $tab === $page_obj->get_default_tab() ) {
-						$main_active_tab = $tab;
-						$css_classes    .= ' nav-tab-active';
-					}
-
-					if ( ! empty( $tab->get_tab_class() ) ) {
-						$css_classes .= ' ' . $tab->get_tab_class();
-					}
-
-					// get URL for this tab.
-					$url    = add_query_arg(
-						array(
-							'page' => $page,
-							'tab'  => $tab->get_name(),
-						),
-						get_admin_url() . $this->get_menu_parent_slug()
-					);
-					$target = $tab->get_url_target();
-					if ( ! empty( $tab->get_url() ) ) {
-						$url = $tab->get_url();
-					}
-
-					// output a non-linked tab.
-					if ( $tab->is_not_linked() ) {
-						// output.
-						?>
-						<span class="nav-tab<?php echo esc_attr( $css_classes ); ?>"><?php echo wp_kses_post( $tab->get_title() ); ?></span>
-						<?php
-						continue;
-					}
-
-					// output.
-					?>
-					<a href="<?php echo esc_url( $url ); ?>" target="<?php echo esc_attr( $target ); ?>" class="nav-tab<?php echo esc_attr( $css_classes ); ?>"><?php echo esc_html( $tab->get_title() ); ?></a>
-					<?php
-				}
-				?>
-			</nav>
-
-			<?php
-			// show sub-tabs of the active tab as breadcrumb-like sub-navigation.
-			$sub_tabs = $main_active_tab ? $main_active_tab->get_tabs() : array();
-			if ( ! empty( $sub_tabs ) ) {
-				?>
-				<nav class="nav-subtab-wrapper"><ul>
-				<?php
-				foreach ( $sub_tabs as $tab ) {
-					// get URL for this tab.
-					$url    = add_query_arg(
-						array(
-							'page'   => $page,
-							'tab'    => $main_active_tab->get_name(),
-							'subtab' => $tab->get_name(),
-						),
-						get_admin_url() . $this->get_menu_parent_slug()
-					);
-					$target = $tab->get_url_target();
-					if ( ! empty( $tab->get_url() ) ) {
-						$url = $tab->get_url();
-					}
-
-					// collect classes.
-					$css_classes = '';
-
-					// check for the current tab.
-					if ( $tab->is_current_sub_tab() ) {
-						$sub_active_tab = $tab;
-						$css_classes   .= 'active';
-					} elseif ( is_null( $current_sub_tab ) && $tab === $main_active_tab->get_default_tab() ) {
-						$sub_active_tab = $tab;
-						$css_classes   .= 'active';
-					}
-
-					// output.
-					?>
-						<li><a href="<?php echo esc_url( $url ); ?>" target="<?php echo esc_attr( $target ); ?>" class="<?php echo esc_attr( $css_classes ); ?>"><?php echo esc_html( $tab->get_title() ); ?></a></li>
-						<?php
-				}
-				?>
-					</ul></nav>
-					<?php
-			}
-			?>
-
-			<div class="tab-content">
-				<?php
-				if ( $main_active_tab instanceof Tab ) {
-					call_user_func( $main_active_tab->get_callback() );
-				}
-				if ( $sub_active_tab instanceof Tab ) {
-					call_user_func( $sub_active_tab->get_callback() );
-				}
-				?>
-			</div>
-		</div>
-		<?php
+		// show the navigation.
+		$styling_object->show_nav();
 	}
 
 	/**
@@ -1334,6 +1200,12 @@ class Settings {
 			Helper::get_file_version( $this->get_path() . 'assets/style.css', $this ),
 		);
 
+		// add CSS for chosen styling.
+		$styling_object = $this->get_styling_object();
+		if( $styling_object instanceof Styling_Base ) {
+			$styling_object->add_styles();
+		}
+
 		// get the translations.
 		$translations = $this->get_translations();
 
@@ -1643,5 +1515,82 @@ class Settings {
 	 */
 	private function get_plugin_path(): string {
 		return $this->plugin_path;
+	}
+
+	/**
+	 * Return the object of the configured styling.
+	 *
+	 * @return Styling_Base|false
+	 */
+	public function get_styling_object(): Styling_Base|false {
+		// prepare the result.
+		$style_obj = false;
+
+		// check each supported styling for the configured styling name.
+		foreach( $this->get_styling_objects() as $styling_name ) {
+			// bail if the class name does not exist.
+			if ( ! class_exists( $styling_name ) ) {
+				continue;
+			}
+
+			// get the object.
+			$obj = new $styling_name( $this );
+
+			// bail if an object is not Schedules_Base.
+			if ( ! $obj instanceof Styling_Base ) {
+				continue;
+			}
+
+			// bail if name does not match.
+			if( $obj->get_name() !== $this->get_styling() ) {
+				continue;
+			}
+
+			// use this object.
+			$style_obj = $obj;
+		}
+
+		// return the resulting object.
+		return $style_obj;
+	}
+
+	/**
+	 * Return the configured styling name.
+	 *
+	 * @return string
+	 */
+	private function get_styling(): string {
+		return $this->styling;
+	}
+
+	/**
+	 * Set the styling to use by its name.
+	 *
+	 * @param string $styling The styling name.
+	 *
+	 * @return void
+	 */
+	public function set_styling( string $styling ): void {
+		$this->styling = $styling;
+	}
+
+	/**
+	 * Return the list of possible styling objects.
+	 *
+	 * @return array<int,string>
+	 */
+	private function get_styling_objects(): array {
+		$list = array(
+			'\easySettingsForWordPress\Styles\Horizontal_Tabs',
+			'\easySettingsForWordPress\Styles\Vertical_Tabs',
+		);
+
+		/**
+		 * Filter the list of possible styling for settings.
+		 *
+		 * @since 2.0.0 Available since 2.0.0.
+		 * @param array $list The list.
+		 */
+		return apply_filters( $this->get_slug() . '_styling_objects', $list );
 	}
 }

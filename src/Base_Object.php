@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Base_Object {
 	/**
-	 * The internal name of this page.
+	 * The internal name of this object.
 	 *
 	 * @var string
 	 */
