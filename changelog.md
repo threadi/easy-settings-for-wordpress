@@ -7,6 +7,7 @@
 - Revamped the structure
 - Requires new embedding of this package in WordPress plugins
 - Tabs now could have descriptions
+- Added expendable objects for different styling for the settings: horizontal and vertical tab view
 
 ### Changed
 

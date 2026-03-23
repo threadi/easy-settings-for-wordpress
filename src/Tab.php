@@ -232,21 +232,16 @@ class Tab extends Base_Object {
 	 * @return void
 	 */
 	public function display(): void {
-		// show the tab description.
-		if ( ! empty( $this->get_description() ) ) {
-			echo wp_kses_post( $this->get_description() );
+		// get the configured styling object.
+		$styling_object = $this->get_settings_obj()->get_styling_object();
+
+		// bail if styling object could not be loaded.
+		if( ! $styling_object instanceof Styling_Base ) {
+			return;
 		}
 
-		?>
-		<form method="POST" action="<?php echo esc_url( get_admin_url() ); ?>options.php">
-			<?php
-			'options-general.php' !== $this->settings_obj->get_menu_parent_slug() ? settings_errors() : '';
-			settings_fields( $this->get_name() );
-			do_settings_sections( $this->get_name() );
-			$this->is_save_hidden() ? '' : submit_button();
-			?>
-		</form>
-		<?php
+		// return the output of this object.
+		$styling_object->show_content( $this );
 	}
 
 	/**
