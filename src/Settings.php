@@ -512,7 +512,7 @@ class Settings {
 		$styling_object = $this->get_styling_object();
 
 		// bail if no styling object could be found.
-		if( ! $styling_object instanceof Styling_Base ) {
+		if ( ! $styling_object instanceof Styling_Base ) {
 			return;
 		}
 
@@ -1202,7 +1202,7 @@ class Settings {
 
 		// add CSS for chosen styling.
 		$styling_object = $this->get_styling_object();
-		if( $styling_object instanceof Styling_Base ) {
+		if ( $styling_object instanceof Styling_Base ) {
 			$styling_object->add_styles();
 		}
 
@@ -1527,7 +1527,7 @@ class Settings {
 		$style_obj = false;
 
 		// check each supported styling for the configured styling name.
-		foreach( $this->get_styling_objects() as $styling_name ) {
+		foreach ( $this->get_styling_objects() as $styling_name ) {
 			// bail if the class name does not exist.
 			if ( ! class_exists( $styling_name ) ) {
 				continue;
@@ -1542,7 +1542,7 @@ class Settings {
 			}
 
 			// bail if name does not match.
-			if( $obj->get_name() !== $this->get_styling() ) {
+			if ( $obj->get_name() !== $this->get_styling() ) {
 				continue;
 			}
 
