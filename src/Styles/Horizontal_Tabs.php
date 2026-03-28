@@ -44,7 +44,7 @@ class Horizontal_Tabs extends Styling_Base {
 	public function add_styles(): void {
 		// add backend CSS.
 		wp_enqueue_style(
-			$this->get_settings_obj()->get_slug() . '-' . $this->get_name() .'-settings',
+			$this->get_settings_obj()->get_slug() . '-' . $this->get_name() . '-settings',
 			$this->get_settings_obj()->get_url() . 'assets/horizontal_tabs.css',
 			array(),
 			Helper::get_file_version( $this->get_settings_obj()->get_path() . 'assets/horizontal_tabs.css', $this->get_settings_obj() ),

@@ -71,7 +71,7 @@ class Select extends Field_Base {
 			<?php
 			foreach ( $this->get_options() as $key => $label ) {
 				?>
-				<option value="<?php echo esc_attr( $key ); ?>"<?php echo ( $value === (string) $key ? ' selected="selected"' : '' ); ?>><?php echo esc_html( $label ); ?></option>
+				<option value="<?php echo esc_attr( (string) $key ); ?>"<?php echo ( $value === (string) $key ? ' selected="selected"' : '' ); ?>><?php echo esc_html( $label ); ?></option>
 				<?php
 			}
 			?>

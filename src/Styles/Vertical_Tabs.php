@@ -44,7 +44,7 @@ class Vertical_Tabs extends Styling_Base {
 	public function add_styles(): void {
 		// add backend CSS.
 		wp_enqueue_style(
-			$this->get_settings_obj()->get_slug() . '-' . $this->get_name() .'-settings',
+			$this->get_settings_obj()->get_slug() . '-' . $this->get_name() . '-settings',
 			$this->get_settings_obj()->get_url() . 'assets/vertical_tabs.css',
 			array(),
 			Helper::get_file_version( $this->get_settings_obj()->get_path() . 'assets/vertical_tabs.css', $this->get_settings_obj() ),
@@ -152,13 +152,15 @@ class Vertical_Tabs extends Styling_Base {
 						// show sub-tabs of the active tab as breadcrumb-like sub-navigation.
 						$sub_tabs = $main_active_tab ? $main_active_tab->get_tabs() : array();
 						if ( ! empty( $sub_tabs ) && $tab->is_current() ) {
-							?><nav><?php
+							?>
+							<nav>
+							<?php
 							foreach ( $sub_tabs as $sub_tab ) {
 								// get URL for this tab.
 								$url    = add_query_arg(
 									array(
-										'page' => $page,
-										'tab' => $main_active_tab->get_name(),
+										'page'   => $page,
+										'tab'    => $main_active_tab->get_name(),
 										'subtab' => $sub_tab->get_name(),
 									),
 									get_admin_url() . $this->get_settings_obj()->get_menu_parent_slug()
@@ -174,10 +176,10 @@ class Vertical_Tabs extends Styling_Base {
 								// check for the current tab.
 								if ( $sub_tab->is_current_sub_tab() ) {
 									$sub_active_tab = $sub_tab;
-									$css_classes    .= 'active';
+									$css_classes   .= 'active';
 								} elseif ( is_null( $current_sub_tab ) && $sub_tab === $main_active_tab->get_default_tab() ) {
 									$sub_active_tab = $sub_tab;
-									$css_classes    .= 'active';
+									$css_classes   .= 'active';
 								}
 
 								// output.
@@ -188,9 +190,10 @@ class Vertical_Tabs extends Styling_Base {
 										class="nav-tab <?php echo esc_attr( $css_classes ); ?>"><?php echo esc_html( $sub_tab->get_title() ); ?></a>
 								<?php
 							}
-							?></nav><?php
+							?>
+							</nav>
+							<?php
 						}
-
 					}
 					?>
 				</nav>

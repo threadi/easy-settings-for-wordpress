@@ -236,7 +236,7 @@ class Tab extends Base_Object {
 		$styling_object = $this->get_settings_obj()->get_styling_object();
 
 		// bail if styling object could not be loaded.
-		if( ! $styling_object instanceof Styling_Base ) {
+		if ( ! $styling_object instanceof Styling_Base ) {
 			return;
 		}
 
