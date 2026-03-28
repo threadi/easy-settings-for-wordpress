@@ -27,7 +27,7 @@ class Select extends Field_Base {
 	/**
 	 * The options for this field.
 	 *
-	 * @var array<string,string>
+	 * @var array<int|string,string>
 	 */
 	protected array $options = array();
 
@@ -87,7 +87,7 @@ class Select extends Field_Base {
 	/**
 	 * Return the options for this field.
 	 *
-	 * @return array<string,string>
+	 * @return array<int|string,string>
 	 */
 	public function get_options(): array {
 		return $this->options;
@@ -96,7 +96,7 @@ class Select extends Field_Base {
 	/**
 	 * Set the options for this field.
 	 *
-	 * @param array<string,string> $options List of options.
+	 * @param array<int|string,string> $options List of options.
 	 *
 	 * @return void
 	 */

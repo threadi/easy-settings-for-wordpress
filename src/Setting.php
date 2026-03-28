@@ -140,7 +140,7 @@ class Setting extends Base_Object {
 			}
 
 			// get the object for the given field type.
-			$field_obj = Helper::get_field_by_type_name( $field['type'] );
+			$field_obj = Helper::get_field_by_type_name( $field['type'], $this->get_settings_obj() );
 
 			// bail if no object could be found.
 			if ( ! $field_obj instanceof Field_Base ) {
