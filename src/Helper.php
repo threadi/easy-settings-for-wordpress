@@ -35,11 +35,12 @@ class Helper {
 	/**
 	 * Return field object by type name.
 	 *
-	 * @param string $type_name The type name.
+	 * @param string   $type_name The type name.
+	 * @param Settings $settings_obj The settings object.
 	 *
 	 * @return false|Field_Base
 	 */
-	public static function get_field_by_type_name( string $type_name ): false|Field_Base {
+	public static function get_field_by_type_name( string $type_name, Settings $settings_obj ): false|Field_Base {
 		// bail if type name is empty.
 		if ( empty( $type_name ) ) {
 			return false;
@@ -53,7 +54,7 @@ class Helper {
 			}
 
 			// create the object.
-			$obj = new $field_name();
+			$obj = new $field_name( $settings_obj );
 
 			// bail if object is not a "Field_Base" object.
 			if ( ! $obj instanceof Field_Base ) {
