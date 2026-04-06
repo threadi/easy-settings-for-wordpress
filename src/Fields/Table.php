@@ -57,9 +57,6 @@ class Table extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-		// get the field object.
-		$field = $setting->get_field();
-
 		// get values.
 		$values = get_option( $setting->get_name() );
 		if ( ! is_array( $values ) || empty( $values[0] ) ) {
