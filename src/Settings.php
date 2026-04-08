@@ -629,7 +629,7 @@ class Settings {
 		}
 
 		// show settings link in plugin list.
-		add_filter( 'plugin_action_links_' . $this->get_plugin_slug(), array( $this, 'add_setting_link' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( $this->get_plugin_path() ), array( $this, 'add_setting_link' ) );
 	}
 
 	/**
