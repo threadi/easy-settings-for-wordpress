@@ -25,6 +25,13 @@ class Value extends Field_Base {
 	protected string $type_name = 'Value';
 
 	/**
+	 * The value.
+	 *
+	 * @var mixed|null
+	 */
+	private mixed $value = null;
+
+	/**
 	 * Return the HTML-code to display this field.
 	 *
 	 * @param array<string,mixed> $attr Attributes for this field.
@@ -51,11 +58,36 @@ class Value extends Field_Base {
 		$setting = $attr['setting'];
 
 		// output the value.
-		echo '<div data-depends="' . esc_attr( $this->get_depend() ) . '">' . wp_kses_post( $setting->get_value() ) . '</div>';
+		echo '<div data-depends="' . esc_attr( $this->get_depend() ) . '">' . wp_kses_post( $this->get_the_value( $setting->get_value() ) ) . '</div>';
 
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {
 			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
+	}
+
+	/**
+	 * Return the value of this setting.
+	 *
+	 * @param string $value The value.
+	 *
+	 * @return mixed
+	 */
+	private function get_the_value( string $value ): mixed {
+		if ( null === $this->value ) {
+			return $value;
+		}
+		return $this->value;
+	}
+
+	/**
+	 * Set the field value.
+	 *
+	 * @param mixed $value The value.
+	 *
+	 * @return void
+	 */
+	public function set_value( mixed $value ): void {
+		$this->value = $value;
 	}
 }

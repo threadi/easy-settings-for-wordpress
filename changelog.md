@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.1] - 08.04.2026
+
+### Changed
+
+- Optimized the Value field
+
 ## [2.0.0] - 29.03.2026
 
 ### Added
