@@ -1,10 +1,16 @@
 # Changelog
 
+## [2.0.3] - 09.04.2026
+
+### Fixed
+
+- Fixed handling of the value in the Value field
+
 ## [2.0.2] - 08.04.2026
 
 ### Fixed
 
-- Fixed missing output of settings link in plugin actions
+- Fixed missing output of the settings link in plugin actions
 
 ## [2.0.1] - 08.04.2026
 
