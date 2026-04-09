@@ -14,7 +14,7 @@ use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Setting;
 
 /**
- * Object to handle the output of a value of a setting.
+ * Object to handle the output of a value for a setting.
  */
 class Value extends Field_Base {
 	/**
@@ -32,7 +32,7 @@ class Value extends Field_Base {
 	private mixed $value = null;
 
 	/**
-	 * Return the HTML-code to display this field.
+	 * Return the HTML code to display this field.
 	 *
 	 * @param array<string,mixed> $attr Attributes for this field.
 	 *
@@ -49,7 +49,7 @@ class Value extends Field_Base {
 			return;
 		}
 
-		// bail if field is not a Setting object.
+		// bail if the field is not a "Setting" object.
 		if ( ! $attr['setting'] instanceof Setting ) {
 			return;
 		}
@@ -60,7 +60,7 @@ class Value extends Field_Base {
 		// output the value.
 		echo '<div data-depends="' . esc_attr( $this->get_depend() ) . '">' . wp_kses_post( $this->get_the_value( $setting->get_value() ) ) . '</div>';
 
-		// show optional description for this checkbox.
+		// show an optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {
 			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
@@ -73,7 +73,7 @@ class Value extends Field_Base {
 	 *
 	 * @return mixed
 	 */
-	private function get_the_value( string $value ): mixed {
+	private function get_the_value( mixed $value ): mixed {
 		if ( null === $this->value ) {
 			return $value;
 		}
