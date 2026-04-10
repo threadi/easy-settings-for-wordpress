@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added support for array-type settings in REST API
+
 ## [2.0.3] - 09.04.2026
 
 ### Fixed
