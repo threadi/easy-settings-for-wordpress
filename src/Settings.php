@@ -598,7 +598,7 @@ class Settings {
 			$args = array(
 				'type'         => $setting->get_type(),
 				'default'      => $setting->get_default(),
-				'show_in_rest' => $setting->is_show_in_rest(),
+				'show_in_rest' => $setting->get_show_in_rest(),
 			);
 
 			// if field is set, add its sanitizing callback.

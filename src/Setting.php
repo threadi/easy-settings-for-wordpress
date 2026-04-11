@@ -45,9 +45,9 @@ class Setting extends Base_Object {
 	/**
 	 * Show in REST API.
 	 *
-	 * @var bool
+	 * @var array<string,mixed>|bool
 	 */
-	private bool $show_in_rest = false;
+	private array|bool $show_in_rest = false;
 
 	/**
 	 * Read callback.
@@ -241,20 +241,33 @@ class Setting extends Base_Object {
 	/**
 	 * Return whether to show this setting in REST API.
 	 *
-	 * @return bool
+	 * @return array<string,mixed>|bool
 	 */
-	public function is_show_in_rest(): bool {
+	public function get_show_in_rest(): array|bool {
 		return $this->show_in_rest;
 	}
 
 	/**
-	 * Set show in REST API for this setting.
+	 * Return whether to show this setting in REST API.
 	 *
-	 * @param boolean $show_in_rest True to show in rest.
+	 * @depreacted 2.1.0
+	 * @return bool
+	 */
+	public function is_show_in_rest(): bool {
+		if ( ! is_bool( $this->get_show_in_rest() ) ) {
+			return false;
+		}
+		return $this->get_show_in_rest();
+	}
+
+	/**
+	 * Set the REST API setting for this setting.
+	 *
+	 * @param array<string,mixed>|bool $show_in_rest True to show in rest, array for array-types.
 	 *
 	 * @return void
 	 */
-	public function set_show_in_rest( bool $show_in_rest ): void {
+	public function set_show_in_rest( array|bool $show_in_rest ): void {
 		$this->show_in_rest = $show_in_rest;
 	}
 
