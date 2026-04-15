@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.1] - 15.04.2026
+
+### Fixed
+
+- Prevent a potential error on loading the lib version if other composer packages are used in the project
+
 ## [2.1.0] - 11.04.2026
 
 ### Added
