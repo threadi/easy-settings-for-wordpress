@@ -8,17 +8,17 @@
 namespace easySettingsForWordPress;
 
 // prevent direct access.
+defined( 'ABSPATH' ) || exit;
+
 use Composer\InstalledVersions;
 use WP_Error;
-
-defined( 'ABSPATH' ) || exit;
 
 /**
  * Object with helper tasks for settings.
  */
 class Helper {
 	/**
-	 * Return list of possible field types.
+	 * Return the list of possible field types.
 	 *
 	 * @return array<int,string>
 	 */
@@ -33,7 +33,7 @@ class Helper {
 	}
 
 	/**
-	 * Return field object by type name.
+	 * Return the field object by type name.
 	 *
 	 * @param string   $type_name The type name.
 	 * @param Settings $settings_obj The settings object.
@@ -41,14 +41,14 @@ class Helper {
 	 * @return false|Field_Base
 	 */
 	public static function get_field_by_type_name( string $type_name, Settings $settings_obj ): false|Field_Base {
-		// bail if type name is empty.
+		// bail if the type name is empty.
 		if ( empty( $type_name ) ) {
 			return false;
 		}
 
 		// check each field type.
 		foreach ( self::get_field_types() as $field_name ) {
-			// bail if object does not exist.
+			// bail if the class name does not exist.
 			if ( ! class_exists( $field_name ) ) {
 				continue;
 			}
@@ -56,7 +56,7 @@ class Helper {
 			// create the object.
 			$obj = new $field_name( $settings_obj );
 
-			// bail if object is not a "Field_Base" object.
+			// bail if the object is not a "Field_Base" object.
 			if ( ! $obj instanceof Field_Base ) {
 				continue;
 			}
@@ -70,12 +70,12 @@ class Helper {
 			return $obj;
 		}
 
-		// return false if not object could be found.
+		// return false if object could not be found.
 		return false;
 	}
 
 	/**
-	 * Check if given type is valid for setting.
+	 * Check if the given type is valid for setting.
 	 *
 	 * @param string $type The type to check.
 	 *
@@ -86,7 +86,7 @@ class Helper {
 	}
 
 	/**
-	 * Return list of valid data types for settings. They are given by WordPress.
+	 * Return the list of valid data types for settings. They are given by WordPress.
 	 *
 	 * @source https://developer.wordpress.org/reference/functions/register_setting/
 	 *
@@ -104,7 +104,7 @@ class Helper {
 	}
 
 	/**
-	 * Add new entry with its key on specific position in an array.
+	 * Add a new entry with its key on a specific position in an array.
 	 *
 	 * @param array<int|string,mixed> $array_to_change The array we want to change.
 	 * @param mixed                   $key The position where the new array should be added.
@@ -156,7 +156,7 @@ class Helper {
 			return $i;
 		}
 
-		// return default index for empty arrays.
+		// return the default index for empty arrays.
 		if ( empty( $source ) ) {
 			return 10;
 		}
@@ -182,7 +182,11 @@ class Helper {
 		}
 
 		// get the composer package version, which as been set in release.
-		$version = (string) InstalledVersions::getPrettyVersion( 'threadi/easy-settings-for-wordpress' );
+		try {
+			$version = (string) InstalledVersions::getPrettyVersion( 'threadi/easy-settings-for-wordpress' );
+		} catch ( \Exception $e ) {
+			return (string) filemtime( $filepath );;
+		}
 
 		/**
 		 * Filter the used file version (for JS- and CSS-files, which get enqueued).
