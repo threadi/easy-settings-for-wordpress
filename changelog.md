@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.3] - 18.04.2026
+
+### Fixed
+
+- Fixed wrong path for dialog library
+
 ## [2.1.2] - 18.04.2026
 
 ### Fixed

@@ -127,7 +127,7 @@ class Settings {
 	private string $path = '';
 
 	/**
-	 * The path of the plugin, which is using this instance.
+	 * The path of the plugin that is using this instance.
 	 *
 	 * @var string
 	 */
@@ -1425,7 +1425,7 @@ class Settings {
 	 */
 	public function add_dialog(): void {
 		// get the path to the easy dialog for WordPress package.
-		$path = __DIR__ . '../../threadi/easy-dialog-for-wordpress';
+		$path = __DIR__ . '/../../easy-dialog-for-wordpress/';
 
 		// bail if path does not exist.
 		if ( ! file_exists( $path ) ) {
