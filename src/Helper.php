@@ -10,8 +10,9 @@ namespace easySettingsForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
-use Composer\InstalledVersions;
 use WP_Error;
+use WP_Filesystem_Base;
+use WP_Filesystem_Direct;
 
 /**
  * Object with helper tasks for settings.
@@ -181,11 +182,19 @@ class Helper {
 			return (string) filemtime( $filepath );
 		}
 
+		// prepare the version.
+		$version = '';
+
+		// get the WP_Filesystem object.
+		$wp_filesystem = self::get_wp_filesystem();
+
 		// get the composer package version, which as been set in release.
-		try {
-			$version = (string) InstalledVersions::getPrettyVersion( 'threadi/easy-settings-for-wordpress' );
-		} catch ( \Exception $e ) {
-			return (string) filemtime( $filepath );;
+		$composer_file = __DIR__ . '/../composer.json';
+		if ( $wp_filesystem->exists( $composer_file ) ) {
+			$data = json_decode( (string) $wp_filesystem->get_contents( $composer_file ), true );
+			if ( ! empty( $data['version'] ) ) {
+				$version = $data['version'];
+			}
 		}
 
 		/**
@@ -218,5 +227,46 @@ class Helper {
 
 		// return the resulting JSON-string.
 		return $json;
+	}
+
+	/**
+	 * Return the WP Filesystem object.
+	 *
+	 * @param string $type The type to force.
+	 *
+	 * @return WP_Filesystem_Base
+	 */
+	public static function get_wp_filesystem( string $type = '' ): WP_Filesystem_Base {
+		// get WP Filesystem-handler for local files if requested.
+		if ( ! empty( $type ) && 'direct' === $type ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php'; // @phpstan-ignore requireOnce.fileNotFound
+			require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php'; // @phpstan-ignore requireOnce.fileNotFound
+
+			return new WP_Filesystem_Direct( false );
+		}
+
+		// get global WP Filesystem handler.
+		require_once ABSPATH . '/wp-admin/includes/file.php'; // @phpstan-ignore requireOnce.fileNotFound
+		\WP_Filesystem();
+		global $wp_filesystem;
+
+		// bail if "wp_filesystem" is not of "WP_Filesystem_Base".
+		if ( ! $wp_filesystem instanceof WP_Filesystem_Base ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php'; // @phpstan-ignore requireOnce.fileNotFound
+			require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php'; // @phpstan-ignore requireOnce.fileNotFound
+			return new WP_Filesystem_Direct( false );
+		}
+
+		// return local object on any error.
+		if ( $wp_filesystem->errors->has_errors() ) {
+			// embed the local directory object.
+			require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php'; // @phpstan-ignore requireOnce.fileNotFound
+			require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php'; // @phpstan-ignore requireOnce.fileNotFound
+
+			return new WP_Filesystem_Direct( false );
+		}
+
+		// return the requested filesystem object.
+		return $wp_filesystem;
 	}
 }
