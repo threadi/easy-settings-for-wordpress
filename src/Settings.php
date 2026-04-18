@@ -10,8 +10,6 @@ namespace easySettingsForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
-use Composer\InstalledVersions;
-
 /**
  * Initialize the settings object.
  */
@@ -1427,11 +1425,7 @@ class Settings {
 	 */
 	public function add_dialog(): void {
 		// get the path to the easy dialog for WordPress package.
-		try {
-			$path = trailingslashit( (string) InstalledVersions::getInstallPath( 'threadi/easy-dialog-for-wordpress' ) );
-		} catch ( \Exception $e ) {
-			return;
-		}
+		$path = __DIR__ . '../../threadi/easy-dialog-for-wordpress';
 
 		// bail if path does not exist.
 		if ( ! file_exists( $path ) ) {

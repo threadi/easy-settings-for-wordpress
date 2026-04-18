@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.2] - 18.04.2026
+
+### Fixed
+
+- Removed usage of InstalledVersions as it is not compatible with multiple WordPress plugins using composer
+
 ## [2.1.1] - 15.04.2026
 
 ### Fixed

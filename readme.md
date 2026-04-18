@@ -1,6 +1,6 @@
 # Easy Settings for WordPress
 
-This composer packages add a simple wrapper for settings for plugins and themes.
+This composer packages add a simple wrapper for settings for WordPress plugins and themes.
 
 ## Requirements
 
