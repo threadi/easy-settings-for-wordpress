@@ -927,6 +927,16 @@ class Settings {
 	 */
 	public function delete_settings(): void {
 		foreach ( $this->get_settings() as $setting ) {
+			// remove our filter.
+			remove_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ) );
+			if ( $setting->has_read_callback() ) {
+				remove_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
+			}
+
+			// unregister this setting.
+			unregister_setting( $setting->get_name(), $setting->get_name() );
+
+			// delete the option.
 			delete_option( $setting->get_name() );
 		}
 	}

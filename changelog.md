@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.4] - 21.04.2026
+
+### Changed
+
+- Optimized deletion of settings
+
 ## [2.1.3] - 18.04.2026
 
 ### Fixed
