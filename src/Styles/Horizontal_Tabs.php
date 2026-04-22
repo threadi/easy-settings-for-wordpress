@@ -185,6 +185,10 @@ class Horizontal_Tabs extends Styling_Base {
 								$css_classes   .= 'active';
 							}
 
+							if ( ! empty( $tab->get_tab_class() ) ) {
+								$css_classes .= ' ' . $tab->get_tab_class();
+							}
+
 							// output.
 							?>
 							<li><a href="<?php echo esc_url( $url ); ?>" target="<?php echo esc_attr( $target ); ?>" class="<?php echo esc_attr( $css_classes ); ?>"><?php echo esc_html( $tab->get_title() ); ?></a></li>
