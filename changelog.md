@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.5] - 21.04.2026
+
+### Added
+
+- Added support for classes on sub-tabs
+
 ## [2.1.4] - 21.04.2026
 
 ### Changed

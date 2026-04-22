@@ -182,6 +182,10 @@ class Vertical_Tabs extends Styling_Base {
 									$css_classes   .= 'active';
 								}
 
+								if ( ! empty( $tab->get_tab_class() ) ) {
+									$css_classes .= ' ' . $tab->get_tab_class();
+								}
+
 								// output.
 								?>
 								<a
