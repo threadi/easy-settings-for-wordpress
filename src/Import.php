@@ -84,7 +84,7 @@ class Import extends Base_Object {
 		check_ajax_referer( 'settings-import', 'nonce' );
 
 		// bail if user has not the capability to change settings.
-		if( ! current_user_can( $this->get_settings_obj()->get_capability() ) ) {
+		if ( ! current_user_can( $this->get_settings_obj()->get_capability() ) ) {
 			wp_send_json_error();
 		}
 

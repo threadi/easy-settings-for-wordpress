@@ -69,7 +69,7 @@ class Value extends Field_Base {
 	/**
 	 * Return the value of this setting.
 	 *
-	 * @param string $value The value.
+	 * @param mixed $value The value.
 	 *
 	 * @return mixed
 	 */

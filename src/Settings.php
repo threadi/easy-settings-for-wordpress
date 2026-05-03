@@ -708,9 +708,9 @@ class Settings {
 					$tab->get_name(),
 					$setting->get_section()->get_name(),
 					array(
-						'setting' => $setting,
-						'class'   => sanitize_title( $setting->get_name() ),
-						'label_for' => $setting->get_name()
+						'setting'   => $setting,
+						'class'     => sanitize_title( $setting->get_name() ),
+						'label_for' => $setting->get_name(),
 					)
 				);
 			}
