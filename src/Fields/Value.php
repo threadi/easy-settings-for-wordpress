@@ -90,4 +90,15 @@ class Value extends Field_Base {
 	public function set_value( mixed $value ): void {
 		$this->value = $value;
 	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
+	}
 }

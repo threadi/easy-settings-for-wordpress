@@ -123,7 +123,7 @@ class Checkboxes extends Field_Base {
 	 *
 	 * @return array<string,mixed>
 	 */
-	public function sanitize_callback( mixed $value ): array {
+	public function default_sanitize_callback( mixed $value ): array {
 		// bail if value is not an array.
 		if ( ! is_array( $value ) ) {
 			return array();

@@ -131,4 +131,15 @@ class MultiField extends Field_Base {
 	public function set_quantity( int $quantity ): void {
 		$this->quantity = $quantity;
 	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
+	}
 }

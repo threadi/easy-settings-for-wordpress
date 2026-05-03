@@ -175,12 +175,23 @@ class FieldTable extends Field_Base {
 	}
 
 	/**
-	 * Return the number of rows.
+	 * Return the amount of rows.
 	 *
 	 * @return int
 	 */
 	private function get_rows(): int {
 		return $this->rows;
+	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
 	}
 }
 

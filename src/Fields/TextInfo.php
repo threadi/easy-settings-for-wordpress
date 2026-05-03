@@ -55,4 +55,15 @@ class TextInfo extends Field_Base {
 		echo ( $add_paragraphs ? '<p>' : '' ) . wp_kses_post( $this->get_description() ) . ( $add_paragraphs ? '<p>' : '' );
 		echo '</div>';
 	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
+	}
 }

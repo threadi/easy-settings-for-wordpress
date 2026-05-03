@@ -84,7 +84,7 @@ class Textarea extends Field_Base {
 	 *
 	 * @return string
 	 */
-	public function sanitize_callback( mixed $value ): string {
+	public function default_sanitize_callback( mixed $value ): string {
 		// bail if value is null.
 		if ( is_null( $value ) ) {
 			return '';

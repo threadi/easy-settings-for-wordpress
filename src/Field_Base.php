@@ -182,7 +182,7 @@ class Field_Base {
 	public function get_sanitize_callback(): callable {
 		// if setting is empty, use our default callback.
 		if ( null === $this->sanitize_callback ) {
-			return array( $this, 'sanitize_callback' );
+			return array( $this, 'default_sanitize_callback' );
 		}
 
 		// return the sanitize callback.
@@ -207,7 +207,8 @@ class Field_Base {
 	 *
 	 * @return mixed
 	 */
-	public function sanitize_callback( mixed $value ): mixed {
+	public function default_sanitize_callback( mixed $value ): mixed {
+		_doing_it_wrong( __METHOD__, 'sanitize_callback() should be overridden.', '2.1.5' );
 		return $value;
 	}
 

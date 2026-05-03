@@ -342,4 +342,15 @@ class SelectPostTypeObject extends Field_Base {
 	public function set_cancel_button_title( string $title ): void {
 		$this->cancel_button_title = $title;
 	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
+	}
 }

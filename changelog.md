@@ -5,6 +5,9 @@
 ### Changed
 
 - Use the label attribute for each setting
+- Check for capability on import of settings
+- Renamed sanitize_callback to default_sanitize_callback and added doing-it-wrong hint if it is used without sanitation
+- Updated all fields to use default_sanitize_callback for individual default sanitation
 
 ## [2.1.5] - 21.04.2026
 
