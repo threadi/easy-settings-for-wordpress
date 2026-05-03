@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.6] - 03.05.2026
+
+### Changed
+
+- Use the label attribute for each setting
+
 ## [2.1.5] - 21.04.2026
 
 ### Added

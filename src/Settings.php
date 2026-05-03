@@ -710,6 +710,7 @@ class Settings {
 					array(
 						'setting' => $setting,
 						'class'   => sanitize_title( $setting->get_name() ),
+						'label_for' => $setting->get_name()
 					)
 				);
 			}
