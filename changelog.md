@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.2.0] - 03.05.2026
+
+### Added
+
+- Added PHP Unit Tests
+
+### Changed
+
+- Return list of all fields, e.g., for the usage to add a field via array instead of objects
+- Use the label attribute for each setting
+- Check for capability on import of settings
+- Renamed sanitize_callback to default_sanitize_callback and added doing-it-wrong hint if it is used without sanitation
+- FieldTable now requires columns to be displayed
+- Updated all fields to use default_sanitize_callback for individual default sanitation
+
+### Fixed
+
+- Fixed potential error of Files field is used without files
+- Fixed potential error if MultiField field will be initiated without a field
+
 ## [2.1.5] - 21.04.2026
 
 ### Added

@@ -69,7 +69,7 @@ class Value extends Field_Base {
 	/**
 	 * Return the value of this setting.
 	 *
-	 * @param string $value The value.
+	 * @param mixed $value The value.
 	 *
 	 * @return mixed
 	 */
@@ -89,5 +89,16 @@ class Value extends Field_Base {
 	 */
 	public function set_value( mixed $value ): void {
 		$this->value = $value;
+	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
 	}
 }

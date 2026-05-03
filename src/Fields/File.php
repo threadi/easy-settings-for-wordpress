@@ -162,4 +162,15 @@ class File extends Field_Base {
 	public function set_file_types( array $file_types ): void {
 		$this->file_types = $file_types;
 	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
+	}
 }

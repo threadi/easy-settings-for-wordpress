@@ -27,9 +27,9 @@ class MultiField extends Field_Base {
 	/**
 	 * The field to display.
 	 *
-	 * @var Field_Base
+	 * @var Field_Base|null
 	 */
-	private Field_Base $field;
+	private Field_Base|null $field = null;
 
 	/**
 	 * The quantity of fields.
@@ -79,6 +79,9 @@ class MultiField extends Field_Base {
 
 			// get the field object.
 			$obj = $this->get_field();
+			if( ! $obj instanceof Field_Base ) {
+				continue;
+			}
 			$obj->set_title( $this->get_title() . ' #' . ( $q + 1 ) );
 			$obj->set_value( isset( $values[ $q ] ) ? $values[ $q ] : '' );
 
@@ -95,14 +98,14 @@ class MultiField extends Field_Base {
 	/**
 	 * Return the field.
 	 *
-	 * @return Field_Base
+	 * @return Field_Base|null
 	 */
-	private function get_field(): Field_Base {
+	private function get_field(): Field_Base|null {
 		return $this->field;
 	}
 
 	/**
-	 * Set the field which will be displayed multiple times.
+	 * Set the field, which will be displayed multiple times.
 	 *
 	 * @param Field_Base $field The field to display.
 	 *
@@ -130,5 +133,16 @@ class MultiField extends Field_Base {
 	 */
 	public function set_quantity( int $quantity ): void {
 		$this->quantity = $quantity;
+	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
 	}
 }

@@ -708,8 +708,9 @@ class Settings {
 					$tab->get_name(),
 					$setting->get_section()->get_name(),
 					array(
-						'setting' => $setting,
-						'class'   => sanitize_title( $setting->get_name() ),
+						'setting'   => $setting,
+						'class'     => sanitize_title( $setting->get_name() ),
+						'label_for' => $setting->get_name(),
 					)
 				);
 			}
@@ -1086,7 +1087,7 @@ class Settings {
 	 *
 	 * @return bool
 	 */
-	private function is_show_settings_link_in_plugin_list(): bool {
+	public function is_show_settings_link_in_plugin_list(): bool {
 		return $this->show_settings_link_in_plugin_list;
 	}
 

@@ -68,7 +68,7 @@ class Files extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
-		// get value from config.
+		// get value from the config.
 		$files = get_option( $setting->get_name() );
 
 		if ( ! empty( $files ) ) {
@@ -107,7 +107,7 @@ class Files extends Field_Base {
 		// output.
 		?>
 		<a href="#" class="esfw-settings-files-choose" data-file-types="<?php echo esc_attr( Helper::get_json( $this->get_file_types() ) ); ?>" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
-		<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( implode( ',', $files ) ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
+		<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( ! empty( $files ) ? implode( ',', $files ) : '' ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 		<?php
 
 		// show optional description for this checkbox.
@@ -154,5 +154,16 @@ class Files extends Field_Base {
 	 */
 	public function set_file_types( array $file_types ): void {
 		$this->file_types = $file_types;
+	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
 	}
 }

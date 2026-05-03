@@ -11,6 +11,7 @@
     <!--
         Directories to exclude.
     -->
+    <exclude-pattern>*/tests/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
 
     <!-- Use additional rulesets -->

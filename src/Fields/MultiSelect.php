@@ -105,7 +105,7 @@ class MultiSelect extends Field_Base {
 	 *
 	 * @return array<string,mixed>
 	 */
-	public function sanitize_callback( mixed $value ): array {
+	public function default_sanitize_callback( mixed $value ): array {
 		// bail if value is null.
 		if ( is_null( $value ) ) {
 			return array();

@@ -25,10 +25,24 @@ class Helper {
 	 */
 	public static function get_field_types(): array {
 		return array(
+			'easySettingsForWordPress\Fields\Button',
 			'easySettingsForWordPress\Fields\Checkbox',
+			'easySettingsForWordPress\Fields\Checkboxes',
+			'easySettingsForWordPress\Fields\FieldTable',
+			'easySettingsForWordPress\Fields\File',
+			'easySettingsForWordPress\Fields\Files',
+			'easySettingsForWordPress\Fields\MultiField',
 			'easySettingsForWordPress\Fields\MultiSelect',
 			'easySettingsForWordPress\Fields\Number',
+			'easySettingsForWordPress\Fields\Password',
+			'easySettingsForWordPress\Fields\PermalinkSlug',
+			'easySettingsForWordPress\Fields\Radio',
 			'easySettingsForWordPress\Fields\Select',
+			'easySettingsForWordPress\Fields\SelectPostTypeObject',
+			'easySettingsForWordPress\Fields\Table',
+			'easySettingsForWordPress\Fields\Text',
+			'easySettingsForWordPress\Fields\Textarea',
+			'easySettingsForWordPress\Fields\TextInfo',
 			'easySettingsForWordPress\Fields\Value',
 		);
 	}

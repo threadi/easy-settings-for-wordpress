@@ -1,6 +1,6 @@
 {
   "name": "threadi/easy-settings-for-wordpress",
-  "version": "2.1.5",
+  "version": "2.2.0",
   "description": "Provides a settings wrapper for WordPress plugins and themes.",
   "type": "library",
   "license": "GPL-3.0-or-later",
@@ -10,6 +10,11 @@
       "email": "info@thomaszwirner.de"
     }
   ],
+  "scripts": {
+      "test": "phpunit",
+      "test-install": "bash bin/install-wp-tests.sh wordpress_test root 'debian' 127.0.0.1 latest",
+      "test-install-during-build": "bash bin/install-wp-tests.sh wordpress_test root 'debian' 127.0.0.1 latest false true"
+  },
   "minimum-stability": "stable",
   "config": {
     "allow-plugins": {
@@ -27,6 +32,11 @@
       "easySettingsForWordPress\\": "src/"
     }
   },
+  "autoload-dev": {
+      "psr-4": {
+          "easySettingsForWordPress\\Tests\\": "tests/"
+      }
+  },
   "require": {
     "php": "^8.0",
     "threadi/easy-dialog-for-wordpress": "^1.0.2"
@@ -39,6 +49,8 @@
     "phpstan/extension-installer": "^1.4",
     "php-stubs/wp-cli-stubs": "^2.11",
     "phpcompatibility/phpcompatibility-wp": "^2.1",
-    "dealerdirect/phpcodesniffer-composer-installer": "^1.2"
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
+    "yoast/phpunit-polyfills": "^1.0",
+    "wp-phpunit/wp-phpunit": "^6.3"
   }
 }

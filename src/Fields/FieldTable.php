@@ -58,13 +58,18 @@ class FieldTable extends Field_Base {
 			return;
 		}
 
+		// get the columns.
+		$columns = $this->get_columns();
+
+		// bail if no columns are set.
+		if( empty( $columns ) ) {
+			return;
+		}
+
 		// show optional description for this checkbox.
 		if ( ! empty( $this->get_description() ) ) {
 			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
-
-		// get the columns.
-		$columns = $this->get_columns();
 
 		// get the rows.
 		$rows = $this->get_rows();
@@ -175,12 +180,23 @@ class FieldTable extends Field_Base {
 	}
 
 	/**
-	 * Return the number of rows.
+	 * Return the amount of rows.
 	 *
 	 * @return int
 	 */
 	private function get_rows(): int {
 		return $this->rows;
+	}
+
+	/**
+	 * The sanitize callback for this field.
+	 *
+	 * @param mixed $value The value to save.
+	 *
+	 * @return mixed
+	 */
+	public function default_sanitize_callback( mixed $value ): mixed {
+		return $value;
 	}
 }
 
