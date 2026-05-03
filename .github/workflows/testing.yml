@@ -36,3 +36,9 @@ jobs:
 
       - name: Run WordPress Coding Standard fixes
         run: vendor/bin/phpcbf --standard=ruleset.xml .
+
+      - name: Setup tests
+        run: bash bin/install-wp-tests.sh wordpress_tests root root 127.0.0.1 latest true
+
+      - name: Run tests
+        run: composer test

@@ -1087,7 +1087,7 @@ class Settings {
 	 *
 	 * @return bool
 	 */
-	private function is_show_settings_link_in_plugin_list(): bool {
+	public function is_show_settings_link_in_plugin_list(): bool {
 		return $this->show_settings_link_in_plugin_list;
 	}
 
