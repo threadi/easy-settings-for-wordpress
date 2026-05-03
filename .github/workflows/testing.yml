@@ -37,6 +37,9 @@ jobs:
       - name: Run WordPress Coding Standard fixes
         run: vendor/bin/phpcbf --standard=ruleset.xml .
 
+      - name: Install SVN
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
       - name: Setup tests
         run: bash bin/install-wp-tests.sh wordpress_tests root root 127.0.0.1 latest true
 
