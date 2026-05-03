@@ -62,7 +62,7 @@ class FieldTable extends Field_Base {
 		$columns = $this->get_columns();
 
 		// bail if no columns are set.
-		if( empty( $columns ) ) {
+		if ( empty( $columns ) ) {
 			return;
 		}
 

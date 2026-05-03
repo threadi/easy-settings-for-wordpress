@@ -79,7 +79,7 @@ class MultiField extends Field_Base {
 
 			// get the field object.
 			$obj = $this->get_field();
-			if( ! $obj instanceof Field_Base ) {
+			if ( ! $obj instanceof Field_Base ) {
 				continue;
 			}
 			$obj->set_title( $this->get_title() . ' #' . ( $q + 1 ) );
