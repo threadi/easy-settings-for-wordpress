@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.1] - 07.05.2026
+
+### Changed
+
+- Removed bin-directory from releases
+
 ## [2.2.0] - 03.05.2026
 
 ### Added
