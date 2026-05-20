@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Changed internal names for AJAX-endpoints for better compatibility with other WordPress plugins
+- Changed JS-function name settings_import_file() to esefw_settings_import_file()
+
 ### Fixed
 
 - Fixed wrong URL usage for Easy Dialog for WordPress script

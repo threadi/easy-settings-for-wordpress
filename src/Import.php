@@ -32,7 +32,7 @@ class Import extends Base_Object {
 	public function init(): void {
 		// use hooks.
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_script' ) );
-		add_action( 'wp_ajax_settings_import_file', array( $this, 'import_via_ajax' ) );
+		add_action( 'wp_ajax_esfw_import_file', array( $this, 'import_via_ajax' ) );
 	}
 
 	/**
