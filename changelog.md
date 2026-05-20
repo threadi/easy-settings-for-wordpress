@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed wrong URL usage for Easy Dialog for WordPress script
+
 ## [2.2.1] - 07.05.2026
 
 ### Changed
