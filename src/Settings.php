@@ -1444,7 +1444,7 @@ class Settings {
 		}
 
 		// get the URL.
-		$url = trailingslashit( plugins_url( '', $path ) ) . 'easy-dialog-for-wordpress/';
+		$url = trailingslashit( $this->get_url() ) . '../../../vendor/threadi/easy-dialog-for-wordpress/';
 
 		// get assets path.
 		$script_asset_path = $path . 'build/index.asset.php';
