@@ -1,7 +1,7 @@
 /**
  * Import given settings file via AJAX.
  */
-function settings_import_file() {
+function esefw_settings_import_file() {
   let file = jQuery('#import_settings_file')[0].files[0];
   if( undefined === file ) {
     let dialog_config = {
@@ -26,7 +26,7 @@ function settings_import_file() {
   // get the form data.
   let request = new FormData();
   request.append( 'file', file);
-  request.append( 'action', 'settings_import_file' );
+  request.append( 'action', 'esfw_import_file' );
   request.append( 'nonce', settingsImportJsVars.settings_import_file_nonce );
 
   // submit the request.
