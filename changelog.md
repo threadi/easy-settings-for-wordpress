@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Optimized styling for description of checkboxes
+
 ## [2.2.2] - 27.06.2026
 
 ### Changed
