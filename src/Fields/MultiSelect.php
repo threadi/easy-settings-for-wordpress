@@ -106,13 +106,7 @@ class MultiSelect extends Field_Base {
 	 * @return array<string,mixed>
 	 */
 	public function default_sanitize_callback( mixed $value ): array {
-		// bail if value is null.
-		if ( is_null( $value ) ) {
-			return array();
-		}
-
-		// return the value.
-		return (array) $value;
+		return $this->validate_against_options( $value, $this->get_options(), true ); // @phpstan-ignore return.type
 	}
 
 	/**

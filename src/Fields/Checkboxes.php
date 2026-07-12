@@ -129,8 +129,16 @@ class Checkboxes extends Field_Base {
 			return array();
 		}
 
-		// return the value.
-		return $value;
+		// only keep entries whose key is one of the configured options.
+		$sanitized = array();
+		foreach ( array_keys( $this->get_options() ) as $key ) {
+			if ( isset( $value[ $key ] ) ) {
+				$sanitized[ $key ] = 1;
+			}
+		}
+
+		// return the sanitized value.
+		return $sanitized;
 	}
 
 	/**

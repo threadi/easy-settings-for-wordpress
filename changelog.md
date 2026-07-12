@@ -2,9 +2,22 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added handling for different methods the settings can be saved in WordPress
+- Added the simple method to save settings in WordPress
+- Added new hooks
+
 ### Changed
 
 - Optimized styling for description of checkboxes
+- Optimized sanitizing of some fields
+- Updated the documentation to use this package
+- Extended PHP Unit Tests to check for XSS and other possible attacks
+
+### Fixed
+
+- Fixed missing capability check in export tool
 
 ## [2.2.2] - 27.06.2026
 

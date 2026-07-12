@@ -203,7 +203,7 @@ class Import extends Base_Object {
 				continue;
 			}
 
-			// update this setting.
+			// update this setting without sanitizing as the used method does this before saving the value.
 			update_option( $field_name, $field_value );
 		}
 

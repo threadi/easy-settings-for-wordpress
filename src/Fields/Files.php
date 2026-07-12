@@ -161,9 +161,25 @@ class Files extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return array<int,int>
 	 */
-	public function default_sanitize_callback( mixed $value ): mixed {
-		return $value;
+	public function default_sanitize_callback( mixed $value ): array {
+		// bail if value is not an array.
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		// keep only scalar entries, sanitized as plain text.
+		$sanitized = array();
+		foreach ( $value as $entry ) {
+			if ( ! is_scalar( $entry ) ) {
+				continue;
+			}
+
+			$sanitized[] = absint( $entry );
+		}
+
+		// return the list.
+		return $sanitized;
 	}
 }

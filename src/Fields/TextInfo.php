@@ -61,9 +61,12 @@ class TextInfo extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
-	public function default_sanitize_callback( mixed $value ): mixed {
-		return $value;
+	public function default_sanitize_callback( mixed $value ): string {
+		if ( ! is_string( $value ) ) {
+			$value = '';
+		}
+		return sanitize_text_field( $value );
 	}
 }

@@ -138,11 +138,13 @@ class MultiField extends Field_Base {
 	/**
 	 * The sanitize callback for this field.
 	 *
+	 * Hint: this field does not have own values. The values are saved on the field in this field table.
+	 *
 	 * @param mixed $value The value to save.
 	 *
 	 * @return mixed
 	 */
 	public function default_sanitize_callback( mixed $value ): mixed {
-		return $value;
+		return '';
 	}
 }

@@ -11,7 +11,7 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Object to hold single setting.
+ * Object to hold basic object methods.
  */
 class Base_Object {
 	/**

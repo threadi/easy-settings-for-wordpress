@@ -11,7 +11,7 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Object to handle basis field methods and tasks.
+ * Object to handle basic field methods and tasks.
  */
 class Field_Base {
 
@@ -303,5 +303,47 @@ class Field_Base {
 	 */
 	public function get_settings_obj(): Settings {
 		return $this->settings_obj;
+	}
+
+	/**
+	 * Validate given values against given options.
+	 *
+	 * @param mixed                   $value The given value.
+	 * @param array<string|int,mixed> $options The possible options.
+	 * @param bool                    $multiple Whether these are multiple values (true) or not (false).
+	 *
+	 * @return array<string|int,mixed>|string
+	 */
+	protected function validate_against_options( mixed $value, array $options, bool $multiple = false ): array|string {
+		// build the allow-list once, keys as strings (options may use int or string keys).
+		$allowed_keys = array_map( 'strval', array_keys( $options ) );
+
+		// single-value fields (Select, Radio, ...): value must be scalar and match one allowed key.
+		if ( ! $multiple ) {
+			if ( ! is_scalar( $value ) ) {
+				return '';
+			}
+			$value = (string) $value;
+			return in_array( $value, $allowed_keys, true ) ? $value : '';
+		}
+
+		// multi-value fields (MultiSelect, Checkboxes, ...): value must be an array of scalars.
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$validated = array();
+		foreach ( $value as $entry ) {
+			if ( ! is_scalar( $entry ) ) {
+				continue; // drop injected nested arrays.
+			}
+			$entry = (string) $entry;
+			if ( ! in_array( $entry, $allowed_keys, true ) ) {
+				continue; // drop everything not in set_options().
+			}
+			$validated[] = $entry;
+		}
+
+		return array_values( array_unique( $validated ) );
 	}
 }

@@ -131,7 +131,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	private string $plugin_path = '';
+	private string $plugin_path;
 
 	/**
 	 * Show the settings link in plugin list.
@@ -182,6 +182,9 @@ class Settings {
 			// get import and export object.
 			$this->import_obj = new Import( $this );
 			$this->export_obj = new Export( $this );
+
+			// prepare the methods.
+			Methods::get_instance()->set_settings_obj( $this );
 		} catch ( \Exception $e ) {
 			return;
 		}
@@ -196,30 +199,32 @@ class Settings {
 		// run activation of settings during the plugin activation.
 		register_activation_hook( $this->get_plugin_path(), array( $this, 'activation' ) );
 
+		// get the method to use and run their init tasks.
+		$base_method = Methods::get_instance()->get_method();
+
+		// bail if no method is set.
+		if ( ! $base_method instanceof Method_Base ) {
+			return;
+		}
+
+		// run its init tasks.
+		$base_method->init();
+
 		// initiate import and export.
-		$this->import_obj->init();
-		$this->export_obj->init();
+		$this->get_import_obj()->init();
+		$this->get_export_obj()->init();
 
 		// use hooks.
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_init', array( $this, 'register_fields' ) );
-		add_action( 'rest_api_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_dialog' ) );
 
-		// register the settings during WP CLI run.
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			add_action( 'init', array( $this, 'register_settings' ), 200 );
-		}
-
-		// register the settings during WP Cron run.
-		if ( wp_doing_cron() ) {
-			add_action( 'init', array( $this, 'register_settings' ), 200 );
-		}
-
 		// use our own hooks.
 		add_filter( $this->get_slug() . '_settings_tab_sections', array( $this, 'sort' ), PHP_INT_MAX );
+
+		// show settings link in plugin list.
+		add_filter( 'plugin_action_links_' . plugin_basename( $this->get_plugin_path() ), array( $this, 'add_setting_link' ) );
 	}
 
 	/**
@@ -418,7 +423,7 @@ class Settings {
 	}
 
 	/**
-	 * Add the menu in the backend to show the settings there.
+	 * Add the menu in the backend where the settings will be shown.
 	 *
 	 * @return void
 	 */
@@ -463,7 +468,7 @@ class Settings {
 						$this->get_capability(),
 						$tab->get_name(),
 						$tab->get_callback(),
-						6
+						6 // TODO make it dynamic.
 					);
 
 					// change link in menu if it is an external URL.
@@ -556,78 +561,6 @@ class Settings {
 	 */
 	public function set_default_tab( Tab $tab ): void {
 		$this->default_tab = $tab;
-	}
-
-	/**
-	 * Register settings of all tabs configured within this settings object.
-	 *
-	 * @return void
-	 */
-	public function register_settings(): void {
-		// bail if no settings are set.
-		if ( ! $this->has_settings() ) {
-			return;
-		}
-
-		// loop through the settings.
-		foreach ( $this->get_settings() as $setting ) {
-			// bail if setting should not be registered.
-			if ( $setting->should_not_be_registered() ) {
-				continue;
-			}
-
-			// get the section.
-			$section = $setting->get_section();
-
-			// bail if section could not be read.
-			if ( ! $section instanceof Section ) {
-				continue;
-			}
-
-			// get the tab.
-			$tab = $section->get_tab();
-
-			// bail if tab could not be read.
-			if ( ! $tab instanceof Tab ) {
-				continue;
-			}
-
-			// collect arguments.
-			$args = array(
-				'type'         => $setting->get_type(),
-				'default'      => $setting->get_default(),
-				'show_in_rest' => $setting->get_show_in_rest(),
-			);
-
-			// if field is set, add its sanitizing callback.
-			$field_obj = $setting->get_field();
-			if ( $field_obj instanceof Field_Base ) {
-				$args['sanitize_callback'] = $field_obj->get_sanitize_callback();
-			}
-
-			// register the setting.
-			register_setting(
-				$tab->get_name(),
-				$setting->get_name(),
-				$args
-			);
-
-			// sanitize the option before any output.
-			add_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ), 10, 2 );
-
-			// run the custom callback after reading an option.
-			if ( $setting->has_read_callback() ) {
-				add_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
-			}
-
-			// run the custom callback before updating an option.
-			if ( $setting->has_save_callback() ) {
-				add_filter( 'pre_update_option_' . $setting->get_name(), $setting->get_save_callback(), 10, 3 );
-			}
-		}
-
-		// show settings link in plugin list.
-		add_filter( 'plugin_action_links_' . plugin_basename( $this->get_plugin_path() ), array( $this, 'add_setting_link' ) );
 	}
 
 	/**
@@ -742,6 +675,7 @@ class Settings {
 	 * @param string $menu_icon The menu icon. URL-path to file or "dashicon"-slug.
 	 *
 	 * @return void
+	 * @noinspection PhpUnused
 	 */
 	public function set_menu_icon( string $menu_icon ): void {
 		$this->menu_icon = $menu_icon;
@@ -804,68 +738,6 @@ class Settings {
 	}
 
 	/**
-	 * Sanitize our own option values before output.
-	 *
-	 * @param mixed  $value The value.
-	 * @param string $option The option-name.
-	 *
-	 * @return mixed
-	 */
-	public function sanitize_option( mixed $value, string $option ): mixed {
-		// get field settings.
-		$field_settings = $this->get_setting( $option );
-
-		// bail if setting could not be found.
-		if ( ! $field_settings ) {
-			return $value;
-		}
-
-		// bail if no type is set.
-		if ( empty( $field_settings->get_type() ) ) {
-			return $value;
-		}
-
-		// bail if given type is not supported.
-		if ( ! Helper::is_setting_type_valid( $field_settings->get_type() ) ) {
-			return $value;
-		}
-
-		// if type is a string, secure for string.
-		if ( 'string' === $field_settings->get_type() ) {
-			return (string) $value;
-		}
-
-		// if type is a boolean, secure for boolean.
-		if ( 'boolean' === $field_settings->get_type() ) {
-			return (bool) $value;
-		}
-
-		// if type is an object, secure for the object.
-		if ( 'object' === $field_settings->get_type() ) {
-			return (object) $value;
-		}
-
-		// if type is array, secure for an array.
-		if ( 'array' === $field_settings->get_type() ) {
-			// if it is an array, use it 1:1.
-			if ( is_array( $value ) ) {
-				return $value;
-			}
-
-			// secure the value.
-			return (array) $value;
-		}
-
-		// if type is int, secure value for an integer.
-		if ( 'integer' === $field_settings->get_type() || 'number' === $field_settings->get_type() ) {
-			return absint( $value );
-		}
-
-		// return the value.
-		return $value;
-	}
-
-	/**
 	 * Return the setting object for given setting by name.
 	 *
 	 * @param string $option The settings internal name.
@@ -897,28 +769,21 @@ class Settings {
 	}
 
 	/**
-	 * Run this tasks during activation of the plugin.
+	 * Run this during activation of the plugin.
 	 *
 	 * @return void
 	 */
 	public function activation(): void {
-		foreach ( $this->get_settings() as $setting ) {
-			// bail if default value is empty.
-			if ( ! $setting->is_default_set() ) {
-				continue;
-			}
+		// get the default method.
+		$method = Methods::get_instance()->get_method();
 
-			// bail if option is already set.
-			if ( false !== get_option( $setting->get_name(), false ) ) {
-				continue;
-			}
-
-			// add the option.
-			add_option( $setting->get_name(), $setting->get_default(), '', $setting->is_autoloaded() );
-
-			// update the option to trigger callbacks.
-			update_option( $setting->get_name(), $setting->get_default() );
+		// bail if method could not be loaded.
+		if ( ! $method instanceof Method_Base ) {
+			return;
 		}
+
+		// delete the settings saved by this method.
+		$method->activation();
 	}
 
 	/**
@@ -927,19 +792,16 @@ class Settings {
 	 * @return void
 	 */
 	public function delete_settings(): void {
-		foreach ( $this->get_settings() as $setting ) {
-			// remove our filter.
-			remove_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ) );
-			if ( $setting->has_read_callback() ) {
-				remove_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
-			}
+		// get the default method.
+		$method = Methods::get_instance()->get_method();
 
-			// unregister this setting.
-			unregister_setting( $setting->get_name(), $setting->get_name() );
-
-			// delete the option.
-			delete_option( $setting->get_name() );
+		// bail if method could not be loaded.
+		if ( ! $method instanceof Method_Base ) {
+			return;
 		}
+
+		// delete the settings saved by this method.
+		$method->delete_settings();
 	}
 
 	/**
@@ -1011,9 +873,10 @@ class Settings {
 	/**
 	 * Return whether settings are available.
 	 *
+	 * @private Only used for internal tasks.
 	 * @return bool
 	 */
-	private function has_settings(): bool {
+	public function has_settings(): bool {
 		return ! empty( $this->get_settings() );
 	}
 
@@ -1479,6 +1342,7 @@ class Settings {
 	 * Return the import object.
 	 *
 	 * @return Import
+	 * @noinspection PhpUnused
 	 */
 	public function get_import_obj(): Import {
 		return $this->import_obj;
@@ -1516,9 +1380,10 @@ class Settings {
 	/**
 	 * Return the plugin path.
 	 *
+	 * @private Only used for internal tasks.
 	 * @return string
 	 */
-	private function get_plugin_path(): string {
+	public function get_plugin_path(): string {
 		return $this->plugin_path;
 	}
 
@@ -1574,6 +1439,7 @@ class Settings {
 	 * @param string $styling The styling name.
 	 *
 	 * @return void
+	 * @noinspection PhpUnused
 	 */
 	public function set_styling( string $styling ): void {
 		$this->styling = $styling;
@@ -1597,5 +1463,43 @@ class Settings {
 		 * @param array $list The list.
 		 */
 		return apply_filters( $this->get_slug() . '_styling_objects', $list );
+	}
+
+	/**
+	 * Return the used settings for debug purposes.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function debug(): array {
+		// get the method.
+		$method      = Methods::get_instance()->get_method();
+		$method_name = '';
+		if ( $method instanceof Method_Base ) {
+			$method_name = $method->get_name();
+		}
+
+		// return the settings.
+		return array(
+			'plugin_path' => $this->get_plugin_path(),
+			'method'      => $method_name,
+			'styling'     => $this->get_styling(),
+			'settings'    => $this->get_settings(),
+		);
+	}
+
+	/**
+	 * Migrate the settings from one method to another.
+	 *
+	 * Hint:
+	 * This method has to be called by the plugin, which uses this package for their settings
+	 * and want to change the way settings will be saved on an appropriate place.
+	 * E.g., during the plugin update.
+	 *
+	 * @param string $old_method_name The name of the previous method.
+	 *
+	 * @return void
+	 */
+	public function migrate_method( string $old_method_name ): void {
+		Methods::get_instance()->migrate_method( $old_method_name );
 	}
 }

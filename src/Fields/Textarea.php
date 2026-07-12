@@ -91,7 +91,7 @@ class Textarea extends Field_Base {
 		}
 
 		// return the value.
-		return $value;
+		return sanitize_textarea_field( $value );
 	}
 
 	/**

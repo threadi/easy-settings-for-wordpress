@@ -120,7 +120,7 @@ class Password extends Field_Base {
 		}
 
 		// return the value.
-		return $value;
+		return sanitize_text_field( $value );
 	}
 
 	/**

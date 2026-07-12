@@ -39,7 +39,7 @@ class FieldTable extends Field_Base {
 	private array $columns = array();
 
 	/**
-	 * Number of rows.
+	 * Amount of rows.
 	 *
 	 * @var int
 	 */
@@ -96,7 +96,7 @@ class FieldTable extends Field_Base {
 						// get the field.
 						$field = $setting->get_field();
 
-						// bail if the field is not an instance of Field_Base.
+						// bail if the field is not an instance of "Field_Base".
 						if ( ! $field instanceof Field_Base ) {
 							continue;
 						}
@@ -191,12 +191,14 @@ class FieldTable extends Field_Base {
 	/**
 	 * The sanitize callback for this field.
 	 *
+	 * Hint: this field does not have own values. The values are saved on the field in this field table.
+	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
-	public function default_sanitize_callback( mixed $value ): mixed {
-		return $value;
+	public function default_sanitize_callback( mixed $value ): string {
+		return '';
 	}
 }
 
