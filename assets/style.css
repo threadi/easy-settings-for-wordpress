@@ -64,6 +64,10 @@
 	animation: easy-settings-animation 1s ease-in forwards;
 }
 
+.easy-settings-for-wordpress .form-table td p { margin: 2px 0 5px }
+
+.easy-settings-for-wordpress .form-table td label + p { text-indent: 24px }
+
 @keyframes easy-settings-animation {
 	0% {
 		opacity: 0;

@@ -99,6 +99,6 @@ class Value extends Field_Base {
 	 * @return mixed
 	 */
 	public function default_sanitize_callback( mixed $value ): mixed {
-		return $value;
+		return sanitize_textarea_field( $value );
 	}
 }

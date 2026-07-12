@@ -38,11 +38,15 @@ class Export extends Base_Object {
 	 * Run the export and
 	 *
 	 * @return void
-	 * @noinspection PhpNoReturnAttributeCanBeAddedInspection
 	 */
 	public function run(): void {
 		// check referer.
 		check_admin_referer( 'settings-export', 'nonce' );
+
+		// bail if capability is not given.
+		if ( ! current_user_can( $this->get_settings_obj()->get_capability() ) ) {
+			return;
+		}
 
 		// get the settings as array.
 		$settings = $this->get_settings_obj()->get_settings();

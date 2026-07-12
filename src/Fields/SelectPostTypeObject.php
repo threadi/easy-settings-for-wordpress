@@ -348,9 +348,9 @@ class SelectPostTypeObject extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return int
 	 */
-	public function default_sanitize_callback( mixed $value ): mixed {
-		return $value;
+	public function default_sanitize_callback( mixed $value ): int {
+		return absint( $value );
 	}
 }
