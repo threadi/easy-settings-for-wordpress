@@ -153,6 +153,19 @@ class Simple extends Method_Base {
 				$args['sanitize_callback'] = $field_obj->get_sanitize_callback();
 			}
 
+			// TODO flexibler gestalten!
+			if( false === $args['show_in_rest'] ) {
+				$args['show_in_rest'] = array(
+					'schema' => array(
+						'type'                                => $setting->get_type(),
+						$this->get_settings_obj()->get_slug() => true
+					)
+				);
+			}
+			else {
+				$args['show_in_rest']['schema'][$this->get_settings_obj()->get_slug()] = true;
+			}
+
 			// register the setting.
 			register_setting(
 				$tab->get_name(),

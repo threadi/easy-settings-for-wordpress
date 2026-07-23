@@ -5,7 +5,7 @@
  * @package easy-settings-for-wordpress
  */
 
-namespace easySettingsForWordPress\Styles;
+namespace easySettingsForWordPress\Views\Classic\Styles;
 
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
@@ -13,8 +13,8 @@ defined( 'ABSPATH' ) || exit;
 use easySettingsForWordPress\Helper;
 use easySettingsForWordPress\Page;
 use easySettingsForWordPress\Settings;
-use easySettingsForWordPress\Styling_Base;
 use easySettingsForWordPress\Tab;
+use easySettingsForWordPress\Views\Classic\Styling_Base;
 
 /**
  * Object to hold single setting.

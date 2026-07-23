@@ -121,9 +121,11 @@ class Button extends Field_Base {
 	/**
 	 * Return the button title.
 	 *
+	 * @internal Only for internal usage.
+	 *
 	 * @return string
 	 */
-	private function get_button_title(): string {
+	public function get_button_title(): string {
 		return $this->button_title;
 	}
 
@@ -141,9 +143,11 @@ class Button extends Field_Base {
 	/**
 	 * Return the button URL.
 	 *
+	 * @internal Only for internal usage.
+	 *
 	 * @return string
 	 */
-	private function get_button_url(): string {
+	public function get_button_url(): string {
 		return $this->button_url;
 	}
 
@@ -195,9 +199,11 @@ class Button extends Field_Base {
 	/**
 	 * Return list of classes as string for output on button.
 	 *
+	 * @internal Only for internal usage.
+	 *
 	 * @return string
 	 */
-	private function get_classes(): string {
+	public function get_classes(): string {
 		// get the list as string.
 		$classes = implode( ' ', $this->button_classes );
 
@@ -224,9 +230,11 @@ class Button extends Field_Base {
 	/**
 	 * Return list of data-attributes as string for output on button.
 	 *
+	 * @internal Only for internal usage.
+	 *
 	 * @return string
 	 */
-	private function get_data(): string {
+	public function get_data(): string {
 		// collect the output.
 		$output = '';
 

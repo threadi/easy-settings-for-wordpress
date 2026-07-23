@@ -71,7 +71,7 @@ class Tab extends Base_Object {
 	private string $tab_class = '';
 
 	/**
-	 * Show this tab in menu instead as tab.
+	 * Show this tab in the menu instead as tab.
 	 *
 	 * @var bool
 	 */
@@ -232,16 +232,7 @@ class Tab extends Base_Object {
 	 * @return void
 	 */
 	public function display(): void {
-		// get the configured styling object.
-		$styling_object = $this->get_settings_obj()->get_styling_object();
-
-		// bail if styling object could not be loaded.
-		if ( ! $styling_object instanceof Styling_Base ) {
-			return;
-		}
-
-		// return the output of this object.
-		$styling_object->show_content( $this );
+		$this->get_settings_obj()->get_views()->show_content( $this );
 	}
 
 	/**
@@ -310,7 +301,7 @@ class Tab extends Base_Object {
 	}
 
 	/**
-	 * Add section to the list of sections in this tab.
+	 * Add a section to the list of sections in this tab.
 	 *
 	 * @param string|Section $section The section as object.
 	 * @param int            $position The position.
@@ -465,7 +456,7 @@ class Tab extends Base_Object {
 	}
 
 	/**
-	 * Return whether to show this tab in menu instead of tab in settings page.
+	 * Return whether to show this tab in the menu instead of tab in settings page.
 	 *
 	 * Works only if settings value for parent slug is not 'options-general.php'.
 	 *
@@ -508,7 +499,7 @@ class Tab extends Base_Object {
 	}
 
 	/**
-	 * Return whether to hide the save button.
+	 * Return whether to hide the save-button.
 	 * *
 	 *
 	 * @return bool
@@ -518,7 +509,7 @@ class Tab extends Base_Object {
 	}
 
 	/**
-	 * Set hide the save button.
+	 * Set hide the save-button.
 	 *
 	 * @param bool $hide_save_button Hide the button (true) or not (false).
 	 *
@@ -589,7 +580,7 @@ class Tab extends Base_Object {
 	}
 
 	/**
-	 * Add tab with its settings for this setting object.
+	 * Add a tab with its settings for this setting object.
 	 *
 	 * @param string|Tab $tab The tab object or its internal name.
 	 * @param int        $position The position to use.

@@ -8,6 +8,11 @@
 namespace easySettingsForWordPress;
 
 // prevent direct access.
+use easySettingsForWordPress\Fields\Button;
+use easySettingsForWordPress\Fields\Checkboxes;
+use easySettingsForWordPress\Fields\Radio;
+use easySettingsForWordPress\Fields\Select;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -510,5 +515,98 @@ class Setting extends Base_Object {
 	 */
 	public function delete(): void {
 		delete_option( $this->get_name() );
+	}
+
+	/**
+	 * Return the dataview configuration for this field.
+	 *
+	 * @return array
+	 */
+	public function get_dataview(): array {
+		// bail if no field is configured.
+		if( null === $this->get_field() ) {
+			return array();
+		}
+
+		// get the field.
+		$field = $this->get_field();
+
+		// prepare the basic data.
+		$configuration = array(
+			'id' => $this->get_name(),
+			'label' => $field->get_title(),
+		);
+
+		// add type specific settings.
+		switch( $field->get_type_name() ) {
+			case 'Button':
+				$configuration['type'] = 'esfw-button';
+				if( $field instanceof Button ) {
+					$configuration['button_title'] = $field->get_button_title();
+					$configuration['button_url'] = $field->get_button_url();
+				}
+				break;
+			case 'Checkbox':
+				$configuration['type'] = 'boolean';
+				break;
+			case 'Checkboxes':
+				$configuration['type'] = 'esfw-checkboxes';
+				if( $field instanceof Checkboxes ) {
+					$options = array();
+					foreach ( $field->get_options() as $key => $label ) {
+						$options[] = array(
+							'value' => $key,
+							'label' => is_array( $label ) ? $label['label'] : $label,
+						);
+					}
+					$configuration['options'] = $options;
+				}
+				break;
+			case 'File':
+				$configuration['type'] = 'media';
+				break;
+			case 'Number':
+				$configuration['type'] = 'integer';
+				break;
+			case 'Radio':
+				$configuration['type'] = 'text';
+				$configuration['Edit'] = 'radio';
+				$options = array();
+				if( $field instanceof Radio ) {
+					foreach ( $field->get_options() as $key => $label ) {
+						$options[] = array(
+							'value' => $key,
+							'label' => $label,
+						);
+					}
+				}
+				$configuration['elements'] = $options;
+				break;
+			case 'Select':
+				$configuration['type'] = 'text';
+				$configuration['Edit'] = 'select';
+				$options = array();
+				if( $field instanceof Select ) {
+					foreach ( $field->get_options() as $key => $label ) {
+						$options[] = array(
+							'value' => $key,
+							'label' => $label,
+						);
+					}
+				}
+				$configuration['elements'] = $options;
+				break;
+			case 'Textarea':
+				$configuration['type'] = 'text';
+				$configuration['Edit'] = 'textarea';
+				break;
+				break;
+			default:
+				$configuration['type'] = 'text';
+				break;
+		}
+
+		// return the configuration for this setting to use in dataview.
+		return $configuration;
 	}
 }

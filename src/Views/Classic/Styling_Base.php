@@ -1,17 +1,20 @@
 <?php
 /**
- * File for the main object for any styling of settings.
+ * File for the base object for any styling of classic settings.
  *
  * @package easy-settings-for-wordpress
  */
 
-namespace easySettingsForWordPress;
+namespace easySettingsForWordPress\Views\Classic;
 
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use easySettingsForWordPress\Base_Object;
+use easySettingsForWordPress\Tab;
+
 /**
- * Object to hold single setting.
+ * Base object for any styling of classic settings.
  */
 class Styling_Base extends Base_Object {
 	/**

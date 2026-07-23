@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added handling for different views the settings can be viewed in the backend
 - Added handling for different methods the settings can be saved in WordPress
 - Added the simple method to save settings in WordPress
 - Added new hooks

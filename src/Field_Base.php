@@ -72,6 +72,13 @@ class Field_Base {
 	private Setting|false $setting = false;
 
 	/**
+	 * The dataview type.
+	 *
+	 * @var string
+	 */
+	protected string $dataview_type = 'text';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Settings $settings_obj The settings object.
@@ -305,7 +312,7 @@ class Field_Base {
 		return $this->settings_obj;
 	}
 
-	/**
+    /**
 	 * Validate given values against given options.
 	 *
 	 * @param mixed                   $value The given value.
