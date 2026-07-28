@@ -10,6 +10,8 @@ namespace easySettingsForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use WP_Error;
+
 /**
  * Initialize the settings object.
  */
@@ -113,14 +115,14 @@ class Settings {
 	private $callback;
 
 	/**
-	 * The used URL.
+	 * The used URL of this composer package.
 	 *
 	 * @var string
 	 */
 	private string $url = '';
 
 	/**
-	 * The used path.
+	 * The used path of this composer package.
 	 *
 	 * @var string
 	 */
@@ -148,11 +150,22 @@ class Settings {
 	private array $translations = array();
 
 	/**
-	 * The default styling.
+	 * Auto-save mode for the DataView.
+	 *
+	 * - 'off': settings are only saved via the Save button (default).
+	 * - 'change': settings are saved automatically (debounced) after every field change.
+	 * - 'tab_change': settings are saved automatically whenever the user switches to another tab.
 	 *
 	 * @var string
 	 */
-	private string $styling = 'horizontal_tabs';
+	private string $auto_save = 'off';
+
+	/**
+	 * List of errors.
+	 *
+	 * @var WP_Error|null
+	 */
+	protected ?WP_Error $errors = null;
 
 	/**
 	 * The import object.
@@ -167,6 +180,13 @@ class Settings {
 	 * @var Export
 	 */
 	private Export $export_obj;
+
+	/**
+	 * The views object.
+	 *
+	 * @var Views
+	 */
+	private Views $views;
 
 	/**
 	 * Constructor, not used as this a Singleton object.
@@ -185,6 +205,9 @@ class Settings {
 
 			// prepare the methods.
 			Methods::get_instance()->set_settings_obj( $this );
+
+			// prepare the views.
+			$this->views = new Views( $this );
 		} catch ( \Exception $e ) {
 			return;
 		}
@@ -217,7 +240,6 @@ class Settings {
 		// use hooks.
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
 		add_action( 'admin_init', array( $this, 'register_fields' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_dialog' ) );
 
 		// use our own hooks.
@@ -298,16 +320,32 @@ class Settings {
 		$tab_obj = $tab;
 
 		// if value is a string, create the tab object first.
-		if ( is_string( $tab ) ) {
+		if ( ! $tab_obj instanceof Tab ) {
 			$tab_obj = new Tab( $this );
-			$tab_obj->set_name( $tab );
+			$tab_obj->set_name( is_string( $tab ) ? $tab : '' );
+		}
+
+		// check for a duplicate name among this tab's sub-tabs.
+		$name = $tab_obj->get_name();
+		if ( '' !== $name && $this->has_sub_tab_with_name( $name ) ) {
+			// prepare the message.
+			$message = sprintf(
+				'A sub-tab with the name "%s" has already been added to this tab.',
+				$name
+			);
+
+			// log this error.
+			$this->add_error( 'double_tab_name', $message, array( 'name' => $name ) );
+
+			// return the tab object.
+			return $tab_obj;
 		}
 
 		// add the tab to the list of tabs of these settings.
-		$this->tabs[] = $tab_obj; // @phpstan-ignore assign.propertyType
+		$this->tabs[] = $tab_obj;
 
 		// return the tab object.
-		return $tab_obj; // @phpstan-ignore return.type
+		return $tab_obj;
 	}
 
 	/**
@@ -506,21 +544,21 @@ class Settings {
 	}
 
 	/**
+	 * Return the views object.
+	 *
+	 * @return Views
+	 */
+	public function get_views(): Views {
+		return $this->views;
+	}
+
+	/**
 	 * Show the navigation of settings.
 	 *
 	 * @return void
 	 */
 	public function display(): void {
-		// get the styling object.
-		$styling_object = $this->get_styling_object();
-
-		// bail if no styling object could be found.
-		if ( ! $styling_object instanceof Styling_Base ) {
-			return;
-		}
-
-		// show the navigation.
-		$styling_object->show_nav();
+		$this->get_views()->display();
 	}
 
 	/**
@@ -816,16 +854,50 @@ class Settings {
 		$setting_obj = $setting;
 
 		// if value is a string, create the tab object first.
-		if ( is_string( $setting ) ) {
+		if ( ! $setting_obj instanceof Setting ) {
 			$setting_obj = new Setting( $this );
-			$setting_obj->set_name( $setting );
+			$setting_obj->set_name( is_string( $setting ) ? $setting : '' );
+		}
+
+		// check for a duplicate name across all already added settings.
+		$name = $setting_obj->get_name();
+		if ( '' !== $name && $this->has_setting_with_name( $name ) ) {
+			$message = sprintf(
+				'A setting with the name "%s" has already been added. Setting names must be unique across the whole settings object',
+				$name
+			);
+
+			// log this error.
+			$this->add_error(
+				'double_setting_name',
+				$message
+			);
+
+			// return the setting object.
+			return $setting_obj;
 		}
 
 		// add the setting to the list of settings of this tab.
-		$this->settings[] = $setting_obj; // @phpstan-ignore assign.propertyType
+		$this->settings[] = $setting_obj;
 
 		// return the tab object.
-		return $setting_obj; // @phpstan-ignore return.type
+		return $setting_obj;
+	}
+
+	/**
+	 * Check whether a setting with the given name has already been added.
+	 *
+	 * @param string $name The setting name to check.
+	 *
+	 * @return bool
+	 */
+	private function has_setting_with_name( string $name ): bool {
+		foreach ( $this->settings as $existing_setting ) {
+			if ( $existing_setting->get_name() === $name ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -927,7 +999,7 @@ class Settings {
 	}
 
 	/**
-	 * Return the used URL.
+	 * Return the used URL for this composer package.
 	 *
 	 * @return string
 	 */
@@ -1035,72 +1107,7 @@ class Settings {
 	}
 
 	/**
-	 * Add own JS and CSS for the backend.
-	 *
-	 * @param string $hook The requested hook.
-	 * @return void
-	 */
-	public function add_js_and_css( string $hook ): void {
-		// bail if not the menu slug is called.
-		if ( ! $this->enqueue_styles_and_scripts( $hook ) ) {
-			return;
-		}
-
-		// add backend JS.
-		wp_enqueue_script(
-			$this->get_slug() . '-settings',
-			$this->get_url() . 'assets/js.js',
-			array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-draggable', 'jquery-ui-droppable' ),
-			Helper::get_file_version( $this->get_path() . 'assets/js.js', $this ),
-			true
-		);
-
-		// add dirty.js.
-		wp_enqueue_script(
-			$this->get_slug() . '-dirty',
-			$this->get_url() . 'assets/jquery.dirty.js',
-			array( 'jquery' ),
-			Helper::get_file_version( $this->get_path() . 'assets/jquery.dirty.js', $this ),
-			true
-		);
-
-		// add backend CSS.
-		wp_enqueue_style(
-			$this->get_slug() . '-settings',
-			$this->get_url() . 'assets/style.css',
-			array(),
-			Helper::get_file_version( $this->get_path() . 'assets/style.css', $this ),
-		);
-
-		// add CSS for chosen styling.
-		$styling_object = $this->get_styling_object();
-		if ( $styling_object instanceof Styling_Base ) {
-			$styling_object->add_styles();
-		}
-
-		// get the translations.
-		$translations = $this->get_translations();
-
-		// add php-vars to our js-script.
-		wp_localize_script(
-			$this->get_slug() . '-settings',
-			'esfwJsVars',
-			array(
-				'rest_settings'        => rest_url( 'wp/v2/settings' ),
-				'rest_nonce'           => wp_create_nonce( 'wp_rest' ),
-				'title_add_image'      => $translations['file_add_file'],
-				'button_add_image'     => $translations['file_choose_file'],
-				'lbl_upload_image'     => $translations['file_choose_image'],
-				'label_sortable_title' => $translations['drag_n_drop'],
-			)
-		);
-
-		// add media library.
-		wp_enqueue_media();
-	}
-
-	/**
-	 * Return the path.
+	 * Return the path to this composer package.
 	 *
 	 * It has a trailing flash.
 	 *
@@ -1148,16 +1155,31 @@ class Settings {
 		$page_obj = $page;
 
 		// create the object, if it is a string.
-		if ( is_string( $page ) ) {
+		if ( ! $page_obj instanceof Page ) {
 			$page_obj = new Page( $this );
-			$page_obj->set_name( $page );
+			$page_obj->set_name( is_string( $page ) ? $page : '' );
+		}
+
+		// check for a duplicate name among this tab's sub-tabs.
+		$name = $page_obj->get_name();
+		if ( '' !== $name && $this->has_page_with_name( $name ) ) {
+			$message = sprintf(
+				'A page with the name "%s" has already been added.',
+				$name
+			);
+
+			// log this error.
+			$this->add_error( 'double_page_name', $message, array( 'name' => $name ) );
+
+			// return the page object.
+			return $page_obj;
 		}
 
 		// add to the list.
-		$this->pages[] = $page_obj; // @phpstan-ignore assign.propertyType
+		$this->pages[] = $page_obj;
 
 		// return the page object.
-		return $page_obj; // @phpstan-ignore return.type
+		return $page_obj;
 	}
 
 	/**
@@ -1275,6 +1297,9 @@ class Settings {
 			'file_choose_file'                   => 'Choose file',
 			'file_choose_image'                  => 'Upload or choose image',
 			'drag_n_drop'                        => 'Hold to drag & drop',
+			'settings_saved'                     => 'Settings saved.',
+			'settings_save_error'                => 'Settings could not be saved.',
+			'save_title'                         => 'Save',
 		);
 
 		// return combined list of translations.
@@ -1388,84 +1413,6 @@ class Settings {
 	}
 
 	/**
-	 * Return the object of the configured styling.
-	 *
-	 * @return Styling_Base|false
-	 */
-	public function get_styling_object(): Styling_Base|false {
-		// prepare the result.
-		$style_obj = false;
-
-		// check each supported styling for the configured styling name.
-		foreach ( $this->get_styling_objects() as $styling_name ) {
-			// bail if the class name does not exist.
-			if ( ! class_exists( $styling_name ) ) {
-				continue;
-			}
-
-			// get the object.
-			$obj = new $styling_name( $this );
-
-			// bail if an object is not Schedules_Base.
-			if ( ! $obj instanceof Styling_Base ) {
-				continue;
-			}
-
-			// bail if name does not match.
-			if ( $obj->get_name() !== $this->get_styling() ) {
-				continue;
-			}
-
-			// use this object.
-			$style_obj = $obj;
-		}
-
-		// return the resulting object.
-		return $style_obj;
-	}
-
-	/**
-	 * Return the configured styling name.
-	 *
-	 * @return string
-	 */
-	private function get_styling(): string {
-		return $this->styling;
-	}
-
-	/**
-	 * Set the styling to use by its name.
-	 *
-	 * @param string $styling The styling name.
-	 *
-	 * @return void
-	 * @noinspection PhpUnused
-	 */
-	public function set_styling( string $styling ): void {
-		$this->styling = $styling;
-	}
-
-	/**
-	 * Return the list of possible styling objects.
-	 *
-	 * @return array<int,string>
-	 */
-	private function get_styling_objects(): array {
-		$list = array(
-			'\easySettingsForWordPress\Styles\Horizontal_Tabs',
-			'\easySettingsForWordPress\Styles\Vertical_Tabs',
-		);
-
-		/**
-		 * Filter the list of possible styling for settings.
-		 *
-		 * @since 2.0.0 Available since 2.0.0.
-		 * @param array $list The list.
-		 */
-		return apply_filters( $this->get_slug() . '_styling_objects', $list );
-	}
-
-	/**
 	 * Return the used settings for debug purposes.
 	 *
 	 * @return array<string,mixed>
@@ -1478,11 +1425,18 @@ class Settings {
 			$method_name = $method->get_name();
 		}
 
+		// get the view.
+		$view = $this->views->get_view();
+		$view_name = '';
+		if( $view instanceof View_Base ) {
+			$view_name = $view->get_name();
+		}
+
 		// return the settings.
 		return array(
 			'plugin_path' => $this->get_plugin_path(),
 			'method'      => $method_name,
-			'styling'     => $this->get_styling(),
+			'view'        => $view_name,
 			'settings'    => $this->get_settings(),
 		);
 	}
@@ -1498,8 +1452,163 @@ class Settings {
 	 * @param string $old_method_name The name of the previous method.
 	 *
 	 * @return void
+	 * @noinspection PhpUnused
 	 */
 	public function migrate_method( string $old_method_name ): void {
 		Methods::get_instance()->migrate_method( $old_method_name );
+	}
+
+	/**
+	 * Set the method to use.
+	 *
+	 * @param string $method_name The method name.
+	 *
+	 * @return void
+	 */
+	public function set_method( string $method_name ): void {
+		Methods::get_instance()->set_method( $method_name );
+	}
+
+	/**
+	 * Set the view to use.
+	 *
+	 * @param string $view_name The method name.
+	 *
+	 * @return void
+	 */
+	public function set_view( string $view_name ): void {
+		$this->views->set_view( $view_name );
+	}
+
+	/**
+	 * Return the configured auto-save mode.
+	 *
+	 * @return string
+	 */
+	public function get_auto_save(): string {
+		return $this->auto_save;
+	}
+
+	/**
+	 * Set the auto-save mode.
+	 *
+	 * @param string $auto_save One of 'off', 'change', 'tab_change'.
+	 *
+	 * @return void
+	 */
+	public function set_auto_save( string $auto_save ): void {
+		if ( ! in_array( $auto_save, array( 'off', 'change', 'tab_change' ), true ) ) {
+			// prepare the message.
+			$message = sprintf(
+				'Invalid auto-save mode "%s" given. Use "off", "change" or "tab_change".',
+				$auto_save
+			);
+
+			// log this as error.
+			$this->add_error(
+				'auto_save_unknown',
+				$message
+			);
+
+			// do nothing more.
+			return;
+		}
+		$this->auto_save = $auto_save;
+	}
+
+	/**
+	 * Add an error to the list.
+	 *
+	 * @param string              $code The error code.
+	 * @param string              $message The error message.
+	 * @param array<string,mixed> $data The error data.
+	 *
+	 * @return void
+	 */
+	public function add_error( string $code, string $message, array $data = array() ): void {
+		// create a new error object, if not already set.
+		if ( null === $this->errors ) {
+			$this->errors = new WP_Error();
+		}
+
+		// add the error to the list.
+		$this->errors->add(
+			$code,
+			$message,
+			$data
+		);
+
+		/**
+		 * Run tasks if an error is added to the list.
+		 *
+		 * @since 2.0.0 Available since 2.0.0.
+		 *
+		 * @param string $code The error code.
+		 * @param string $message The message.
+		 * @param array $data Data for the error.
+		 */
+		do_action( $this->get_slug() . '_error', $code, $message, $data );
+	}
+
+	/**
+	 * Return errors.
+	 *
+	 * @return WP_Error|null
+	 */
+	public function get_errors(): ?WP_Error {
+		return $this->errors;
+	}
+
+	/**
+	 * Return whether errors have been occurred.
+	 *
+	 * @return bool
+	 */
+	public function has_errors(): bool {
+		return $this->errors instanceof WP_Error
+		       && $this->errors->has_errors();
+	}
+
+	/**
+	 * Reset the list of errors.
+	 *
+	 * @return void
+	 * @noinspection PhpUnused
+	 * @noinspection PhpUnused
+	 */
+	public function clear_errors(): void {
+		$this->errors = null;
+	}
+
+	/**
+	 * Check whether a page with the given name has already been added.
+	 *
+	 * @param string $name The page name to check.
+	 *
+	 * @return bool
+	 */
+	public function has_page_with_name( string $name ): bool {
+		foreach ( $this->pages as $existing_page ) {
+			if ( $existing_page->get_name() === $name ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check whether a sub-tab with the given name has already been added.
+	 *
+	 * @param string $name The tab name to check.
+	 *
+	 * @return bool
+	 */
+	public function has_sub_tab_with_name( string $name ): bool {
+		foreach ( $this->tabs as $existing_tab ) {
+			if ( $existing_tab->get_name() === $name ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

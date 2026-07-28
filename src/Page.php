@@ -69,9 +69,24 @@ class Page extends Base_Object {
 		$tab_obj = $tab;
 
 		// if value is a string, create the tab object first.
-		if ( is_string( $tab ) ) {
+		if ( ! $tab_obj instanceof Tab ) {
 			$tab_obj = new Tab( $this->settings_obj );
-			$tab_obj->set_name( $tab );
+			$tab_obj->set_name( is_string( $tab ) ? $tab : '' );
+		}
+
+		// check for a duplicate name among this tab's sub-tabs.
+		$name = $tab_obj->get_name();
+		if ( '' !== $name && $this->get_settings_obj()->has_sub_tab_with_name( $name ) ) {
+			$message = sprintf(
+				'A sub-tab with the name "%s" has already been added to this tab.',
+				$name
+			);
+
+			// log this error.
+			$this->get_settings_obj()->add_error( 'double_tab_name', $message, array( 'name' => $name ) );
+
+			// return the tab object.
+			return $tab_obj;
 		}
 
 		// if the position is used, search for the next free index.

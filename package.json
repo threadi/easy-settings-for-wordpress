@@ -1,0 +1,27 @@
+{
+    "name": "@threadi/easy-settings-for-wordpress",
+    "version": "3.0.0",
+    "description": "Provides a settings wrapper for WordPress plugins and themes.",
+    "author": "threadi",
+    "license": "GPL-2.0-or-later",
+    "devDependencies": {
+        "@wordpress/env": "^10.37.0",
+        "@wordpress/scripts": "^33.0.0"
+    },
+    "scripts": {
+        "build": "wp-scripts build assets/js/index.js --output-path=build/",
+        "start": "wp-scripts start assets/js/index.js --output-path=build/"
+    },
+    "dependencies": {
+        "@wordpress/api-fetch": "^7.33.1",
+        "@wordpress/components": "^30.6.4",
+        "@wordpress/data": "^10.33.1",
+        "@wordpress/dataviews": "^11.1.0",
+        "@wordpress/dom-ready": "^4.33.1",
+        "@wordpress/element": "^6.33.1",
+        "@wordpress/fields": "^0.43.0",
+        "@wordpress/i18n": "^6.6.1",
+        "@wordpress/icons": "^11.0.1",
+        "@wordpress/notices": "^5.33.1"
+    }
+}

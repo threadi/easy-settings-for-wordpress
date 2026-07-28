@@ -162,7 +162,7 @@ class PermalinkSlug extends Field_Base {
 	 *
 	 * @return string
 	 */
-	private function get_list_title(): string {
+	public function get_list_title(): string {
 		return $this->list_title;
 	}
 
@@ -174,5 +174,16 @@ class PermalinkSlug extends Field_Base {
 	 */
 	public function set_list_title( string $title ): void {
 		$this->list_title = $title;
+	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type' => 'string',
+		);
 	}
 }

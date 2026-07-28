@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Setting;
-use easySettingsForWordPress\Settings;
 
 /**
  * Object to handle a checkbox for single setting.
@@ -126,5 +125,20 @@ class Checkbox extends Field_Base {
 	 */
 	public function set_with_label( bool $with_label ): void {
 		$this->with_label = $with_label;
+	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * In DataView a single checkbox is a boolean toggle (sends true/false),
+	 * so it must be exposed as boolean — even though the value is stored as
+	 * an integer 1/0 (see default_sanitize_callback).
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type' => 'boolean',
+		);
 	}
 }

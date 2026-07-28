@@ -12,7 +12,14 @@
 	margin-right: 8px;
 }
 
-.esfw-image-choose img, .esfw-settings-image-choose img { width: 240px; }
+.esfw-image-choose, .esfw-settings-image-choose {
+	img {
+		width: 240px;
+	}
+	div:has(.components-button) {
+		display: inline;
+	}
+}
 
 .easy-settings-for-wordpress label { cursor: pointer }
 
@@ -89,4 +96,54 @@
 		opacity: 1;
 		background-color: transparent;
 	}
+}
+
+.esfw-save-button { margin-top: 1em }
+
+.esfw-settings-snackbars {
+	position: fixed !important;
+	top: auto !important;
+	bottom: 24px !important;
+	left: auto !important;
+	right: 24px !important;
+	width: max-content;
+	max-width: calc(100vw - 48px);
+	z-index: 100000;
+}
+
+.esfw-settings-flyout {
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	z-index: 100000;
+	max-width: calc(100vw - 48px);
+	padding: 10px 16px;
+	border-radius: 4px;
+	background: #1e1e1e;
+	color: #fff;
+	font-size: 13px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+	opacity: 0;
+	transform: translateY(8px);
+	transition: opacity .2s ease, transform .2s ease;
+	pointer-events: none;
+}
+
+.esfw-settings-flyout.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.esfw-settings-flyout--success {
+	border-left: 4px solid #00a32a;
+}
+
+.esfw-settings-flyout--error {
+	border-left: 4px solid #d63638;
+}
+
+#easy-settings-for-wordpress-settings .esfw-tab-title::after {
+	content: " ↗";
+	font-size: 0.85em;
+	opacity: 0.7;
 }

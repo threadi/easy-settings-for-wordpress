@@ -86,7 +86,7 @@ class Methods extends Base_Object {
 		 * Filter the list of possible styling for settings.
 		 *
 		 * @since 3.0.0 Available since 3.0.0.
-		 * @param array $list The list.
+		 * @param array<int,string> $list The list.
 		 */
 		return apply_filters( $this->get_settings_obj()->get_slug() . '_methods', $list );
 	}
@@ -139,7 +139,7 @@ class Methods extends Base_Object {
 			// get the object.
 			$obj = new $method_name( $this->get_settings_obj() );
 
-			// bail if an object is not Schedules_Base.
+			// bail if an object is not "Method_Base".
 			if ( ! $obj instanceof Method_Base ) {
 				continue;
 			}

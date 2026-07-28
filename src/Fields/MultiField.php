@@ -138,13 +138,37 @@ class MultiField extends Field_Base {
 	/**
 	 * The sanitize callback for this field.
 	 *
-	 * Hint: this field does not have own values. The values are saved on the field in this field table.
-	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return array<int,string>
 	 */
-	public function default_sanitize_callback( mixed $value ): mixed {
-		return '';
+	public function default_sanitize_callback( mixed $value ): array {
+		// bail if value is not an array.
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		// keep only scalar entries, sanitized as plain text.
+		$sanitized = array();
+		foreach ( $value as $entry ) {
+			if ( ! is_scalar( $entry ) ) {
+				continue;
+			}
+			$sanitized[] = sanitize_text_field( (string) $entry );
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type'  => 'array',
+			'items' => array( 'type' => 'string' ),
+		);
 	}
 }

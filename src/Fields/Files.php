@@ -141,7 +141,7 @@ class Files extends Field_Base {
 	 *
 	 * @return array<int,string>
 	 */
-	private function get_file_types(): array {
+	public function get_file_types(): array {
 		return $this->file_types;
 	}
 
@@ -181,5 +181,20 @@ class Files extends Field_Base {
 
 		// return the list.
 		return $sanitized;
+	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * The value is a (sequential) list of attachment IDs, each stored as an
+	 * integer (see default_sanitize_callback / absint).
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type'  => 'array',
+			'items' => array( 'type' => 'integer' ),
+		);
 	}
 }

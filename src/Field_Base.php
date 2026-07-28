@@ -65,11 +65,25 @@ class Field_Base {
 	private array $depends = array();
 
 	/**
+	 * Whether this field should be registered (false) or not (true).
+	 *
+	 * @var bool
+	 */
+	protected bool $do_not_register = false;
+
+	/**
 	 * The setting this field belongs to.
 	 *
 	 * @var Setting|false
 	 */
 	private Setting|false $setting = false;
+
+	/**
+	 * The dataview type.
+	 *
+	 * @var string
+	 */
+	protected string $dataview_type = 'text';
 
 	/**
 	 * Constructor.
@@ -265,6 +279,15 @@ class Field_Base {
 	}
 
 	/**
+	 * Return the configured fields this field depends on as array.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_depend_as_array(): array {
+		return $this->depends;
+	}
+
+	/**
 	 * Add a setting this field depends on.
 	 *
 	 * This field will only be visible if this setting has the requested value.
@@ -305,7 +328,7 @@ class Field_Base {
 		return $this->settings_obj;
 	}
 
-	/**
+    /**
 	 * Validate given values against given options.
 	 *
 	 * @param mixed                   $value The given value.
@@ -345,5 +368,25 @@ class Field_Base {
 		}
 
 		return array_values( array_unique( $validated ) );
+	}
+
+	/**
+	 * Return whether this field type should not be registered.
+	 *
+	 * @return bool
+	 */
+	public function should_not_be_registered(): bool {
+		return $this->do_not_register;
+	}
+
+	/**
+	 * Return the REST schema fragment for this field type.
+	 *
+	 * Empty array => fall back to the scalar schema derived from the setting type.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array();
 	}
 }

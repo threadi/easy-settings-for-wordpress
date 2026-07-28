@@ -153,6 +153,34 @@ class Simple extends Method_Base {
 				$args['sanitize_callback'] = $field_obj->get_sanitize_callback();
 			}
 
+			// build the REST schema, starting from the setting type ...
+			$schema = array( 'type' => $setting->get_type() );
+
+			// ... let the field refine it (e.g. object shape for Checkboxes) ...
+			if ( $field_obj instanceof Field_Base ) {
+				$schema = array_merge( $schema, $field_obj->get_rest_schema() );
+			}
+
+			// ... and let an explicit show_in_rest schema from the developer win.
+			if ( is_array( $args['show_in_rest'] ) && isset( $args['show_in_rest']['schema'] ) ) {
+				$schema = array_merge( $schema, $args['show_in_rest']['schema'] );
+			}
+
+			// keep register_setting's own type in sync with the REST schema type.
+			if ( isset( $schema['type'] ) ) {
+				$args['type'] = $schema['type'];
+			}
+
+			// add the slug marker the DataView JS uses to discover its fields.
+			$schema[ $this->get_settings_obj()->get_slug() ] = true;
+
+			// preserve a developer-provided show_in_rest array (name, prepare_callback, …).
+			$show_in_rest = is_array( $args['show_in_rest'] ) ? $args['show_in_rest'] : array();
+
+			// put the schema back, preserving any other show_in_rest keys.
+			$show_in_rest['schema'] = $schema;
+			$args['show_in_rest']   = $show_in_rest;
+
 			// register the setting.
 			register_setting(
 				$tab->get_name(),

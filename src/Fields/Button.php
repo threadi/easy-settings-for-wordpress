@@ -121,9 +121,11 @@ class Button extends Field_Base {
 	/**
 	 * Return the button title.
 	 *
+	 * @internal Only for internal usage.
+	 *
 	 * @return string
 	 */
-	private function get_button_title(): string {
+	public function get_button_title(): string {
 		return $this->button_title;
 	}
 
@@ -141,9 +143,11 @@ class Button extends Field_Base {
 	/**
 	 * Return the button URL.
 	 *
+	 * @internal Only for internal usage.
+	 *
 	 * @return string
 	 */
-	private function get_button_url(): string {
+	public function get_button_url(): string {
 		return $this->button_url;
 	}
 
@@ -195,11 +199,13 @@ class Button extends Field_Base {
 	/**
 	 * Return list of classes as string for output on button.
 	 *
+	 * @internal Only for internal usage.
+	 *
 	 * @return string
 	 */
-	private function get_classes(): string {
+	public function get_classes(): string {
 		// get the list as string.
-		$classes = implode( ' ', $this->button_classes );
+		$classes = implode( ' ', $this->get_classes_as_array() );
 
 		// bail if list is empty.
 		if ( empty( $classes ) ) {
@@ -208,6 +214,15 @@ class Button extends Field_Base {
 
 		// return the list of classes.
 		return ' ' . $classes;
+	}
+
+	/**
+	 * Return the classes as array.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_classes_as_array(): array {
+		return $this->button_classes;
 	}
 
 	/**
@@ -224,19 +239,30 @@ class Button extends Field_Base {
 	/**
 	 * Return list of data-attributes as string for output on button.
 	 *
+	 * @internal Only for internal usage.
+	 *
 	 * @return string
 	 */
-	private function get_data(): string {
+	public function get_data(): string {
 		// collect the output.
 		$output = '';
 
 		// loop through the data attributes.
-		foreach ( $this->data as $key => $value ) {
+		foreach ( $this->get_data_as_array() as $key => $value ) {
 			$output .= ' data-' . $key . '="' . esc_attr( $value ) . '"';
 		}
 
 		// return the resulting string.
 		return $output;
+	}
+
+	/**
+	 * Return the data as array.
+	 *
+	 * @return array<string,string>
+	 */
+	public function get_data_as_array(): array {
+		return $this->data;
 	}
 
 	/**

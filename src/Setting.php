@@ -8,6 +8,17 @@
 namespace easySettingsForWordPress;
 
 // prevent direct access.
+use easySettingsForWordPress\Fields\Button;
+use easySettingsForWordPress\Fields\Checkboxes;
+use easySettingsForWordPress\Fields\File;
+use easySettingsForWordPress\Fields\Files;
+use easySettingsForWordPress\Fields\MultiSelect;
+use easySettingsForWordPress\Fields\PermalinkSlug;
+use easySettingsForWordPress\Fields\Radio;
+use easySettingsForWordPress\Fields\Select;
+use easySettingsForWordPress\Fields\SelectPostTypeObject;
+use easySettingsForWordPress\Fields\Value;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -136,6 +147,12 @@ class Setting extends Base_Object {
 		if ( is_array( $field ) ) {
 			// bail if array does not contain a type setting.
 			if ( empty( $field['type'] ) ) {
+				// log this as error.
+				$this->get_settings_obj()->add_error(
+					'field_type_not_given',
+					'Field type not given.',
+				);
+
 				return false;
 			}
 
@@ -144,6 +161,19 @@ class Setting extends Base_Object {
 
 			// bail if no object could be found.
 			if ( ! $field_obj instanceof Field_Base ) {
+				// prepare the message.
+				$message = sprintf(
+					'A field with the name "%s" is unknown.',
+					$field['type']
+				);
+
+				// log this as error.
+				$this->get_settings_obj()->add_error(
+					'field_type_unknown',
+					$message
+				);
+
+				// do nothing more.
 				return false;
 			}
 
@@ -155,6 +185,10 @@ class Setting extends Base_Object {
 		// if value is a "Field_Base" object, use it.
 		if ( $field instanceof Field_Base ) {
 			$field_obj = $field;
+		}
+
+		if( $field_obj->should_not_be_registered() ) {
+			$this->do_not_register( true );
 		}
 
 		// add the field to this setting.
@@ -252,6 +286,7 @@ class Setting extends Base_Object {
 	 *
 	 * @depreacted 2.1.0
 	 * @return bool
+	 * @noinspection PhpUnused
 	 */
 	public function is_show_in_rest(): bool {
 		if ( ! is_bool( $this->get_show_in_rest() ) ) {
@@ -510,5 +545,166 @@ class Setting extends Base_Object {
 	 */
 	public function delete(): void {
 		delete_option( $this->get_name() );
+	}
+
+	/**
+	 * Return the dataview configuration for this field.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_dataview(): array {
+		// bail if no field is configured.
+		if( null === $this->get_field() ) {
+			return array();
+		}
+
+		// get the field.
+		$field = $this->get_field();
+
+		// prepare the basic data.
+		$configuration = array(
+			'id' => $this->get_name(),
+			'label' => $field->get_title(),
+			'description' => $field->get_description(),
+			'depend' => $field->get_depend_as_array(),
+		);
+
+		// add type specific settings.
+		switch( $field->get_type_name() ) {
+			case 'Button':
+				$configuration['type'] = 'esfw-button';
+				if( $field instanceof Button ) {
+					$configuration['button_title'] = $field->get_button_title();
+					$configuration['button_url'] = $field->get_button_url();
+					$configuration['button_classes'] = $field->get_classes_as_array();
+					$configuration['button_data'] = $field->get_data_as_array();
+				}
+				break;
+			case 'Checkbox':
+				$configuration['type'] = 'boolean';
+				break;
+			case 'Checkboxes':
+				$configuration['type'] = 'esfw-checkboxes';
+				if( $field instanceof Checkboxes ) {
+					$options = array();
+					foreach ( $field->get_options() as $key => $label ) {
+						$options[] = array(
+							'value' => $key,
+							'label' => is_array( $label ) ? $label['label'] : $label,
+						);
+					}
+					$configuration['options'] = $options;
+				}
+				break;
+			case 'FieldTable':
+				$configuration['type'] = 'esfw-table';
+				break;
+			case 'File':
+				$configuration['type'] = 'media';
+				$configuration['multiple'] = false;
+				if ( $field instanceof File ) {
+					$configuration['allowed_types'] = $field->get_file_types();
+				}
+				break;
+			case 'Files':
+				$configuration['type'] = 'media';
+				$configuration['multiple'] = true;
+				if ( $field instanceof Files ) {
+					$configuration['allowed_types'] = $field->get_file_types();
+				}
+				break;
+			case 'MultiField':
+				$configuration['type'] = 'esfw-multifield';
+				break;
+			case 'Multiselect':
+				$configuration['type'] = 'esfw-multiselect';
+				if ( $field instanceof MultiSelect ) {
+					$options = array();
+					foreach ( $field->get_options() as $key => $label ) {
+						$options[] = array( 'value' => (string) $key, 'label' => $label );
+					}
+					$configuration['options'] = $options;
+				}
+				break;
+			case 'Number':
+				$configuration['type'] = 'integer';
+				break;
+			case 'Password':
+				$configuration['type'] = 'text';
+				$configuration['Edit'] = 'password';
+				break;
+			case 'PermalinkSlug':
+				$configuration['type'] = 'esfw-permalink-slug';
+				if ( $field instanceof PermalinkSlug ) {
+					$options = array();
+					foreach ( $field->get_options() as $key => $label ) {
+						$options[] = array( 'placeholder' => '%' . $key . '%', 'label' => $label );
+					}
+					$configuration['options'] = $options;
+					$configuration['list_title'] = $field->get_list_title();
+				}
+				break;
+			case 'Radio':
+				$configuration['type'] = 'text';
+				$configuration['Edit'] = 'radio';
+				$options = array();
+				if( $field instanceof Radio ) {
+					foreach ( $field->get_options() as $key => $label ) {
+						$options[] = array(
+							'value' => $key,
+							'label' => $label,
+						);
+					}
+				}
+				$configuration['elements'] = $options;
+				break;
+			case 'Select':
+				$configuration['type'] = 'text';
+				$configuration['Edit'] = 'select';
+				$options = array();
+				if( $field instanceof Select ) {
+					foreach ( $field->get_options() as $key => $label ) {
+						$options[] = array(
+							'value' => $key,
+							'label' => $label,
+						);
+					}
+				}
+				$configuration['elements'] = $options;
+				break;
+			case 'SelectPostTypeObject':
+				$configuration['type'] = 'esfw-post-select';
+				if ( $field instanceof SelectPostTypeObject ) {
+					$configuration['endpoint']    = $field->get_endpoint();
+					$configuration['limit']       = $field->get_limit();
+					$configuration['placeholder'] = $field->get_placeholder();
+				}
+				break;
+			case 'Table':
+				$configuration['type'] = 'esfw-table';
+				break;
+			case 'Textarea':
+				$configuration['type'] = 'text';
+				$configuration['Edit'] = 'textarea';
+				break;
+			case 'TextInfo':
+				$configuration['type'] = 'esfw-display';
+				$configuration['is_static'] = true;
+				$configuration['text']      = $field->get_description();
+				break;
+			case 'Value':
+				$configuration['type'] = 'esfw-display';
+				$configuration['is_static'] = true;
+				if ( $field instanceof Value ) {
+					$configuration['text'] = $field->get_value();
+				}
+				break;
+			default:
+				$configuration['type'] = 'text';
+				break;
+		}
+
+		// return the configuration for this setting to use in dataview.
+		return $configuration;
 	}
 }
