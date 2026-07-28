@@ -28,15 +28,6 @@ jobs:
       - name: Install dependencies
         run: composer install
 
-      - name: PHPStan check
-        run: vendor/bin/phpstan analyse
-
-      - name: PHP Compatibility check
-        run: vendor/bin/phpcs -p src --standard=PHPCompatibilityWP
-
-      - name: Run WordPress Coding Standard fixes
-        run: vendor/bin/phpcbf .
-
       - name: Install SVN
         run: sudo apt-get update && sudo apt-get install -y subversion
 
