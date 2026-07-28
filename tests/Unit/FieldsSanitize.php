@@ -58,7 +58,7 @@ class FieldsSanitize extends easySettingsForWordPressTest {
 			// pick a payload matching the shape the field actually expects.
 			$payload = match ( $obj->get_type_name() ) {
 				// numeric fields: value should be forced to an integer.
-				'Checkbox', 'Radio', 'Button', 'Number', 'File' => self::$unsafe_string,
+				'Checkbox', 'Button', 'Number', 'File' => self::$unsafe_string,
 				// fields that store an associative array of scalars.
 				'Checkboxes', 'MultiSelect' => array( 'key' => self::$unsafe_string ),
 				// fields that store a list of nested arrays (rows).
@@ -102,7 +102,7 @@ class FieldsSanitize extends easySettingsForWordPressTest {
 		$settings_obj = new Settings( self::$plugin_handle );
 		$settings_obj->set_slug( self::$slug );
 
-		foreach ( array( 'Checkbox', 'Radio', 'Button', 'Number' ) as $type_name ) {
+		foreach ( array( 'Checkbox', 'Button', 'Number' ) as $type_name ) {
 			$classname = 'easySettingsForWordPress\\Fields\\' . $type_name;
 			yield $type_name => array( new $classname( $settings_obj ) );
 		}

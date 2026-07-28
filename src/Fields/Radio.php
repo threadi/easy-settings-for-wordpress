@@ -110,16 +110,10 @@ class Radio extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
-	public function default_sanitize_callback( mixed $value ): mixed {
-		// bail if value is null.
-		if ( is_null( $value ) ) {
-			return 0;
-		}
-
-		// return the value, depending on its data type.
-		return $value;
+	public function default_sanitize_callback( mixed $value ): string {
+		return $this->validate_against_options( $value, $this->get_options() ); // @phpstan-ignore return.type
 	}
 
 	/**
