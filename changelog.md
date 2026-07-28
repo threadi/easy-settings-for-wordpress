@@ -5,16 +5,22 @@
 ### Added
 
 - Added handling for different views the settings can be viewed in the backend
+- Added new view "DataView" to use WordPress-own DataViews to manage settings
 - Added handling for different methods the settings can be saved in WordPress
-- Added the simple method to save settings in WordPress
+- Added the simple method to save all configured settings in one single option-entry
+- Added autosave-mode (every change, tab change or off), default is "off".
+- Added method get_errors() to get any errors, which has been occurred during using the settings
 - Added new hooks
 
 ### Changed
 
+- New minimum requirement: PHP 8.2
 - Optimized styling for description of checkboxes
 - Optimized sanitizing of some fields
 - Updated the documentation to use this package
 - Extended PHP Unit Tests to check for XSS and other possible attacks
+- TextInfo and Value are now automatically configured as "do not register"-fields
+- Updated dialog lib to 2.0.2
 
 ### Fixed
 

@@ -132,9 +132,9 @@ class Views extends Base_Object {
 	 *
 	 * @param string $requested_method_name The name of the requested method.
 	 *
-	 * @return Method_Base|false
+	 * @return View_Base
 	 */
-	private function get_view_by_name( string $requested_method_name ): View_Base|false {
+	private function get_view_by_name( string $requested_method_name ): View_Base {
 		// get the method by the configured method name.
 		foreach ( $this->get_views_as_objects() as $method_name ) {
 			// bail if the class name does not exist.

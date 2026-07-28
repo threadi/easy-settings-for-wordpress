@@ -126,4 +126,16 @@ class Table extends Field_Base {
 		// return the resulting list.
 		return $sanitized;
 	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type'  => 'array',
+			'items' => array( 'type' => 'string' ),
+		);
+	}
 }

@@ -228,7 +228,7 @@ class SelectPostTypeObject extends Field_Base {
 	 *
 	 * @return int
 	 */
-	private function get_limit(): int {
+	public function get_limit(): int {
 		return $this->limit;
 	}
 
@@ -248,7 +248,7 @@ class SelectPostTypeObject extends Field_Base {
 	 *
 	 * @return string
 	 */
-	private function get_endpoint(): string {
+	public function get_endpoint(): string {
 		return $this->endpoint;
 	}
 
@@ -352,5 +352,19 @@ class SelectPostTypeObject extends Field_Base {
 	 */
 	public function default_sanitize_callback( mixed $value ): int {
 		return absint( $value );
+	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * The value is a single post ID, stored as an integer (see
+	 * default_sanitize_callback / absint).
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type' => 'integer',
+		);
 	}
 }

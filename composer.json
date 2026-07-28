@@ -38,8 +38,8 @@
       }
   },
   "require": {
-    "php": "^8.0",
-    "threadi/easy-dialog-for-wordpress": "^1.0.2"
+    "php": "^8.2",
+    "threadi/easy-dialog-for-wordpress": "*"
   },
   "require-dev": {
     "wp-coding-standards/wpcs": "^3.1.0",

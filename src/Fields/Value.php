@@ -101,4 +101,13 @@ class Value extends Field_Base {
 	public function default_sanitize_callback( mixed $value ): mixed {
 		return sanitize_textarea_field( $value );
 	}
+
+	/**
+	 * Return the value for this field.
+	 *
+	 * @return string
+	 */
+	public function get_value(): string {
+		return $this->value;
+	}
 }

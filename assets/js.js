@@ -289,9 +289,11 @@ jQuery(document).ready(function($) {
     })
 
     /**
-     * Add dirty.js
+     * Add dirty.js if we do not use autosave for "tab_change".
      */
-    $('.easy-settings-for-wordpress form').dirty({preventLeaving: true});
+    if ( 'off' === ( ( typeof esfwJsVars !== 'undefined' && esfwJsVars.auto_save ) || 'off' ) ) {
+      $( '.easy-settings-for-wordpress form' ).dirty( {preventLeaving: true} );
+    }
 
     /**
      * Drag & Drop for multiselect-fields.
@@ -336,4 +338,111 @@ jQuery(document).ready(function($) {
         // remove original select.
         select_obj.remove();
     });
+
+    // initiate the autosave.
+    esfw_autosave( $ );
 });
+
+/**
+ * Handling autosave.
+ *
+ * @param jquery
+ */
+function esfw_autosave( jquery ) {
+  const autoSaveMode = ( typeof esfwJsVars !== 'undefined' && esfwJsVars.auto_save ) || 'off';
+
+  if ( 'off' === autoSaveMode ) {
+    return;
+  }
+
+  const $form = jquery( '.easy-settings-for-wordpress form' );
+  if ( $form.length === 0 ) {
+    return;
+  }
+
+  /**
+   * Submit the settings form via AJAX (no page reload).
+   *
+   * @returns {Promise<Response>}
+   */
+  function submitFormViaAjax() {
+    const formEl = $form.get( 0 );
+    return fetch( formEl.getAttribute( 'action' ), {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: new FormData( formEl ),
+    } ).then( function ( response ) {
+      esfw_show_save_feedback(
+        response.ok
+          ? ( esfwJsVars.label_saved || 'Settings saved.' )
+          : ( esfwJsVars.label_save_error || 'Settings could not be saved.' ),
+        response.ok ? 'success' : 'error'
+      );
+      return response;
+    } ).catch( function ( error ) {
+      esfw_show_save_feedback( esfwJsVars.label_save_error || 'Settings could not be saved.', 'error' );
+      throw error; // weiterreichen, damit z. B. der tab_change-Handler es auch mitbekommt.
+    } );
+  }
+
+  // Modus "change": nach jeder Änderung (debounced) automatisch speichern.
+  if ( 'change' === autoSaveMode ) {
+    let autoSaveTimeout = null;
+
+    $form.on( 'change input', ':input', function () {
+      clearTimeout( autoSaveTimeout );
+      autoSaveTimeout = setTimeout( function () {
+        submitFormViaAjax();
+      }, 1000 );
+    } );
+  }
+
+  // Modus "tab_change": beim Klick auf einen Tab vorher speichern, dann erst navigieren.
+  if ( 'tab_change' === autoSaveMode ) {
+    jquery( '.nav-tab-wrapper a.nav-tab, nav a.nav-tab' ).on( 'click', function ( e ) {
+      const $link = jquery( this );
+      const targetUrl = $link.attr( 'href' );
+      const linkTarget = $link.attr( 'target' );
+
+      // Links ohne Ziel oder die in einem neuen Tab öffnen, ignorieren.
+      if ( ! targetUrl || ( linkTarget && '_self' !== linkTarget ) ) {
+        return;
+      }
+
+      e.preventDefault();
+
+      submitFormViaAjax()
+        .catch( function () {
+          // Speichern fehlgeschlagen - trotzdem weiter navigieren,
+          // damit der Nutzer nicht "hängen bleibt".
+        } )
+        .then( function () {
+          window.location.href = targetUrl;
+        } );
+    } );
+  }
+}
+
+/**
+ * Show a small temporary confirmation flyout after saving.
+ *
+ * @param {string} message
+ * @param {string} status 'success' or 'error'
+ */
+function esfw_show_save_feedback( message, status ) {
+  let $flyout = jQuery( '<div>' )
+    .addClass( 'esfw-settings-flyout esfw-settings-flyout--' + status )
+    .text( message )
+    .appendTo( 'body' );
+
+  // Reflow erzwingen, damit die CSS-Transition beim Einblenden greift.
+  $flyout.get( 0 ).offsetHeight;
+  $flyout.addClass( 'is-visible' );
+
+  setTimeout( function () {
+    $flyout.removeClass( 'is-visible' );
+    setTimeout( function () {
+      $flyout.remove();
+    }, 300 ); // muss zur CSS-Transition-Dauer passen
+  }, 4000 );
+}

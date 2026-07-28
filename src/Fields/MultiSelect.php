@@ -148,4 +148,16 @@ class MultiSelect extends Field_Base {
 	public function set_sortable( bool $sortable ): void {
 		$this->sortable = $sortable;
 	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type'  => 'array',
+			'items' => array( 'type' => 'string' ),
+		);
+	}
 }

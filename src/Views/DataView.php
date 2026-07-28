@@ -11,7 +11,9 @@ namespace easySettingsForWordPress\Views;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Helper;
+use easySettingsForWordPress\Section;
 use easySettingsForWordPress\Settings;
+use easySettingsForWordPress\Tab;
 use easySettingsForWordPress\View_Base;
 
 /**
@@ -63,11 +65,15 @@ class DataView extends View_Base {
 		// include it.
 		$asset = include $asset_file;
 
+		// add the dialog script as dependency.
+		$dependencies   = $asset['dependencies'];
+		$dependencies[] = 'easy-dialog-for-wordpress';
+
 		// enqueue the script.
 		wp_enqueue_script(
 			$this->get_settings_obj()->get_slug() . '-dataview',
 			$this->get_settings_obj()->get_url() .  'build/index.js',
-			$asset['dependencies'],
+			$dependencies,
 			$asset['version'],
 			array(
 				'in_footer' => true,
@@ -81,17 +87,26 @@ class DataView extends View_Base {
 	 * @return array<string,mixed>
 	 */
 	private function get_configuration(): array {
+		// get the translations.
+		$translations = $this->settings_obj->get_translations();
+
+		// return the configuration for the view.
 		return array(
-			'slug' => $this->get_settings_obj()->get_slug(),
+			'slug'   => $this->get_settings_obj()->get_slug(),
+			'title'     => $this->get_settings_obj()->get_title(),
 			'fields' => $this->get_fields(),
-			'form' => $this->get_forms()
+			'tabs'   => $this->get_tabs_config(),
+			'auto_save' => $this->get_settings_obj()->get_auto_save(),
+			'save_title' => $translations['save_title'],
+			'settings_saved' => $translations['settings_saved'],
+			'settings_save_error' => $translations['settings_save_error'],
 		);
 	}
 
 	/**
 	 * Return a list of all settings.
 	 *
-	 * @return array<string,mixed>
+	 * @return array<int,mixed>
 	 */
 	private function get_fields(): array {
 		$fields = array();
@@ -112,39 +127,112 @@ class DataView extends View_Base {
 		 * Filter the list of available fields for dataview.
 		 *
 		 * @since 3.0.0 Available since 3.0.0.
-		 * @param array<string,mixed> $fields List of fields.
+		 * @param array<int,mixed> $fields List of fields.
 		 */
 		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_dataview_fields', $fields );
 	}
 
 	/**
-	 * Return the forms to defined how the fields are presented in dataview.
+	 * Return the (possibly nested) tab tree for the dataview.
 	 *
-	 * @return array<string,mixed>
+	 * @return array<int,array<string,mixed>>
 	 */
-	private function get_forms(): array {
-		// get all fields.
-		$fields = array_column( $this->get_fields(), 'id' );
+	private function get_tabs_config(): array {
+		// field ids per section.
+		$fields_by_section = array();
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			$dataview = $setting->get_dataview();
+			if ( empty( $dataview ) ) {
+				continue;
+			}
+			$section = $setting->get_section();
+			if ( ! $section instanceof Section ) {
+				continue;
+			}
+			$fields_by_section[ spl_object_id( $section ) ][] = $dataview['id'];
+		}
 
-		// prepare the forms.
-		$forms = array(
-			'fields' => array(
-				array(
-					'id' => 'main_settings',
-                    'label' => 'Settings',
-                    'children' => $fields,
-                    'layout' => array( 'type' => 'card', 'withHeader' => false ),
-				)
-			),
-		);
+		// collect the root tabs from the settings object AND from every page.
+		$root_tabs = array();
+		$seen      = array();
+		$add_root  = static function ( $tab ) use ( &$root_tabs, &$seen ) {
+			if ( $tab instanceof Tab && ! isset( $seen[ spl_object_id( $tab ) ] ) ) {
+				$seen[ spl_object_id( $tab ) ] = true;
+				$root_tabs[]                   = $tab;
+			}
+		};
+
+		// tabs attached directly to the settings object.
+		foreach ( $this->get_settings_obj()->get_tabs() as $tab ) {
+			$add_root( $tab );
+		}
+
+		// tabs attached to pages.
+		foreach ( $this->get_settings_obj()->get_pages() as $page ) {
+			foreach ( $page->get_tabs() as $tab ) {
+				$add_root( $tab );
+			}
+		}
+
+		// build the (possibly nested) tree from the roots.
+		$tabs = array();
+		foreach ( $root_tabs as $tab ) {
+			$tabs[] = $this->build_tab_node( $tab, $fields_by_section );
+		}
 
 		/**
-		 * Filter the list of forms for dataview.
+		 * Filter the tab tree used for the dataview.
 		 *
 		 * @since 3.0.0 Available since 3.0.0.
-		 * @param array<string,mixed> $forms List of forms.
+		 * @param array<int,array<string,mixed>> $tabs List of tabs.
 		 */
-		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_dataview_form', $forms );
+		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_dataview_tabs', $tabs );
+	}
+
+	/**
+	 * Build the dataview node for a single tab, recursing into sub-tabs.
+	 *
+	 * @param Tab                          $tab               The tab.
+	 * @param array<int,array<int,string>> $fields_by_section Field ids keyed by section object id.
+	 * @return array<string,mixed>
+	 */
+	private function build_tab_node( Tab $tab, array $fields_by_section ): array {
+		$node = array(
+			'name'      => $tab->get_name(),
+			'label'     => $tab->get_title(),
+			'hide_save' => $tab->is_save_hidden(),
+			'description' => $tab->get_description(),
+		);
+
+		// use the URL if set.
+		$url = $tab->get_url();
+		if ( '' !== $url ) {
+			$node['url']    = $url;
+			$node['target'] = $tab->get_url_target();
+			return $node;
+		}
+
+		// has sub-tabs -> nest and stop here.
+		$sub_tabs = $tab->get_tabs();
+		if ( ! empty( $sub_tabs ) ) {
+			$node['tabs'] = array();
+			foreach ( $sub_tabs as $sub_tab ) {
+				$node['tabs'][] = $this->build_tab_node( $sub_tab, $fields_by_section );
+			}
+			return $node;
+		}
+
+		// leaf -> sections with their fields.
+		$node['sections'] = array();
+		foreach ( $tab->get_sections() as $section ) {
+			$node['sections'][] = array(
+				'name'   => $section->get_name(),
+				'label'  => $section->get_title(),
+				'fields' => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
+			);
+		}
+
+		return $node;
 	}
 
 	/**

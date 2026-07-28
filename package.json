@@ -6,7 +6,7 @@
     "license": "GPL-2.0-or-later",
     "devDependencies": {
         "@wordpress/env": "^10.37.0",
-        "@wordpress/scripts": "^30.26.2"
+        "@wordpress/scripts": "^33.0.0"
     },
     "scripts": {
         "build": "wp-scripts build assets/js/index.js --output-path=build/",
@@ -19,6 +19,7 @@
         "@wordpress/dataviews": "^11.1.0",
         "@wordpress/dom-ready": "^4.33.1",
         "@wordpress/element": "^6.33.1",
+        "@wordpress/fields": "^0.43.0",
         "@wordpress/i18n": "^6.6.1",
         "@wordpress/icons": "^11.0.1",
         "@wordpress/notices": "^5.33.1"

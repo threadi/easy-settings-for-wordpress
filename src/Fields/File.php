@@ -148,7 +148,7 @@ class File extends Field_Base {
 	 *
 	 * @return array<int,string>
 	 */
-	private function get_file_types(): array {
+	public function get_file_types(): array {
 		return $this->file_types;
 	}
 
@@ -172,5 +172,20 @@ class File extends Field_Base {
 	 */
 	public function default_sanitize_callback( mixed $value ): int {
 		return absint( $value );
+	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * The value is the attachment ID, stored as an integer (see
+	 * default_sanitize_callback / absint). DataView's media control also
+	 * emits the numeric ID, so expose it as integer.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type' => 'integer',
+		);
 	}
 }

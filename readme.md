@@ -14,6 +14,14 @@ This composer packages add a simple wrapper for settings for WordPress plugins a
 
 _TODO_
 
+### Upgrade hints
+
+#### for 3.0.0
+
+- remove do_not_register() from TextInfo() and Value() fields
+- remove set_type() from Checkbox() fields
+- use add_data() instead of set_custom_attributes() for Import and Export buttons
+
 ### Sorting
 
 * Pages are not sortable
@@ -40,6 +48,12 @@ Example to migrate from "Simple" to "One":
 Hint: you should have already been set the new method as active method by using the following code:
 
 `$settings_obj->set_method( 'one' );`
+
+### Error handling
+
+Get all errors:
+
+`$settings_obj->get_errors();`
 
 ## For changes of this package
 

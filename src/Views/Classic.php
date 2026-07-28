@@ -103,6 +103,9 @@ class Classic extends View_Base {
 				'button_add_image'     => $translations['file_choose_file'],
 				'lbl_upload_image'     => $translations['file_choose_image'],
 				'label_sortable_title' => $translations['drag_n_drop'],
+				'auto_save'            => $this->get_settings_obj()->get_auto_save(),
+				'label_saved'          => $translations['settings_saved'],
+				'label_save_error'     => $translations['settings_save_error'],
 			)
 		);
 
@@ -206,7 +209,23 @@ class Classic extends View_Base {
 		return apply_filters( $this->get_settings_obj()->get_slug() . '_styling_objects', $list );
 	}
 
+	/**
+	 * Show the content of this view.
+	 *
+	 * @param Tab $tab The requested tab.
+	 *
+	 * @return void
+	 */
 	public function show_content( Tab $tab ): void {
-		$this->get_styling_object()->show_content( $tab );
+		// get the styling object.
+		$styling_object = $this->get_styling_object();
+
+		// bail if no styling object could be loaded.
+		if( ! $styling_object instanceof Styling_Base ) {
+			return;
+		}
+
+		// show the styling object.
+		$styling_object->show_content( $tab );
 	}
 }

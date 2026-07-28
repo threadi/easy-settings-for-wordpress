@@ -205,7 +205,7 @@ class Button extends Field_Base {
 	 */
 	public function get_classes(): string {
 		// get the list as string.
-		$classes = implode( ' ', $this->button_classes );
+		$classes = implode( ' ', $this->get_classes_as_array() );
 
 		// bail if list is empty.
 		if ( empty( $classes ) ) {
@@ -214,6 +214,15 @@ class Button extends Field_Base {
 
 		// return the list of classes.
 		return ' ' . $classes;
+	}
+
+	/**
+	 * Return the classes as array.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_classes_as_array(): array {
+		return $this->button_classes;
 	}
 
 	/**
@@ -239,12 +248,21 @@ class Button extends Field_Base {
 		$output = '';
 
 		// loop through the data attributes.
-		foreach ( $this->data as $key => $value ) {
+		foreach ( $this->get_data_as_array() as $key => $value ) {
 			$output .= ' data-' . $key . '="' . esc_attr( $value ) . '"';
 		}
 
 		// return the resulting string.
 		return $output;
+	}
+
+	/**
+	 * Return the data as array.
+	 *
+	 * @return array<string,string>
+	 */
+	public function get_data_as_array(): array {
+		return $this->data;
 	}
 
 	/**

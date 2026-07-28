@@ -10,6 +10,8 @@ namespace easySettingsForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use WP_Error;
+
 /**
  * Initialize the settings object.
  */
@@ -146,6 +148,24 @@ class Settings {
 	 * @var array<string,string>
 	 */
 	private array $translations = array();
+
+	/**
+	 * Auto-save mode for the DataView.
+	 *
+	 * - 'off': settings are only saved via the Save button (default).
+	 * - 'change': settings are saved automatically (debounced) after every field change.
+	 * - 'tab_change': settings are saved automatically whenever the user switches to another tab.
+	 *
+	 * @var string
+	 */
+	private string $auto_save = 'off';
+
+	/**
+	 * List of errors.
+	 *
+	 * @var WP_Error|null
+	 */
+	protected ?WP_Error $errors = null;
 
 	/**
 	 * The import object.
@@ -300,16 +320,32 @@ class Settings {
 		$tab_obj = $tab;
 
 		// if value is a string, create the tab object first.
-		if ( is_string( $tab ) ) {
+		if ( ! $tab_obj instanceof Tab ) {
 			$tab_obj = new Tab( $this );
-			$tab_obj->set_name( $tab );
+			$tab_obj->set_name( is_string( $tab ) ? $tab : '' );
+		}
+
+		// check for a duplicate name among this tab's sub-tabs.
+		$name = $tab_obj->get_name();
+		if ( '' !== $name && $this->has_sub_tab_with_name( $name ) ) {
+			// prepare the message.
+			$message = sprintf(
+				'A sub-tab with the name "%s" has already been added to this tab.',
+				$name
+			);
+
+			// log this error.
+			$this->add_error( 'double_tab_name', $message, array( 'name' => $name ) );
+
+			// return the tab object.
+			return $tab_obj;
 		}
 
 		// add the tab to the list of tabs of these settings.
-		$this->tabs[] = $tab_obj; // @phpstan-ignore assign.propertyType
+		$this->tabs[] = $tab_obj;
 
 		// return the tab object.
-		return $tab_obj; // @phpstan-ignore return.type
+		return $tab_obj;
 	}
 
 	/**
@@ -818,16 +854,50 @@ class Settings {
 		$setting_obj = $setting;
 
 		// if value is a string, create the tab object first.
-		if ( is_string( $setting ) ) {
+		if ( ! $setting_obj instanceof Setting ) {
 			$setting_obj = new Setting( $this );
-			$setting_obj->set_name( $setting );
+			$setting_obj->set_name( is_string( $setting ) ? $setting : '' );
+		}
+
+		// check for a duplicate name across all already added settings.
+		$name = $setting_obj->get_name();
+		if ( '' !== $name && $this->has_setting_with_name( $name ) ) {
+			$message = sprintf(
+				'A setting with the name "%s" has already been added. Setting names must be unique across the whole settings object',
+				$name
+			);
+
+			// log this error.
+			$this->add_error(
+				'double_setting_name',
+				$message
+			);
+
+			// return the setting object.
+			return $setting_obj;
 		}
 
 		// add the setting to the list of settings of this tab.
-		$this->settings[] = $setting_obj; // @phpstan-ignore assign.propertyType
+		$this->settings[] = $setting_obj;
 
 		// return the tab object.
-		return $setting_obj; // @phpstan-ignore return.type
+		return $setting_obj;
+	}
+
+	/**
+	 * Check whether a setting with the given name has already been added.
+	 *
+	 * @param string $name The setting name to check.
+	 *
+	 * @return bool
+	 */
+	private function has_setting_with_name( string $name ): bool {
+		foreach ( $this->settings as $existing_setting ) {
+			if ( $existing_setting->get_name() === $name ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -1085,16 +1155,31 @@ class Settings {
 		$page_obj = $page;
 
 		// create the object, if it is a string.
-		if ( is_string( $page ) ) {
+		if ( ! $page_obj instanceof Page ) {
 			$page_obj = new Page( $this );
-			$page_obj->set_name( $page );
+			$page_obj->set_name( is_string( $page ) ? $page : '' );
+		}
+
+		// check for a duplicate name among this tab's sub-tabs.
+		$name = $page_obj->get_name();
+		if ( '' !== $name && $this->has_page_with_name( $name ) ) {
+			$message = sprintf(
+				'A page with the name "%s" has already been added.',
+				$name
+			);
+
+			// log this error.
+			$this->add_error( 'double_page_name', $message, array( 'name' => $name ) );
+
+			// return the page object.
+			return $page_obj;
 		}
 
 		// add to the list.
-		$this->pages[] = $page_obj; // @phpstan-ignore assign.propertyType
+		$this->pages[] = $page_obj;
 
 		// return the page object.
-		return $page_obj; // @phpstan-ignore return.type
+		return $page_obj;
 	}
 
 	/**
@@ -1212,6 +1297,9 @@ class Settings {
 			'file_choose_file'                   => 'Choose file',
 			'file_choose_image'                  => 'Upload or choose image',
 			'drag_n_drop'                        => 'Hold to drag & drop',
+			'settings_saved'                     => 'Settings saved.',
+			'settings_save_error'                => 'Settings could not be saved.',
+			'save_title'                         => 'Save',
 		);
 
 		// return combined list of translations.
@@ -1390,5 +1478,137 @@ class Settings {
 	 */
 	public function set_view( string $view_name ): void {
 		$this->views->set_view( $view_name );
+	}
+
+	/**
+	 * Return the configured auto-save mode.
+	 *
+	 * @return string
+	 */
+	public function get_auto_save(): string {
+		return $this->auto_save;
+	}
+
+	/**
+	 * Set the auto-save mode.
+	 *
+	 * @param string $auto_save One of 'off', 'change', 'tab_change'.
+	 *
+	 * @return void
+	 */
+	public function set_auto_save( string $auto_save ): void {
+		if ( ! in_array( $auto_save, array( 'off', 'change', 'tab_change' ), true ) ) {
+			// prepare the message.
+			$message = sprintf(
+				'Invalid auto-save mode "%s" given. Use "off", "change" or "tab_change".',
+				$auto_save
+			);
+
+			// log this as error.
+			$this->add_error(
+				'auto_save_unknown',
+				$message
+			);
+
+			// do nothing more.
+			return;
+		}
+		$this->auto_save = $auto_save;
+	}
+
+	/**
+	 * Add an error to the list.
+	 *
+	 * @param string              $code The error code.
+	 * @param string              $message The error message.
+	 * @param array<string,mixed> $data The error data.
+	 *
+	 * @return void
+	 */
+	public function add_error( string $code, string $message, array $data = array() ): void {
+		// create a new error object, if not already set.
+		if ( null === $this->errors ) {
+			$this->errors = new WP_Error();
+		}
+
+		// add the error to the list.
+		$this->errors->add(
+			$code,
+			$message,
+			$data
+		);
+
+		/**
+		 * Run tasks if an error is added to the list.
+		 *
+		 * @since 2.0.0 Available since 2.0.0.
+		 *
+		 * @param string $code The error code.
+		 * @param string $message The message.
+		 * @param array $data Data for the error.
+		 */
+		do_action( $this->get_slug() . '_error', $code, $message, $data );
+	}
+
+	/**
+	 * Return errors.
+	 *
+	 * @return WP_Error|null
+	 */
+	public function get_errors(): ?WP_Error {
+		return $this->errors;
+	}
+
+	/**
+	 * Return whether errors have been occurred.
+	 *
+	 * @return bool
+	 */
+	public function has_errors(): bool {
+		return $this->errors instanceof WP_Error
+		       && $this->errors->has_errors();
+	}
+
+	/**
+	 * Reset the list of errors.
+	 *
+	 * @return void
+	 * @noinspection PhpUnused
+	 * @noinspection PhpUnused
+	 */
+	public function clear_errors(): void {
+		$this->errors = null;
+	}
+
+	/**
+	 * Check whether a page with the given name has already been added.
+	 *
+	 * @param string $name The page name to check.
+	 *
+	 * @return bool
+	 */
+	public function has_page_with_name( string $name ): bool {
+		foreach ( $this->pages as $existing_page ) {
+			if ( $existing_page->get_name() === $name ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check whether a sub-tab with the given name has already been added.
+	 *
+	 * @param string $name The tab name to check.
+	 *
+	 * @return bool
+	 */
+	public function has_sub_tab_with_name( string $name ): bool {
+		foreach ( $this->tabs as $existing_tab ) {
+			if ( $existing_tab->get_name() === $name ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

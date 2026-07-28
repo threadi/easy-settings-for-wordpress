@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Setting;
-use easySettingsForWordPress\Settings;
 
 /**
  * Object to handle a checkbox for multiple checkbox fields.
@@ -129,10 +128,18 @@ class Checkboxes extends Field_Base {
 			return array();
 		}
 
+		// detect whether this is a sequential list (DataView) or an
+		// associative array (classic view submission).
+		$is_sequential_list = array_is_list( $value );
+
 		// only keep entries whose key is one of the configured options.
 		$sanitized = array();
 		foreach ( array_keys( $this->get_options() ) as $key ) {
-			if ( isset( $value[ $key ] ) ) {
+			if ( $is_sequential_list ) {
+				if ( in_array( (string) $key, array_map( 'strval', $value ), true ) ) {
+					$sanitized[ $key ] = 1;
+				}
+			} elseif ( isset( $value[ $key ] ) ) {
 				$sanitized[ $key ] = 1;
 			}
 		}
@@ -159,5 +166,20 @@ class Checkboxes extends Field_Base {
 	 */
 	public function set_options( array $options ): void {
 		$this->options = $options;
+	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * The value is stored as an associative map ( key => 1 ), so it must be
+	 * exposed as an object, not as a (sequential) array.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type'                 => 'object',
+			'additionalProperties' => true, // for backwards-compatibility.
+		);
 	}
 }

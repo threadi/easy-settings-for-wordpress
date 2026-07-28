@@ -312,14 +312,29 @@ class Tab extends Base_Object {
 		// set the section object.
 		$section_obj = $section;
 
-		// if value is a string, create the tab object first.
-		if ( is_string( $section ) ) {
+		// if value is a string, create the section object first.
+		if ( ! $section_obj instanceof Section ) {
 			$section_obj = new Section( $this->settings_obj );
-			$section_obj->set_name( $section );
+			$section_obj->set_name( is_string( $section ) ? $section : get_class( $section ) );
+		}
+
+		// check for a duplicate name among this tab's sub-tabs.
+		$name = $section_obj->get_name();
+		if ( '' !== $name && $this->has_section_with_name( $name ) ) {
+			$message = sprintf(
+				'A section with the name "%s" has already been added.',
+				$name
+			);
+
+			// log this error.
+			$this->get_settings_obj()->add_error( 'double_section_name', $message, array( 'name' => $name ) );
+
+			// return the page object.
+			return $section_obj;
 		}
 
 		// set the tab where this section is assigned to.
-		$section_obj->set_tab( $this ); // @phpstan-ignore method.nonObject
+		$section_obj->set_tab( $this );
 
 		// if position is used, add + 1.
 		if ( isset( $this->sections[ $position ] ) ) {
@@ -327,10 +342,10 @@ class Tab extends Base_Object {
 		}
 
 		// add the section to the list of sections of this tab.
-		$this->sections[ $position ] = $section_obj; // @phpstan-ignore assign.propertyType
+		$this->sections[ $position ] = $section_obj;
 
 		// return the tab object.
-		return $section_obj; // @phpstan-ignore return.type
+		return $section_obj;
 	}
 
 	/**
@@ -592,9 +607,24 @@ class Tab extends Base_Object {
 		$tab_obj = $tab;
 
 		// if value is a string, create the tab object first.
-		if ( is_string( $tab ) ) {
+		if ( ! $tab_obj instanceof Tab ) {
 			$tab_obj = new Tab( $this->settings_obj );
-			$tab_obj->set_name( $tab );
+			$tab_obj->set_name( is_string( $tab ) ? $tab : $tab_obj->get_name() );
+		}
+
+		// check for a duplicate name among this tab's sub-tabs.
+		$name = $tab_obj->get_name();
+		if ( '' !== $name && $this->get_settings_obj()->has_sub_tab_with_name( $name ) ) {
+			$message = sprintf(
+				'A sub-tab with the name "%s" has already been added to this tab.',
+				$name
+			);
+
+			// log this error.
+			$this->get_settings_obj()->add_error( 'double_tab_name', $message, array( 'name' => $name ) );
+
+			// return the tab object.
+			return $tab_obj;
 		}
 
 		// if position is used, search for the next free index.
@@ -603,10 +633,10 @@ class Tab extends Base_Object {
 		}
 
 		// add the tab to the list of tabs of these settings.
-		$this->tabs[ $position ] = $tab_obj; // @phpstan-ignore assign.propertyType
+		$this->tabs[ $position ] = $tab_obj;
 
 		// return the tab object.
-		return $tab_obj; // @phpstan-ignore return.type
+		return $tab_obj;
 	}
 
 	/**
@@ -667,5 +697,21 @@ class Tab extends Base_Object {
 	 */
 	public function set_default_tab( Tab $tab ): void {
 		$this->default_tab = $tab;
+	}
+
+	/**
+	 * Check whether a section with the given name has already been added.
+	 *
+	 * @param string $name The section name to check.
+	 *
+	 * @return bool
+	 */
+	public function has_section_with_name( string $name ): bool {
+		foreach ( $this->sections as $existing_section ) {
+			if ( $existing_section->get_name() === $name ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
