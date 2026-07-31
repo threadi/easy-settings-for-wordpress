@@ -2,6 +2,8 @@
 /**
  * File for an object to handle the DataView to show settings in the backend.
  *
+ * Only usable with WordPress 7.0 or newer.
+ *
  * @package easy-settings-for-wordpress
  */
 
@@ -242,5 +244,30 @@ class DataView extends View_Base {
 	 */
 	public function display(): void {
 		echo '<div class="wrap" id="easy-settings-for-wordpress-settings" data-config="' . esc_attr( Helper::get_json( $this->get_configuration() ) ) . '">Loading ..</div>';
+	}
+
+	/**
+	 * Return whether this view is usable.
+	 *
+	 * @return bool
+	 */
+	public function is_usable(): bool {
+		global $wp_version;
+
+		// check if the WordPress version is 7.0 or newer.
+		$result = version_compare( $wp_version, '7.0', '>=' );
+
+		// bail if version does match.
+		if( $result ) {
+			return true;
+		}
+
+		// log this as error if this specific view has been requested.
+		if( $this->get_settings_obj()->get_views()->is_view_requested() ) {
+			$this->get_settings_obj()->add_error( 'double_section_name', 'DataView requires WordPress 7.0 or newer.' );
+		}
+
+		// mark this view as not usable.
+		return false;
 	}
 }

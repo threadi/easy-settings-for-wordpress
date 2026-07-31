@@ -142,7 +142,7 @@
 	border-left: 4px solid #d63638;
 }
 
-#easy-settings-for-wordpress-settings .esfw-tab-title::after {
+#easy-settings-for-wordpress-settings .esfw-tab-title::after, .easy-settings-for-wordpress .nav-tab[target='_blank']:after {
 	content: " ↗";
 	font-size: 0.85em;
 	opacity: 0.7;
