@@ -36,8 +36,25 @@ The package supports saving settings in various ways, which are referred to here
 
 #### Methods
 
-* Simple => saves every setting in its own entry on the options table
-* One => saves all settings in one entry on the options table
+* Simple (name "simple") - saves every setting in its own entry on the options table (default)
+* One (name "one") - saves all settings in one entry on the options table
+
+To set the method for your plugin/theme:
+
+`$settings_obj->set_method( 'one' );`
+
+#### Views
+
+The settings can be displayed in the backend in various ways. The package offers the following options:
+
+* Classic (name "classic") - the classic way to use settings in backend incl. tabs
+* DataView (name "dataview") - the modern way to handle settings in backend, only usable in WordPress 7.0 or newer
+
+To set the view for your plugin/theme:
+
+`$settings_obj->set_view( 'classic' );`
+
+Hint: if you set "dataview" users with WordPress < 7.0 will be use the classic view.
 
 #### Migrate
 

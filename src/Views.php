@@ -31,6 +31,13 @@ class Views extends Base_Object {
 	private View_Base|false $view = false;
 
 	/**
+	 * Mark that a specific view has been requested.
+	 *
+	 * @var bool
+	 */
+	private bool $view_is_requested = true;
+
+	/**
 	 * Constructor, not used as this a Singleton object.
 	 *
 	 * @param Settings $settings_object The main settings object.
@@ -86,6 +93,7 @@ class Views extends Base_Object {
 	 * @noinspection PhpUnused
 	 */
 	public function set_view( string $view_name ): void {
+		$this->view_is_requested = true;
 		$this->view_name = $view_name;
 	}
 
@@ -155,11 +163,27 @@ class Views extends Base_Object {
 				continue;
 			}
 
+			// bail if view could not be used.
+			if( ! $obj->is_usable() ) {
+				continue;
+			}
+
 			// return this object.
 			return $obj;
 		}
 
 		// if no view could be found, use the classic view.
 		return new Classic( $this->get_settings_obj() );
+	}
+
+	/**
+	 * Return whether a specific view has been requested.
+	 *
+	 * @internal Only for internal tasks.
+	 *
+	 * @return bool
+	 */
+	public function is_view_requested(): bool {
+		return $this->view_is_requested;
 	}
 }

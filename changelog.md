@@ -5,7 +5,7 @@
 ### Added
 
 - Added handling for different views the settings can be viewed in the backend
-- Added new view "DataView" to use WordPress-own DataViews to manage settings
+- Added new view "DataView" to use WordPress-own DataViews to manage settings (requires WordPress 7.0 or newer)
 - Added handling for different methods the settings can be saved in WordPress
 - Added the simple method to save all configured settings in one single option-entry
 - Added autosave-mode (every change, tab change or off), default is "off".

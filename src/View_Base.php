@@ -29,4 +29,13 @@ class View_Base extends Base_Object {
 	 * @return void
 	 */
 	public function show_content( Tab $tab ): void {}
+
+	/**
+	 * Return whether this view is usable.
+	 *
+	 * @return bool
+	 */
+	public function is_usable(): bool {
+		return true;
+	}
 }
