@@ -24,7 +24,7 @@ class MultiSelect extends Field_Base {
 	 *
 	 * @var string
 	 */
-	protected string $type_name = 'Multiselect';
+	protected string $type_name = 'MultiSelect';
 
 	/**
 	 * The options for this field.

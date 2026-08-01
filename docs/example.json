@@ -1,0 +1,238 @@
+{
+  "slug": "demo_settings",
+  "title": "Demo Settings",
+  "menu_title": "Demo Settings",
+  "menu_slug": "demo-settings",
+  "capability": "manage_options",
+  "auto_save": "change",
+  "show_settings_link_in_plugin_list": true,
+  "default_tab": "demo_general",
+  "tabs": [
+    {
+      "name": "demo_general",
+      "title": "General",
+      "sections": [
+        {
+          "name": "basics",
+          "title": "Basics",
+          "settings": [
+            {
+              "name": "api_key",
+              "type": "string",
+              "default": "",
+              "field": { "type": "Text", "title": "API Key", "placeholder": "sk-..." }
+            },
+            {
+              "name": "notes",
+              "type": "string",
+              "field": { "type": "Textarea", "title": "Notes", "placeholder": "Placeholder..." }
+            },
+            {
+              "name": "secret",
+              "type": "string",
+              "field": { "type": "Password", "title": "Secret", "with_label": true }
+            },
+            {
+              "name": "enabled",
+              "type": "boolean",
+              "default": true,
+              "field": { "type": "Checkbox", "title": "Enabled", "with_label": true }
+            },
+            {
+              "name": "features",
+              "type": "array",
+              "field": {
+                "type": "Checkboxes",
+                "title": "Features",
+                "options": {
+                  "logging": "Logging aktivieren",
+                  "cache":   { "label": "Cache aktivieren", "description": "Recommended for production." }
+                }
+              },
+              "show_in_rest": {
+                  "schema": {
+                      "items": "string"
+                  }
+              }
+            },
+            {
+              "name": "layout",
+              "type": "string",
+              "default": "grid",
+              "field": {
+                "type": "Radio",
+                "title": "Layout",
+                "options": { "grid": "Grid", "list": "Liste" }
+              }
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "default": "auto",
+              "field": {
+                "type": "Select",
+                "title": "Mode",
+                "options": { "auto": "Automatic", "manual": "Manual" }
+              }
+            },
+            {
+              "name": "tags",
+              "type": "array",
+              "field": {
+                "type": "MultiSelect",
+                "title": "Tags",
+                "sortable": true,
+                "options": { "a": "Tag A", "b": "Tag B", "c": "Tag C" }
+              }
+            },
+            {
+              "name": "retry_count",
+              "type": "integer",
+              "default": 3,
+              "field": { "type": "Number", "title": "Retries", "min": 0, "max": 10, "step": 1 }
+            }
+          ]
+        },
+        {
+          "name": "media",
+          "title": "Media",
+          "settings": [
+            {
+              "name": "logo",
+              "type": "integer",
+              "field": {
+                "type": "File",
+                "title": "Logo",
+                "add_file_title": "Choose image",
+                "remove_file_title": "Remove",
+                "file_types": [ "image" ]
+              }
+            },
+            {
+              "name": "gallery",
+              "type": "array",
+              "field": {
+                "type": "Files",
+                "title": "Gallery",
+                "add_file_title": "Add files",
+                "file_types": [ "image", "pdf" ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "advanced",
+          "title": "Advanced",
+          "settings": [
+            {
+              "name": "hint",
+              "type": "string",
+              "field": { "type": "TextInfo", "description": "<p>For advanced users only.</p>" }
+            },
+            {
+              "name": "docs_button",
+              "type": "boolean",
+              "field": {
+                "type": "Button",
+                "button_title": "Open documentation",
+                "button_url": "https://example.com/docs",
+                "classes": [ "is-secondary" ],
+                "data": { "target": "_blank" }
+              }
+            },
+            {
+              "name": "computed_value",
+              "type": "string",
+              "field": { "type": "Value", "title": "Calculated value" }
+            },
+            {
+              "name": "permalink_structure",
+              "type": "string",
+              "field": {
+                "type": "PermalinkSlug",
+                "title": "Permalink",
+                "list_title": "Available placeholders",
+                "options": { "year": "Year", "postname": "Title" }
+              }
+            },
+            {
+              "name": "featured_page",
+              "type": "integer",
+              "field": {
+                "type": "SelectPostTypeObject",
+                "button_title": "Choose page",
+                "popup_title": "Choose page",
+                "popup_description": "Please choose a page.",
+                "endpoint": "/wp/v2/pages",
+                "limit": 5,
+                "chosen_title": "Chosen",
+                "label_title": "Search",
+                "placeholder": "Enter title...",
+                "cancel_button_title": "Cancel"
+              }
+            },
+            {
+              "name": "allowed_domains",
+              "type": "array",
+              "field": { "type": "Table", "title": "Allowed domains", "table_options": { "url": "domain" } }
+            },
+            {
+              "name": "webhook_urls",
+              "type": "array",
+              "field": {
+                "type": "MultiField",
+                "title": "Webhook URLs",
+                "quantity": 3,
+                "field": { "type": "Text", "placeholder": "https://..." }
+              }
+            }
+          ]
+        },
+        {
+          "name": "matrix",
+          "title": "Matrix",
+          "settings": [
+            {
+              "name": "role_matrix",
+              "type": "array",
+              "field": {
+                "type": "FieldTable",
+                "title": "Rollen-Matrix",
+                "columns": [ "Read", "Write" ],
+                "cells": [
+                  [
+                    [ { "name": "editor_read",  "type": "boolean", "field": { "type": "Checkbox" } } ],
+                    [ { "name": "editor_write", "type": "boolean", "field": { "type": "Checkbox" } } ]
+                  ],
+                  [
+                    [ { "name": "author_read",  "type": "boolean", "field": { "type": "Checkbox" } } ],
+                    [ { "name": "author_write", "type": "boolean", "field": { "type": "Checkbox" } } ]
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "tabs": [
+        {
+          "name": "general_sub",
+          "title": "Sub Tab",
+          "sections": [
+            {
+              "name": "sub_section",
+              "title": "Nested Section",
+              "settings": [
+                {
+                  "name": "sub_setting",
+                  "type": "string",
+                  "field": { "type": "Text", "title": "In a nested tab" }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

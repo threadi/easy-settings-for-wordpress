@@ -94,7 +94,7 @@ class Views extends Base_Object {
 	 */
 	public function set_view( string $view_name ): void {
 		$this->view_is_requested = true;
-		$this->view_name = $view_name;
+		$this->view_name         = $view_name;
 	}
 
 	/**
@@ -107,7 +107,7 @@ class Views extends Base_Object {
 		$view = $this->get_view();
 
 		// bail if no view could be loaded.
-		if( ! $view instanceof View_Base ) {
+		if ( ! $view instanceof View_Base ) {
 			return;
 		}
 
@@ -127,7 +127,7 @@ class Views extends Base_Object {
 		$view = $this->get_view();
 
 		// bail if no view could be loaded.
-		if( ! $view instanceof View_Base ) {
+		if ( ! $view instanceof View_Base ) {
 			return;
 		}
 
@@ -164,7 +164,7 @@ class Views extends Base_Object {
 			}
 
 			// bail if view could not be used.
-			if( ! $obj->is_usable() ) {
+			if ( ! $obj->is_usable() ) {
 				continue;
 			}
 

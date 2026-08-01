@@ -187,7 +187,10 @@ class Setting extends Base_Object {
 			$field_obj = $field;
 		}
 
-		if( $field_obj->should_not_be_registered() ) {
+		// get the active view.
+		$view = $this->get_settings_obj()->get_views()->get_view();
+
+		if ( $view instanceof View_Base && 'dataview' === $view->get_name() && $field_obj->should_not_be_registered() ) {
 			$this->do_not_register( true );
 		}
 
@@ -554,7 +557,7 @@ class Setting extends Base_Object {
 	 */
 	public function get_dataview(): array {
 		// bail if no field is configured.
-		if( null === $this->get_field() ) {
+		if ( null === $this->get_field() ) {
 			return array();
 		}
 
@@ -563,21 +566,21 @@ class Setting extends Base_Object {
 
 		// prepare the basic data.
 		$configuration = array(
-			'id' => $this->get_name(),
-			'label' => $field->get_title(),
+			'id'          => $this->get_name(),
+			'label'       => $field->get_title(),
 			'description' => $field->get_description(),
-			'depend' => $field->get_depend_as_array(),
+			'depend'      => $field->get_depend_as_array(),
 		);
 
 		// add type specific settings.
-		switch( $field->get_type_name() ) {
+		switch ( $field->get_type_name() ) {
 			case 'Button':
 				$configuration['type'] = 'esfw-button';
-				if( $field instanceof Button ) {
-					$configuration['button_title'] = $field->get_button_title();
-					$configuration['button_url'] = $field->get_button_url();
+				if ( $field instanceof Button ) {
+					$configuration['button_title']   = $field->get_button_title();
+					$configuration['button_url']     = $field->get_button_url();
 					$configuration['button_classes'] = $field->get_classes_as_array();
-					$configuration['button_data'] = $field->get_data_as_array();
+					$configuration['button_data']    = $field->get_data_as_array();
 				}
 				break;
 			case 'Checkbox':
@@ -585,7 +588,7 @@ class Setting extends Base_Object {
 				break;
 			case 'Checkboxes':
 				$configuration['type'] = 'esfw-checkboxes';
-				if( $field instanceof Checkboxes ) {
+				if ( $field instanceof Checkboxes ) {
 					$options = array();
 					foreach ( $field->get_options() as $key => $label ) {
 						$options[] = array(
@@ -600,14 +603,14 @@ class Setting extends Base_Object {
 				$configuration['type'] = 'esfw-table';
 				break;
 			case 'File':
-				$configuration['type'] = 'media';
+				$configuration['type']     = 'media';
 				$configuration['multiple'] = false;
 				if ( $field instanceof File ) {
 					$configuration['allowed_types'] = $field->get_file_types();
 				}
 				break;
 			case 'Files':
-				$configuration['type'] = 'media';
+				$configuration['type']     = 'media';
 				$configuration['multiple'] = true;
 				if ( $field instanceof Files ) {
 					$configuration['allowed_types'] = $field->get_file_types();
@@ -616,12 +619,15 @@ class Setting extends Base_Object {
 			case 'MultiField':
 				$configuration['type'] = 'esfw-multifield';
 				break;
-			case 'Multiselect':
+			case 'MultiSelect':
 				$configuration['type'] = 'esfw-multiselect';
 				if ( $field instanceof MultiSelect ) {
 					$options = array();
 					foreach ( $field->get_options() as $key => $label ) {
-						$options[] = array( 'value' => (string) $key, 'label' => $label );
+						$options[] = array(
+							'value' => (string) $key,
+							'label' => $label,
+						);
 					}
 					$configuration['options'] = $options;
 				}
@@ -638,17 +644,20 @@ class Setting extends Base_Object {
 				if ( $field instanceof PermalinkSlug ) {
 					$options = array();
 					foreach ( $field->get_options() as $key => $label ) {
-						$options[] = array( 'placeholder' => '%' . $key . '%', 'label' => $label );
+						$options[] = array(
+							'placeholder' => '%' . $key . '%',
+							'label'       => $label,
+						);
 					}
-					$configuration['options'] = $options;
+					$configuration['options']    = $options;
 					$configuration['list_title'] = $field->get_list_title();
 				}
 				break;
 			case 'Radio':
 				$configuration['type'] = 'text';
 				$configuration['Edit'] = 'radio';
-				$options = array();
-				if( $field instanceof Radio ) {
+				$options               = array();
+				if ( $field instanceof Radio ) {
 					foreach ( $field->get_options() as $key => $label ) {
 						$options[] = array(
 							'value' => $key,
@@ -661,8 +670,8 @@ class Setting extends Base_Object {
 			case 'Select':
 				$configuration['type'] = 'text';
 				$configuration['Edit'] = 'select';
-				$options = array();
-				if( $field instanceof Select ) {
+				$options               = array();
+				if ( $field instanceof Select ) {
 					foreach ( $field->get_options() as $key => $label ) {
 						$options[] = array(
 							'value' => $key,
@@ -688,12 +697,12 @@ class Setting extends Base_Object {
 				$configuration['Edit'] = 'textarea';
 				break;
 			case 'TextInfo':
-				$configuration['type'] = 'esfw-display';
+				$configuration['type']      = 'esfw-display';
 				$configuration['is_static'] = true;
 				$configuration['text']      = $field->get_description();
 				break;
 			case 'Value':
-				$configuration['type'] = 'esfw-display';
+				$configuration['type']      = 'esfw-display';
 				$configuration['is_static'] = true;
 				if ( $field instanceof Value ) {
 					$configuration['text'] = $field->get_value();

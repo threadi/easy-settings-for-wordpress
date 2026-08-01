@@ -10,6 +10,7 @@
 - Added the simple method to save all configured settings in one single option-entry
 - Added autosave-mode (every change, tab change or off), default is "off".
 - Added method get_errors() to get any errors, which has been occurred during using the settings
+- Added demo settings if object is not configured
 - Added new hooks
 
 ### Changed
@@ -25,6 +26,7 @@
 ### Fixed
 
 - Fixed missing capability check in export tool
+- Fixed spelling of the internal name for MultiSelect from "Multiselect" to "multiSelect"
 
 ## [2.2.2] - 27.06.2026
 
@@ -348,7 +350,7 @@
 
 ### Fixed
 
-- Fixed usage of widefat on Multiselect fields
+- Fixed usage of widefat on MultiSelect fields
 
 ## [1.10.4] - 24.05.2025
 

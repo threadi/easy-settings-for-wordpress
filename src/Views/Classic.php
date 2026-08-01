@@ -221,7 +221,7 @@ class Classic extends View_Base {
 		$styling_object = $this->get_styling_object();
 
 		// bail if no styling object could be loaded.
-		if( ! $styling_object instanceof Styling_Base ) {
+		if ( ! $styling_object instanceof Styling_Base ) {
 			return;
 		}
 
