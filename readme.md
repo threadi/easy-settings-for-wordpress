@@ -12,7 +12,7 @@ This composer packages add a simple wrapper for settings for WordPress plugins a
 ## Requirements
 
 * A custom WordPress plugin or theme
-* [composer](https://getcomposer.org/)
+* [_composer_](https://getcomposer.org/) to install this package
 
 ## Installation
 
