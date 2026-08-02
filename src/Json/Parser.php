@@ -5,15 +5,23 @@
  * @package easy-settings-for-wordpress
  */
 
-namespace easySettingsForWordPress;
+namespace easySettingsForWordPress\Json;
 
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use easySettingsForWordPress\Base_Object;
+use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Fields\Button;
 use easySettingsForWordPress\Fields\FieldTable;
 use easySettingsForWordPress\Fields\MultiField;
 use easySettingsForWordPress\Fields\SelectPostTypeObject;
+use easySettingsForWordPress\Helper;
+use easySettingsForWordPress\Page;
+use easySettingsForWordPress\Setting;
+use easySettingsForWordPress\Settings;
+use easySettingsForWordPress\Tab;
+use easySettingsForWordPress\View_Base;
 
 /**
  * Builds Settings -> Page -> Tab -> Section -> Setting -> Field_Base from a decoded JSON
@@ -22,7 +30,7 @@ use easySettingsForWordPress\Fields\SelectPostTypeObject;
  * Usage: Settings::set_json() delegates here. Do not call this class directly unless you
  * need finer control (e.g. applying only part of a configuration).
  */
-class Json_Config_Parser extends Base_Object {
+class Parser extends Base_Object {
 	/**
 	 * Registry of all settings created so far, keyed by their name.
 	 *
@@ -114,7 +122,10 @@ class Json_Config_Parser extends Base_Object {
 			$this->get_settings_obj()->set_view( (string) $config['view'] );
 		}
 		if ( isset( $config['styling'] ) ) {
-			$this->get_settings_obj()->get_views()->get_view()->set_styling( (string) $config['styling'] );
+			$view = $this->get_settings_obj()->get_views()->get_view();
+			if ( $view instanceof View_Base ) {
+				$view->set_styling( (string) $config['styling'] );
+			}
 		}
 
 		// setting the menu slug auto-creates the page with this name (see Settings::set_menu_slug()).

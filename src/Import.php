@@ -187,25 +187,8 @@ class Import extends Base_Object {
 			wp_send_json( $dialog );
 		}
 
-		/**
-		 * Run additional tasks before running the import of settings.
-		 *
-		 * @since 1.0.0 Available since 1.0.0.
-		 *
-		 * @param array $settings_array The settings to import.
-		 */
-		do_action( $this->get_settings_obj()->get_slug() . '_settings_import', $settings_array );
-
-		// import the settings.
-		foreach ( $settings_array as $field_name => $field_value ) {
-			// check if given setting is used in this plugin.
-			if ( ! $this->get_settings_obj()->get_setting( $field_name ) ) {
-				continue;
-			}
-
-			// update this setting without sanitizing as the used method does this before saving the value.
-			update_option( $field_name, $field_value );
-		}
+		// import the data.
+		$this->import_data( $settings_array );
 
 		// return info that import was successfully.
 		$dialog['detail']['title']                = $translations['dialog_import_success_title'];
@@ -226,5 +209,34 @@ class Import extends Base_Object {
 		$new_filetypes         = array();
 		$new_filetypes['json'] = 'application/json';
 		return array_merge( $file_types, $new_filetypes );
+	}
+
+	/**
+	 * Import a decoded "name => value" settings map.
+	 *
+	 * Only settings known to this settings object are updated; unknown keys are
+	 * ignored. Values go through update_option(), so the registered
+	 * sanitize_callback runs before persisting.
+	 *
+	 * @param array<string,mixed> $settings_array The decoded settings.
+	 *
+	 * @return void
+	 */
+	public function import_data( array $settings_array ): void {
+		/**
+		 * Run additional tasks before running the import of settings.
+		 *
+		 * @since 1.0.0 Available since 1.0.0.
+		 *
+		 * @param array<string,mixed> $settings_array The settings to import.
+		 */
+		do_action( $this->get_settings_obj()->get_slug() . '_settings_import', $settings_array );
+
+		foreach ( $settings_array as $field_name => $field_value ) {
+			if ( ! $this->get_settings_obj()->get_setting( $field_name ) ) {
+				continue;
+			}
+			update_option( $field_name, $field_value );
+		}
 	}
 }

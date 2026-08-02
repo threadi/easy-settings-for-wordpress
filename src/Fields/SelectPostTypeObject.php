@@ -351,6 +351,12 @@ class SelectPostTypeObject extends Field_Base {
 	 * @return int
 	 */
 	public function default_sanitize_callback( mixed $value ): int {
+		// check the value.
+		if ( ! is_scalar( $value ) ) {
+			return 0;
+		}
+
+		// return the value.
 		return absint( $value );
 	}
 

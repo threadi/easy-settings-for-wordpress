@@ -8,9 +8,9 @@
 namespace easySettingsForWordPress;
 
 // prevent direct access.
-use easySettingsForWordPress\Views\Classic;
-
 defined( 'ABSPATH' ) || exit;
+
+use easySettingsForWordPress\Views\Classic;
 
 /**
  * Object to manage the view of settings in the backend.

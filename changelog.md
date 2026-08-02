@@ -18,6 +18,7 @@
 - New minimum requirement: PHP 8.2
 - Optimized styling for description of checkboxes
 - Optimized sanitizing of some fields
+- Optimized check for allowed Number values
 - Updated the documentation to use this package
 - Extended PHP Unit Tests to check for XSS and other possible attacks
 - TextInfo and Value are now automatically configured as "do not register"-fields

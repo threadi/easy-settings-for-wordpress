@@ -11,6 +11,8 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Fields\TextInfo;
+use easySettingsForWordPress\Json\Parser;
+use easySettingsForWordPress\Json\Serializer;
 use WP_Error;
 
 /**
@@ -335,7 +337,7 @@ class Settings {
 		}
 
 		// hand the decoded configuration over to the parser.
-		return Json_Config_Parser::apply( $this, $config );
+		return Parser::apply( $this, $config );
 	}
 
 	/**
@@ -1723,5 +1725,14 @@ class Settings {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Serialize this settings object back into a configuration array.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function to_config(): array {
+		return Serializer::to_config( $this );
 	}
 }

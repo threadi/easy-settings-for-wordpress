@@ -57,28 +57,8 @@ class Export extends Base_Object {
 			exit;
 		}
 
-		// array for the export.
-		$export_settings = array();
-
-		// convert this array to a simple one with "setting_name" > "value".
-		foreach ( $settings as $settings_obj ) {
-			// bail if export is prevented.
-			if ( $settings_obj->is_export_prevented() ) {
-				continue;
-			}
-
-			// add to export array.
-			$export_settings[ $settings_obj->get_name() ] = $settings_obj->get_value();
-		}
-
-		/**
-		 * Filter the exported settings.
-		 *
-		 * @since 1.14.0 Available since 1.14.0.
-		 *
-		 * @param array<string,mixed> $export_settings The settings to export.
-		 */
-		$export_settings = apply_filters( $this->get_settings_obj()->get_slug() . '_settings_export_settings', $export_settings );
+		// get the data to export.
+		$export_settings = $this->get_export_data();
 
 		// create the filename for JSON-download-file.
 		$filename = gmdate( 'YmdHi' ) . '_' . get_option( 'blogname' ) . '_settings.json';
@@ -111,5 +91,33 @@ class Export extends Base_Object {
 			),
 			get_admin_url() . 'admin.php'
 		);
+	}
+
+	/**
+	 * Return the settings to export as a "name => value" map.
+	 *
+	 * Skips settings that opted out of export and applies the export filter –
+	 * this is the exact payload run() streams as a download.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_export_data(): array {
+		$export_settings = array();
+
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			if ( $setting->is_export_prevented() ) {
+				continue;
+			}
+			$export_settings[ $setting->get_name() ] = $setting->get_value();
+		}
+
+		/**
+		 * Filter the exported settings.
+		 *
+		 * @since 1.14.0 Available since 1.14.0.
+		 *
+		 * @param array<string,mixed> $export_settings The settings to export.
+		 */
+		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_export_settings', $export_settings );
 	}
 }
