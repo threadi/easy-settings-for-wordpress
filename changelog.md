@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2] - 02.08.2026
+
+### Fixed
+
+- Do not use Methods as Singleton
+- Accept null as value for some fields via REST API
+
 ## [3.0.1] - 02.08.2026
 
 ### Added
