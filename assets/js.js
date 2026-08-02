@@ -11,30 +11,53 @@ jQuery(document).ready(function($) {
   $( '.easy-settings-for-wordpress input[type="checkbox"], .easy-settings-for-wordpress input[type="radio"], .easy-settings-for-wordpress input[type="hidden"], .easy-settings-for-wordpress select' ).each( function () {
     let form_field = $( this );
 
-    // check on load to hide some fields.
-    $( '.easy-settings-for-wordpress [data-depends]' ).each( function () {
-      let depending_field = $( this );
-      $.each( $( this ).data( 'depends' ), function (i, v) {
-        if (i === form_field.attr( 'name' )
+    /**
+     * Evaluate all [data-depends] fields against the current value of form_field.
+     *
+     * For radio buttons this must only ever be called with the CHECKED input of a
+     * group, never with one of its unchecked siblings - every <input> in a radio
+     * group shares the same "name", but .val() always returns that single input's
+     * own value attribute, not "the value the user picked". Evaluating an unchecked
+     * radio would therefore wrongly be read as if it were the field's current value.
+     */
+    function evaluate_depends() {
+      $( '.easy-settings-for-wordpress [data-depends]' ).each( function () {
+        let depending_field = $( this );
+        $.each( $( this ).data( 'depends' ), function (i, v) {
+          if (i === form_field.attr( 'name' )
             && (
-                (form_field.attr( 'type' ) === 'checkbox' && !form_field.is( ':checked' ))
-                || (form_field.attr( 'type' ) !== 'checkbox' && v.toString() !== form_field.val())
+              (form_field.attr( 'type' ) === 'checkbox' && !form_field.is( ':checked' ))
+              || (form_field.attr( 'type' ) !== 'checkbox' && v.toString() !== form_field.val())
             )) {
-          depending_field.closest( 'tr' ).addClass( 'hide' );
-          depending_field.closest( 'tr' ).removeClass( 'show_with_animation' );
-        }
+            depending_field.closest( 'tr' ).addClass( 'hide' );
+            depending_field.closest( 'tr' ).removeClass( 'show_with_animation' );
+          }
+        } );
       } );
-    } );
+    }
+
+    // check on load to hide some fields - but skip unchecked radios, see above.
+    if ( form_field.attr( 'type' ) !== 'radio' || form_field.is( ':checked' ) ) {
+      evaluate_depends();
+    }
 
     // add event-listener to changed depending fields.
+    // (bind on every radio, including unchecked ones, so a click on it fires this later)
     form_field.on( 'change', function () {
+      // for radios the browser only fires "change" on the input that just became
+      // checked, so form_field.is(':checked') is naturally true here - the guard
+      // below is just defensive in case something triggers change programmatically.
+      if ( form_field.attr( 'type' ) === 'radio' && ! form_field.is( ':checked' ) ) {
+        return;
+      }
+
       $( '.easy-settings-for-wordpress [data-depends]' ).each( function () {
         let depending_field = $( this );
         $.each( $( this ).data( 'depends' ), function (i, v) {
           if (i === form_field.attr( 'name' )) {
             if (
-                (form_field.attr( 'type' ) !== 'checkbox' && v.toString() === form_field.val())
-                || (form_field.attr( 'type' ) === 'checkbox' && form_field.is( ':checked' ))
+              (form_field.attr( 'type' ) !== 'checkbox' && v.toString() === form_field.val())
+              || (form_field.attr( 'type' ) === 'checkbox' && form_field.is( ':checked' ))
             ) {
               depending_field.closest( 'tr' ).removeClass( 'hide' );
               depending_field.closest( 'tr' ).addClass( 'show_with_animation' )

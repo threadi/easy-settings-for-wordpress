@@ -26,7 +26,8 @@
 ### Fixed
 
 - Fixed missing capability check in export tool
-- Fixed spelling of the internal name for MultiSelect from "Multiselect" to "multiSelect"
+- Fixed spelling of the internal name for MultiSelect from "Multiselect" to "MultiSelect"
+- Fixed handling of dependent Radio fields
 
 ## [2.2.2] - 27.06.2026
 

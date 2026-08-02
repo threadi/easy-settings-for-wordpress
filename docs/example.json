@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/threadi/easy-settings-for-wordpress/refs/heads/master/settings.schema.json",
   "slug": "demo_settings",
   "title": "Demo Settings",
   "menu_title": "Demo Settings",

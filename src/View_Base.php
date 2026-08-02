@@ -38,4 +38,14 @@ class View_Base extends Base_Object {
 	public function is_usable(): bool {
 		return true;
 	}
+
+	/**
+	 * Set the styling to use by its name.
+	 *
+	 * @param string $styling The styling name.
+	 *
+	 * @return void
+	 * @noinspection PhpUnused
+	 */
+	public function set_styling( string $styling ): void {}
 }
