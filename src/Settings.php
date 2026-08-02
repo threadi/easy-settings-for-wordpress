@@ -683,7 +683,7 @@ class Settings {
 	 *
 	 * @return Methods
 	 */
-	private function get_methods(): Methods {
+	public function get_methods(): Methods {
 		return $this->methods;
 	}
 
