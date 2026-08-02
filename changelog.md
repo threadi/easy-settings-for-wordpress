@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Removed now unused embedding
+
 ## [3.0.2] - 02.08.2026
 
 ### Fixed

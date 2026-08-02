@@ -13,7 +13,6 @@ defined( 'ABSPATH' ) || exit;
 use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Helper;
 use easySettingsForWordPress\Setting;
-use easySettingsForWordPress\Settings;
 
 /**
  * Object to handle a multiselect field for multi-single setting.
