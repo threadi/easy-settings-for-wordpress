@@ -34,3 +34,9 @@ Alternatively you can also input your JSON file direct:
 The JSON file must have a structure that is compatible with [the schema](../settings.schema.json).
 
 An example you will find [here](example.json).
+
+### Validation
+
+You can validate your JSON against the schema via:
+
+`composer validate-schema -- /path/to/schema.json /path/to/your/custm.json`

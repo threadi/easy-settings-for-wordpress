@@ -317,10 +317,6 @@ class Settings {
 	 * is a 1:1 mapping of the PHP object graph (Settings -> Page -> Tab -> Section ->
 	 * Setting -> Field_Base). See Json_Config_Parser for the exact mapping.
 	 *
-	 * Errors (invalid JSON, unknown field types, duplicate names, ...) are collected
-	 * on this object via add_error() / get_errors(), the same way the fluent PHP API
-	 * reports them - this method does not throw.
-	 *
 	 * @param string $json The JSON configuration as string.
 	 *
 	 * @return bool True on success, false if any error occurred (check get_errors()).

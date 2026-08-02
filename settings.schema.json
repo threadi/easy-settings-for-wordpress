@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/schemas/easy-settings-for-wordpress.schema.json",
+  "$id": "https://raw.githubusercontent.com/threadi/easy-settings-for-wordpress/refs/heads/master/settings.schema.json",
   "title": "Easy Settings for WordPress \u2026 Configuration",
   "description": "JSON equivalent for using PHP-configuration. Must be set via Settings::set_json().",
   "type": "object",

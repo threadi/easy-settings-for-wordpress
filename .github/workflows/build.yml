@@ -26,6 +26,15 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Validate example JSON against schema
+        run: composer validate-schema
+
       - name: Tag release
         id: tag
         env:

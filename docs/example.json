@@ -8,6 +8,7 @@
   "auto_save": "change",
   "show_settings_link_in_plugin_list": true,
   "default_tab": "demo_general",
+  "aaaaa": "bbbb",
   "tabs": [
     {
       "name": "demo_general",
