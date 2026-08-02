@@ -10,6 +10,7 @@ namespace easySettingsForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use easySettingsForWordPress\Fields\TextInfo;
 use WP_Error;
 
 /**
@@ -21,7 +22,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	private string $slug = '';
+	private string $slug = 'easy-settings-for-wordpress';
 
 	/**
 	 * The plugin slug.
@@ -63,7 +64,7 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	private string $menu_title = '';
+	private string $menu_title = 'Easy Settings for WordPress';
 
 	/**
 	 * The menu position.
@@ -77,14 +78,14 @@ class Settings {
 	 *
 	 * @var string
 	 */
-	private string $title = '';
+	private string $title = 'Easy Settings for WordPress';
 
 	/**
 	 * The menu slug.
 	 *
 	 * @var string
 	 */
-	private string $menu_slug = '';
+	private string $menu_slug = 'easy-settings-for-wordpress-settings';
 
 	/**
 	 * The parent menu slug.
@@ -222,7 +223,26 @@ class Settings {
 		// run activation of settings during the plugin activation.
 		register_activation_hook( $this->get_plugin_path(), array( $this, 'activation' ) );
 
-		// get the method to use and run their init tasks.
+		// if we have no settings, create demo settings.
+		if ( ! $this->has_settings() ) {
+			$page = $this->add_page( $this->get_menu_slug() );
+			$tab  = $page->add_tab( 'easy-settings-for-wordpress_example_tab', 10 );
+			$tab->set_title( 'Easy Settings for WordPress Example Tab' );
+			$tab->set_description( '<p>This is just an example for a tab. Configure your own settings to remove this.</p>' );
+			$tab->set_hide_save( true );
+			$page->set_default_tab( $tab );
+			$section = $tab->add_section( 'easy-settings-for-wordpress_example_section', 10 );
+			$section->set_title( 'Example Section' );
+			$setting = $this->add_setting( 'easy_settings_for_wordpress_example_setting' );
+			$setting->set_section( $section );
+			$setting->prevent_export( true );
+			$field = new TextInfo( $this );
+			$field->set_title( 'Example Field' );
+			$field->set_description( 'This is just an example for a setting. Configure your own settings to remove this.' );
+			$setting->set_field( $field );
+		}
+
+		// get the method to use and run their initialization tasks.
 		$base_method = Methods::get_instance()->get_method();
 
 		// bail if no method is set.
@@ -230,7 +250,7 @@ class Settings {
 			return;
 		}
 
-		// run its init tasks.
+		// run the initialization tasks on the method we use.
 		$base_method->init();
 
 		// initiate import and export.
@@ -290,6 +310,82 @@ class Settings {
 	}
 
 	/**
+	 * Configure this settings object (slug, menu, tabs, sections, settings, fields)
+	 * from a JSON string instead of building it up in PHP.
+	 *
+	 * The JSON must follow settings.schema.json (JSON Schema Draft 2020-12), which
+	 * is a 1:1 mapping of the PHP object graph (Settings -> Page -> Tab -> Section ->
+	 * Setting -> Field_Base). See Json_Config_Parser for the exact mapping.
+	 *
+	 * Errors (invalid JSON, unknown field types, duplicate names, ...) are collected
+	 * on this object via add_error() / get_errors(), the same way the fluent PHP API
+	 * reports them - this method does not throw.
+	 *
+	 * @param string $json The JSON configuration as string.
+	 *
+	 * @return bool True on success, false if any error occurred (check get_errors()).
+	 */
+	public function set_json( string $json ): bool {
+		// decode the JSON.
+		$config = json_decode( $json, true );
+
+		// bail if the JSON could not be decoded into an array.
+		if ( ! is_array( $config ) ) {
+			$this->add_error(
+				'json_invalid',
+				sprintf( 'The given JSON could not be decoded: %s', json_last_error_msg() )
+			);
+			return false;
+		}
+
+		// hand the decoded configuration over to the parser.
+		return Json_Config_Parser::apply( $this, $config );
+	}
+
+	/**
+	 * Set the path to the JSON with the configuration for settings.
+	 *
+	 * @param string $file_path The file path.
+	 *
+	 * @return bool
+	 * @noinspection PhpUnused
+	 */
+	public function set_json_by_path( string $file_path ): bool {
+		// get the WP Filesystem handler.
+		$wp_filesystem = Helper::get_wp_filesystem();
+
+		// bail if the path is not readable.
+		if ( ! $wp_filesystem->exists( $file_path ) ) {
+			// log this as error.
+			$this->add_error(
+				'json_not_readable',
+				'The given JSON is not readable.'
+			);
+
+			// do nothing more.
+			return false;
+		}
+
+		// get the JSON.
+		$config = $wp_filesystem->get_contents( $file_path );
+
+		// bail if no content could be read.
+		if ( empty( $config ) ) {
+			// log this as error.
+			$this->add_error(
+				'json_empty',
+				'The given JSON is empty.'
+			);
+
+			// do nothing more.
+			return false;
+		}
+
+		// apply it.
+		return $this->set_json( $config );
+	}
+
+	/**
 	 * Return list of tabs.
 	 *
 	 * @return array<int,Tab>
@@ -313,9 +409,15 @@ class Settings {
 	 *
 	 * @param string|Tab $tab The tab object or its internal name.
 	 *
-	 * @return Tab
+	 * @return Tab The object of the resulting Tab.
 	 */
 	public function add_tab( string|Tab $tab ): Tab {
+		// log error as  this should not be used.
+		$this->add_error(
+			'tab_do_not_use',
+			'Do not use Settings::add_tab(), use Page::add_tab() instead.'
+		);
+
 		// set the tab object.
 		$tab_obj = $tab;
 
@@ -847,7 +949,7 @@ class Settings {
 	 *
 	 * @param string|Setting $setting The settings object or its internal name.
 	 *
-	 * @return Setting
+	 * @return Setting Return the resulting Settings object.
 	 */
 	public function add_setting( string|Setting $setting ): Setting {
 		// set the setting object.
@@ -880,7 +982,7 @@ class Settings {
 		// add the setting to the list of settings of this tab.
 		$this->settings[] = $setting_obj;
 
-		// return the tab object.
+		// return the settings object.
 		return $setting_obj;
 	}
 
@@ -945,7 +1047,7 @@ class Settings {
 	/**
 	 * Return whether settings are available.
 	 *
-	 * @private Only used for internal tasks.
+	 * @internal Only used for internal tasks.
 	 * @return bool
 	 */
 	public function has_settings(): bool {
@@ -1209,6 +1311,11 @@ class Settings {
 			return $page_obj;
 		}
 
+		// if requested page name is the slug, create the page.
+		if ( $page_name === $this->get_menu_slug() && ! $this->has_settings() ) {
+			return $this->add_page( $page_name );
+		}
+
 		// return false if not object could be found.
 		return false;
 	}
@@ -1405,7 +1512,7 @@ class Settings {
 	/**
 	 * Return the plugin path.
 	 *
-	 * @private Only used for internal tasks.
+	 * @internal Only used for internal tasks.
 	 * @return string
 	 */
 	public function get_plugin_path(): string {
@@ -1426,9 +1533,9 @@ class Settings {
 		}
 
 		// get the view.
-		$view = $this->views->get_view();
+		$view      = $this->views->get_view();
 		$view_name = '';
-		if( $view instanceof View_Base ) {
+		if ( $view instanceof View_Base ) {
 			$view_name = $view->get_name();
 		}
 
@@ -1566,7 +1673,7 @@ class Settings {
 	 */
 	public function has_errors(): bool {
 		return $this->errors instanceof WP_Error
-		       && $this->errors->has_errors();
+				&& $this->errors->has_errors();
 	}
 
 	/**

@@ -1,0 +1,408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/easy-settings-for-wordpress.schema.json",
+  "title": "Easy Settings for WordPress \u2026 Configuration",
+  "description": "JSON equivalent for using PHP-configuration. Must be set via Settings::set_json().",
+  "type": "object",
+
+  "$defs": {
+
+    "depends": {
+      "description": "Conditional visibility: The field is displayed only if the referenced setting has the specified value. Corresponds to Field_Base::add_depend(). Key = setting name, Value = expected value.",
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "field_common": {
+      "description": "Properties that EVERY field type has (from Field_Base).",
+      "type": "object",
+      "properties": {
+        "title":       { "type": "string" },
+        "description": { "type": "string" },
+        "readonly":    { "type": "boolean", "default": false },
+        "depends":     { "$ref": "#/$defs/depends" }
+      }
+    },
+
+    "options_map": {
+      "description": "Value => Label pairs, as expected by set_options() for Select/MultiSelect.",
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+
+    "options_map_extended": {
+      "description": "Value => Label OR Value => {label, description}, as allowed for checkboxes and radio buttons.",
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "label":       { "type": "string" },
+              "description": { "type": "string" }
+            },
+            "required": [ "label" ]
+          }
+        ]
+      }
+    },
+
+    "field_text": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":        { "const": "Text" },
+        "placeholder": { "type": "string" },
+        "value":       { "type": "string" },
+        "with_label":  { "type": "boolean", "default": false }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_textarea": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":        { "const": "Textarea" },
+        "placeholder": { "type": "string" }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_password": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":        { "const": "Password" },
+        "placeholder": { "type": "string" },
+        "value":       { "type": "string" },
+        "with_label":  { "type": "boolean", "default": false }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_checkbox": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":       { "const": "Checkbox" },
+        "with_label": { "type": "boolean", "default": false }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_checkboxes": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":    { "const": "Checkboxes" },
+        "options": { "$ref": "#/$defs/options_map_extended" }
+      },
+      "required": [ "type", "options" ]
+    },
+
+    "field_radio": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":    { "const": "Radio" },
+        "options": { "$ref": "#/$defs/options_map_extended" }
+      },
+      "required": [ "type", "options" ]
+    },
+
+    "field_select": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":    { "const": "Select" },
+        "options": { "$ref": "#/$defs/options_map" }
+      },
+      "required": [ "type", "options" ]
+    },
+
+    "field_multiselect": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":     { "const": "MultiSelect" },
+        "options":  { "$ref": "#/$defs/options_map" },
+        "sortable": { "type": "boolean", "default": false }
+      },
+      "required": [ "type", "options" ]
+    },
+
+    "field_number": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type": { "const": "Number" },
+        "min":  { "type": "integer", "default": 0 },
+        "max":  { "type": "integer" },
+        "step": { "type": "integer", "default": 1 }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_file": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":              { "const": "File" },
+        "add_file_title":    { "type": "string" },
+        "remove_file_title": { "type": "string" },
+        "file_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [ "image" ]
+        }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_files": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":           { "const": "Files" },
+        "add_file_title": { "type": "string" },
+        "file_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [ "image" ]
+        }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_table": {
+      "description": "Corresponds to Fields\\Table (a free-form, user-editable list table using set_table_options()).",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type": { "const": "Table" },
+        "table_options": {
+          "type": "object",
+          "description": "Custom options per entry, e.g., {\"url\": \"...\", \"icon\": \"...\"}.",
+          "additionalProperties": true
+        }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_field_table": {
+      "description": "Corresponds to Fields\\FieldTable: a grid-like arrangement of multiple settings. 'cells' is rows -> columns -> a list of setting objects (usually exactly one per cell).",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":    { "const": "FieldTable" },
+        "columns": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "cells": {
+          "type": "array",
+          "description": "One line per entry. Each line has exactly as many columns as 'columns'.",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/setting" }
+            }
+          }
+        }
+      },
+      "required": [ "type", "columns", "cells" ]
+    },
+
+    "field_multifield": {
+      "description": "Entspricht Fields\\MultiField: zeigt 'field' 'quantity'-mal an, um eine Liste gleichartiger Werte zu erfassen.",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":     { "const": "MultiField" },
+        "field":    { "$ref": "#/$defs/field" },
+        "quantity": { "type": "integer", "minimum": 1, "default": 1 }
+      },
+      "required": [ "type", "field" ]
+    },
+
+    "field_button": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":        { "const": "Button" },
+        "button_title": { "type": "string" },
+        "button_url":   { "type": "string", "default": "#" },
+        "custom_attributes": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "classes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_textinfo": {
+      "description": "Corresponds to Fields\\TextInfo: plain informational text without a form field (is not registered as a WP setting).",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type": { "const": "TextInfo" }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_permalinkslug": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":       { "const": "PermalinkSlug" },
+        "options":    { "$ref": "#/$defs/options_map" },
+        "list_title": { "type": "string" }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_selectposttypeobject": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":                { "const": "SelectPostTypeObject" },
+        "button_title":        { "type": "string" },
+        "popup_title":         { "type": "string" },
+        "popup_description":   { "type": "string" },
+        "endpoint":            { "type": "string", "description": "REST endpoint for the search (required; otherwise, the field will not be displayed)." },
+        "limit":               { "type": "integer", "default": 5 },
+        "chosen_title":        { "type": "string" },
+        "label_title":         { "type": "string" },
+        "placeholder":         { "type": "string" },
+        "cancel_button_title": { "type": "string" }
+      },
+      "required": [ "type", "endpoint" ]
+    },
+
+    "field_value": {
+      "description": "Corresponds to Fields\\Value: value output only, without input.",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":  { "const": "Value" },
+        "value": {}
+      },
+      "required": [ "type" ]
+    },
+
+    "field": {
+      "description": "The discriminator is 'type', see Helper::get_field_by_type_name().",
+      "oneOf": [
+        { "$ref": "#/$defs/field_text" },
+        { "$ref": "#/$defs/field_textarea" },
+        { "$ref": "#/$defs/field_password" },
+        { "$ref": "#/$defs/field_checkbox" },
+        { "$ref": "#/$defs/field_checkboxes" },
+        { "$ref": "#/$defs/field_radio" },
+        { "$ref": "#/$defs/field_select" },
+        { "$ref": "#/$defs/field_multiselect" },
+        { "$ref": "#/$defs/field_number" },
+        { "$ref": "#/$defs/field_file" },
+        { "$ref": "#/$defs/field_files" },
+        { "$ref": "#/$defs/field_table" },
+        { "$ref": "#/$defs/field_field_table" },
+        { "$ref": "#/$defs/field_multifield" },
+        { "$ref": "#/$defs/field_button" },
+        { "$ref": "#/$defs/field_textinfo" },
+        { "$ref": "#/$defs/field_permalinkslug" },
+        { "$ref": "#/$defs/field_selectposttypeobject" },
+        { "$ref": "#/$defs/field_value" }
+      ]
+    },
+
+    "setting": {
+      "description": "Corresponds to the Setting class.",
+      "type": "object",
+      "properties": {
+        "name":         { "type": "string", "pattern": "^[a-zA-Z0-9_]+$", "description": "Must be unique within the entire Settings instance (Settings::has_setting_with_name)." },
+        "type":         { "type": "string", "enum": [ "string", "boolean", "integer", "number", "array", "object" ], "default": "string" },
+        "default":      {},
+        "help":         { "type": "string" },
+        "autoload":     { "type": "boolean", "default": true },
+        "prevent_export": { "type": "boolean", "default": false },
+        "show_in_rest": {
+          "oneOf": [ { "type": "boolean" }, { "type": "object" } ],
+          "default": false
+        },
+        "field":        { "$ref": "#/$defs/field" }
+      },
+      "required": [ "name", "field" ]
+    },
+
+    "section": {
+      "description": "Entspricht der Klasse Section.",
+      "type": "object",
+      "properties": {
+        "name":     { "type": "string" },
+        "title":    { "type": "string" },
+        "hidden":   { "type": "boolean", "default": false },
+        "settings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/setting" }
+        }
+      },
+      "required": [ "name" ]
+    },
+
+    "tab": {
+      "description": "Conforms to the Tab class. 'tabs' allows nesting (recursively), similar to Tab::add_tab().",
+      "type": "object",
+      "properties": {
+        "name":         { "type": "string" },
+        "title":        { "type": "string" },
+        "description":  { "type": "string" },
+        "position":     { "type": "integer", "default": 0 },
+        "show_in_menu": { "type": "boolean", "default": false },
+        "hide_save":    { "type": "boolean", "default": false },
+        "not_linked":   { "type": "boolean", "default": false },
+        "url":          { "type": "string" },
+        "url_target":   { "type": "string", "default": "_self" },
+        "sections": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/section" }
+        },
+        "tabs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tab" }
+        }
+      },
+      "required": [ "name" ]
+    }
+  },
+
+  "properties": {
+    "slug":              { "type": "string" },
+    "plugin_slug":       { "type": "string" },
+    "title":             { "type": "string" },
+    "menu_title":        { "type": "string" },
+    "menu_slug":         { "type": "string" },
+    "menu_parent_slug":  { "type": "string", "default": "options-general.php" },
+    "menu_icon":         { "type": "string" },
+    "menu_position":     { "type": "integer", "default": 10 },
+    "capability":        { "type": "string", "default": "manage_options" },
+    "auto_save":         { "type": "string", "enum": [ "off", "change", "tab_change" ], "default": "off" },
+    "show_settings_link_in_plugin_list": { "type": "boolean", "default": false },
+    "default_tab":       { "type": "string", "description": "Name of one of the tabs defined above." },
+    "tabs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tab" }
+    }
+  },
+  "required": [ "slug", "menu_slug", "tabs" ]
+}

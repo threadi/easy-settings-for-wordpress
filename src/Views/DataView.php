@@ -74,7 +74,7 @@ class DataView extends View_Base {
 		// enqueue the script.
 		wp_enqueue_script(
 			$this->get_settings_obj()->get_slug() . '-dataview',
-			$this->get_settings_obj()->get_url() .  'build/index.js',
+			$this->get_settings_obj()->get_url() . 'build/index.js',
 			$dependencies,
 			$asset['version'],
 			array(
@@ -94,13 +94,13 @@ class DataView extends View_Base {
 
 		// return the configuration for the view.
 		return array(
-			'slug'   => $this->get_settings_obj()->get_slug(),
-			'title'     => $this->get_settings_obj()->get_title(),
-			'fields' => $this->get_fields(),
-			'tabs'   => $this->get_tabs_config(),
-			'auto_save' => $this->get_settings_obj()->get_auto_save(),
-			'save_title' => $translations['save_title'],
-			'settings_saved' => $translations['settings_saved'],
+			'slug'                => $this->get_settings_obj()->get_slug(),
+			'title'               => $this->get_settings_obj()->get_title(),
+			'fields'              => $this->get_fields(),
+			'tabs'                => $this->get_tabs_config(),
+			'auto_save'           => $this->get_settings_obj()->get_auto_save(),
+			'save_title'          => $translations['save_title'],
+			'settings_saved'      => $translations['settings_saved'],
 			'settings_save_error' => $translations['settings_save_error'],
 		);
 	}
@@ -112,12 +112,12 @@ class DataView extends View_Base {
 	 */
 	private function get_fields(): array {
 		$fields = array();
-		foreach( $this->get_settings_obj()->get_settings() as $setting ) {
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
 			// get the data view settings.
 			$dataview = $setting->get_dataview();
 
 			// bail if no data view settings are given.
-			if( empty( $dataview ) ) {
+			if ( empty( $dataview ) ) {
 				continue;
 			}
 
@@ -200,9 +200,9 @@ class DataView extends View_Base {
 	 */
 	private function build_tab_node( Tab $tab, array $fields_by_section ): array {
 		$node = array(
-			'name'      => $tab->get_name(),
-			'label'     => $tab->get_title(),
-			'hide_save' => $tab->is_save_hidden(),
+			'name'        => $tab->get_name(),
+			'label'       => $tab->get_title(),
+			'hide_save'   => $tab->is_save_hidden(),
 			'description' => $tab->get_description(),
 		);
 
@@ -258,12 +258,12 @@ class DataView extends View_Base {
 		$result = version_compare( $wp_version, '7.0', '>=' );
 
 		// bail if version does match.
-		if( $result ) {
+		if ( $result ) {
 			return true;
 		}
 
 		// log this as error if this specific view has been requested.
-		if( $this->get_settings_obj()->get_views()->is_view_requested() ) {
+		if ( $this->get_settings_obj()->get_views()->is_view_requested() ) {
 			$this->get_settings_obj()->add_error( 'double_section_name', 'DataView requires WordPress 7.0 or newer.' );
 		}
 

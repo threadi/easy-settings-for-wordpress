@@ -129,6 +129,16 @@ class Simple extends Method_Base {
 
 			// bail if section could not be read.
 			if ( ! $section instanceof Section ) {
+				// log this as error.
+				$this->get_settings_obj()->add_error(
+					'setting_missing_section',
+					'A section is missing for a setting.',
+					array(
+						'setting' => $setting->get_name(),
+					)
+				);
+
+				// do nothing more.
 				continue;
 			}
 
@@ -137,6 +147,16 @@ class Simple extends Method_Base {
 
 			// bail if tab could not be read.
 			if ( ! $tab instanceof Tab ) {
+				// log this as error.
+				$this->get_settings_obj()->add_error(
+					'setting_missing_tab',
+					'A tab is missing for a setting.',
+					array(
+						'setting' => $setting->get_name(),
+					)
+				);
+
+				// do nothing more.
 				continue;
 			}
 

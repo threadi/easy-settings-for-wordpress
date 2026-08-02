@@ -1,18 +1,41 @@
 # Easy Settings for WordPress
 
-This composer packages add a simple wrapper for settings for WordPress plugins and themes.
+This composer packages add a simple wrapper for settings for WordPress plugins and themes. You no longer need to worry about inputting or outputting settings for your own implementation - leave that to this package. Simply use the WordPress-own `get_option()` to get the values of your settings.
 
 ## Requirements
 
+* A custom WordPress plugin or theme
 * composer
 
 ## Installation
 
+Run this in your custom plugin or theme directory:
+
 `composer require threadi/easy-settings-for-wordpress`
+
+Don't forget to embed the composer autoloader in your plugin or theme:
+
+`require __DIR__ . '/vendor/autoload.php';`
 
 ## Usage
 
-_TODO_
+Note: Take a look [at the demo plugin](https://github.com/threadi/easy-settings-for-wordpress-demo) to see how this package can be used.
+
+### Quick-Start
+
+This will give you a demo view that you can then further customize:
+
+```
+function your_custom_init_for_settings(): void {
+    $settings_object = new Settings( __FILE__ );
+    $settings_object->init();
+}
+add_action( 'init', 'your_custom_init_for_settings' );
+```
+
+### Use it
+
+Follow the documentation [here](docs/how_to_use_it.md).
 
 ### Upgrade hints
 
@@ -21,56 +44,6 @@ _TODO_
 - remove do_not_register() from TextInfo() and Value() fields
 - remove set_type() from Checkbox() fields
 - use add_data() instead of set_custom_attributes() for Import and Export buttons
-
-### Sorting
-
-* Pages are not sortable
-* Tabs are sorted by its given position
-* Sections are sorted by its given position
-* Settings are sorted in the order they are added
--> use Setting->`move_before_setting()` to move a setting on a specific position
-
-### Migrate the method settings will be saved
-
-The package supports saving settings in various ways, which are referred to here as "methods." If you want to switch from one method to another in your plugin, there is a function that can help you do so.
-
-#### Methods
-
-* Simple (name "simple") - saves every setting in its own entry on the options table (default)
-* One (name "one") - saves all settings in one entry on the options table
-
-To set the method for your plugin/theme:
-
-`$settings_obj->set_method( 'one' );`
-
-#### Views
-
-The settings can be displayed in the backend in various ways. The package offers the following options:
-
-* Classic (name "classic") - the classic way to use settings in backend incl. tabs
-* DataView (name "dataview") - the modern way to handle settings in backend, only usable in WordPress 7.0 or newer
-
-To set the view for your plugin/theme:
-
-`$settings_obj->set_view( 'classic' );`
-
-Hint: if you set "dataview" users with WordPress < 7.0 will be use the classic view.
-
-#### Migrate
-
-Example to migrate from "Simple" to "One":
-
-`$settings_obj->migrate_method( 'simple', 'one' );`
-
-Hint: you should have already been set the new method as active method by using the following code:
-
-`$settings_obj->set_method( 'one' );`
-
-### Error handling
-
-Get all errors:
-
-`$settings_obj->get_errors();`
 
 ## For changes of this package
 

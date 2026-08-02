@@ -328,7 +328,7 @@ class Field_Base {
 		return $this->settings_obj;
 	}
 
-    /**
+	/**
 	 * Validate given values against given options.
 	 *
 	 * @param mixed                   $value The given value.
