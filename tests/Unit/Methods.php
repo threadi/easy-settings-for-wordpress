@@ -19,7 +19,7 @@ class Methods extends easySettingsForWordPressTest {
 	 * @return void
 	 */
 	public function test_default_method(): void {
-		$method = \easySettingsForWordPress\Methods::get_instance()->get_method();
+		$method = ( new \easySettingsForWordPress\Settings( self::$plugin_handle ) )->get_methods()->get_method();
 		$this->assertInstanceOf( '\easySettingsForWordPress\Method_Base', $method );
 		$this->assertEquals( 'simple', $method->get_name() );
 	}
