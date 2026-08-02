@@ -29,35 +29,10 @@ class Methods extends Base_Object {
 	private Method_Base|false $method = false;
 
 	/**
-	 * Instance of actual object.
-	 *
-	 * @var ?Methods
-	 */
-	private static ?Methods $instance = null;
-
-	/**
 	 * Constructor, not used as this a Singleton object.
 	 */
-	private function __construct() {}
-
-	/**
-	 * Prevent cloning of this object.
-	 *
-	 * @return void
-	 */
-	private function __clone() {}
-
-	/**
-	 * Return instance of this object as singleton.
-	 *
-	 * @return Methods
-	 */
-	public static function get_instance(): Methods {
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
+	public function __construct( Settings $setting_obj ) {
+		$this->settings_obj = $setting_obj;
 	}
 
 	/**

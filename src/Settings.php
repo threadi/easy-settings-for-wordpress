@@ -185,6 +185,13 @@ class Settings {
 	private Export $export_obj;
 
 	/**
+	 * The methods object.
+	 *
+	 * @var Methods
+	 */
+	private Methods $methods;
+
+	/**
 	 * The views object.
 	 *
 	 * @var Views
@@ -207,7 +214,7 @@ class Settings {
 			$this->export_obj = new Export( $this );
 
 			// prepare the methods.
-			Methods::get_instance()->set_settings_obj( $this );
+			$this->methods = new Methods( $this );
 
 			// prepare the views.
 			$this->views = new Views( $this );
@@ -245,7 +252,7 @@ class Settings {
 		}
 
 		// get the method to use and run their initialization tasks.
-		$base_method = Methods::get_instance()->get_method();
+		$base_method = $this->get_methods()->get_method();
 
 		// bail if no method is set.
 		if ( ! $base_method instanceof Method_Base ) {
@@ -672,6 +679,15 @@ class Settings {
 	}
 
 	/**
+	 * Return the Methods object.
+	 *
+	 * @return Methods
+	 */
+	private function get_methods(): Methods {
+		return $this->methods;
+	}
+
+	/**
 	 * Return the capability to show and change settings.
 	 *
 	 * @return string
@@ -923,7 +939,7 @@ class Settings {
 	 */
 	public function activation(): void {
 		// get the default method.
-		$method = Methods::get_instance()->get_method();
+		$method = $this->get_methods()->get_method();
 
 		// bail if method could not be loaded.
 		if ( ! $method instanceof Method_Base ) {
@@ -941,7 +957,7 @@ class Settings {
 	 */
 	public function delete_settings(): void {
 		// get the default method.
-		$method = Methods::get_instance()->get_method();
+		$method = $this->get_methods()->get_method();
 
 		// bail if method could not be loaded.
 		if ( ! $method instanceof Method_Base ) {
@@ -1534,7 +1550,7 @@ class Settings {
 	 */
 	public function debug(): array {
 		// get the method.
-		$method      = Methods::get_instance()->get_method();
+		$method      = $this->get_methods()->get_method();
 		$method_name = '';
 		if ( $method instanceof Method_Base ) {
 			$method_name = $method->get_name();
@@ -1570,7 +1586,7 @@ class Settings {
 	 * @noinspection PhpUnused
 	 */
 	public function migrate_method( string $old_method_name ): void {
-		Methods::get_instance()->migrate_method( $old_method_name );
+		$this->get_methods()->migrate_method( $old_method_name );
 	}
 
 	/**
@@ -1581,7 +1597,7 @@ class Settings {
 	 * @return void
 	 */
 	public function set_method( string $method_name ): void {
-		Methods::get_instance()->set_method( $method_name );
+		$this->get_methods()->set_method( $method_name );
 	}
 
 	/**

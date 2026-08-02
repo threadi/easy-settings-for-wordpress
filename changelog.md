@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.2] - 02.08.2026
+
+### Fixed
+
+- Do not use Methods as Singleton
+
 ## [3.0.1] - 02.08.2026
 
 ### Added
