@@ -110,6 +110,12 @@ class Json_Config_Parser extends Base_Object {
 		if ( isset( $config['show_settings_link_in_plugin_list'] ) ) {
 			$this->get_settings_obj()->show_settings_link_in_plugin_list( (bool) $config['show_settings_link_in_plugin_list'] );
 		}
+		if ( isset( $config['view'] ) ) {
+			$this->get_settings_obj()->set_view( (string) $config['view'] );
+		}
+		if ( isset( $config['styling'] ) ) {
+			$this->get_settings_obj()->get_views()->get_view()->set_styling( (string) $config['styling'] );
+		}
 
 		// setting the menu slug auto-creates the page with this name (see Settings::set_menu_slug()).
 		$this->get_settings_obj()->set_menu_slug( (string) $config['menu_slug'] );
