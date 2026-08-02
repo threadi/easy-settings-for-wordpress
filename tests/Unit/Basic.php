@@ -63,7 +63,7 @@ class Basic extends easySettingsForWordPressTest {
 		// test it.
 		$slug = $this->settings_obj->get_slug();
 		$this->assertIsString( $slug );
-		$this->assertEmpty( $slug );
+		$this->assertNotEmpty( $slug );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class Basic extends easySettingsForWordPressTest {
 		// test it.
 		$title = $this->settings_obj->get_title();
 		$this->assertIsString( $title );
-		$this->assertEmpty( $title );
+		$this->assertNotEmpty( $title );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class Basic extends easySettingsForWordPressTest {
 		// test it.
 		$slug = $this->settings_obj->get_menu_slug();
 		$this->assertIsString( $slug );
-		$this->assertEmpty( $slug );
+		$this->assertNotEmpty( $slug );
 	}
 
 	/**
@@ -112,7 +112,7 @@ class Basic extends easySettingsForWordPressTest {
 		// test it.
 		$slug = $this->settings_obj->get_menu_title();
 		$this->assertIsString( $slug );
-		$this->assertEmpty( $slug );
+		$this->assertNotEmpty( $slug );
 	}
 
 	/**

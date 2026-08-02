@@ -2,10 +2,17 @@
 
 This composer packages add a simple wrapper for settings for WordPress plugins and themes. You no longer need to worry about inputting or outputting settings for your own implementation - leave that to this package. Simply use the WordPress-own `get_option()` to get the values of your settings.
 
+## Advantages
+
+- Don't worry about the data type accuracy of your settings—WordPress doesn't (yet) take that into account.
+- Use settings that are interdependent.
+- Save time when configuring your plugin settings.
+- Have your AI generate a ready-made JSON file for your settings, which you can then simply drop in.
+
 ## Requirements
 
 * A custom WordPress plugin or theme
-* composer
+* [composer](https://getcomposer.org/)
 
 ## Installation
 
@@ -44,8 +51,9 @@ Follow the documentation [here](docs/how_to_use_it.md).
 - remove do_not_register() from TextInfo() and Value() fields
 - remove set_type() from Checkbox() fields
 - use add_data() instead of set_custom_attributes() for Import and Export buttons
+- Do not use add_tab() on Settings object.
 
-## For changes of this package
+## For developers of this package
 
 ### Check for WordPress Coding Standards
 
@@ -55,16 +63,16 @@ Follow the documentation [here](docs/how_to_use_it.md).
 
 #### Run
 
-`vendor/bin/phpcs --extensions=php --ignore=*/vendor/* --standard=WordPress .`
+`vendor/bin/phpcs .`
 
 #### Repair
 
-`vendor/bin/phpcbf --extensions=php --ignore=*/vendor/* --standard=WordPress .`
+`vendor/bin/phpcbf .`
 
 ## Check for WordPress VIP Coding Standards
 
-Hint: this check runs against the VIP-GO-platform which is not our target for this package. Many warnings can be ignored.
+Hint: this check runs against the VIP-GO-platform, not our target for this package. Many warnings can be ignored.
 
 ### Run
 
-`vendor/bin/phpcs --extensions=php --ignore=*/vendor/* --standard=WordPress-VIP-Go .`
+`vendor/bin/phpcs --extensions=php --ignore=*/vendor/*,*/tests/*,*/node_modules/* --standard=WordPress-VIP-Go .`

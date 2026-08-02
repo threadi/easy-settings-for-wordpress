@@ -11,6 +11,8 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Fields\TextInfo;
+use easySettingsForWordPress\Json\Parser;
+use easySettingsForWordPress\Json\Serializer;
 use WP_Error;
 
 /**
@@ -317,10 +319,6 @@ class Settings {
 	 * is a 1:1 mapping of the PHP object graph (Settings -> Page -> Tab -> Section ->
 	 * Setting -> Field_Base). See Json_Config_Parser for the exact mapping.
 	 *
-	 * Errors (invalid JSON, unknown field types, duplicate names, ...) are collected
-	 * on this object via add_error() / get_errors(), the same way the fluent PHP API
-	 * reports them - this method does not throw.
-	 *
 	 * @param string $json The JSON configuration as string.
 	 *
 	 * @return bool True on success, false if any error occurred (check get_errors()).
@@ -339,7 +337,7 @@ class Settings {
 		}
 
 		// hand the decoded configuration over to the parser.
-		return Json_Config_Parser::apply( $this, $config );
+		return Parser::apply( $this, $config );
 	}
 
 	/**
@@ -407,12 +405,14 @@ class Settings {
 	/**
 	 * Add a tab with its settings for this setting object.
 	 *
+	 * @deprcated Will be removed in future updates.
+	 *
 	 * @param string|Tab $tab The tab object or its internal name.
 	 *
 	 * @return Tab The object of the resulting Tab.
 	 */
 	public function add_tab( string|Tab $tab ): Tab {
-		// log error as  this should not be used.
+		// log error as this should not be used.
 		$this->add_error(
 			'tab_do_not_use',
 			'Do not use Settings::add_tab(), use Page::add_tab() instead.'
@@ -453,11 +453,19 @@ class Settings {
 	/**
 	 * Delete the given tab.
 	 *
+	 * @deprcated Will be removed in future updates.
+	 *
 	 * @param Tab $tab_to_delete The tab to delete.
 	 *
 	 * @return void
 	 */
 	public function delete_tab( Tab $tab_to_delete ): void {
+		// log error as this should not be used.
+		$this->add_error(
+			'tab_do_not_use',
+			'Do not use Settings::delete_tab(), use Page::delete_tab() instead.'
+		);
+
 		foreach ( $this->get_tabs() as $index => $tab ) {
 			// bail if tab does not match.
 			if ( $tab->get_name() !== $tab_to_delete->get_name() ) {
@@ -1717,5 +1725,14 @@ class Settings {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Serialize this settings object back into a configuration array.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function to_config(): array {
+		return Serializer::to_config( $this );
 	}
 }

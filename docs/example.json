@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/threadi/easy-settings-for-wordpress/refs/heads/master/settings.schema.json",
   "slug": "demo_settings",
   "title": "Demo Settings",
   "menu_title": "Demo Settings",
@@ -7,6 +8,7 @@
   "auto_save": "change",
   "show_settings_link_in_plugin_list": true,
   "default_tab": "demo_general",
+  "aaaaa": "bbbb",
   "tabs": [
     {
       "name": "demo_general",

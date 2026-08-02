@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/schemas/easy-settings-for-wordpress.schema.json",
+  "$id": "https://raw.githubusercontent.com/threadi/easy-settings-for-wordpress/refs/heads/master/settings.schema.json",
   "title": "Easy Settings for WordPress \u2026 Configuration",
   "description": "JSON equivalent for using PHP-configuration. Must be set via Settings::set_json().",
   "type": "object",
@@ -398,6 +398,8 @@
     "capability":        { "type": "string", "default": "manage_options" },
     "auto_save":         { "type": "string", "enum": [ "off", "change", "tab_change" ], "default": "off" },
     "show_settings_link_in_plugin_list": { "type": "boolean", "default": false },
+    "view":              { "type": "string", "enum": [ "classic", "dataview" ], "default": "classic" },
+    "styling":           { "type": "string", "enum": [ "horizontal_tabs", "vertical_tabs" ], "default": "horizontal_tabs" },
     "default_tab":       { "type": "string", "description": "Name of one of the tabs defined above." },
     "tabs": {
       "type": "array",

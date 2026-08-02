@@ -99,7 +99,7 @@ class Checkbox extends Field_Base {
 	 */
 	public function default_sanitize_callback( mixed $value ): int {
 		// bail if value is null.
-		if ( is_null( $value ) ) {
+		if ( ! is_scalar( $value ) ) {
 			return 0;
 		}
 

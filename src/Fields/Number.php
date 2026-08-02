@@ -103,18 +103,42 @@ class Number extends Field_Base {
 	/**
 	 * The sanitize callback for this field.
 	 *
-	 * @param mixed $value The value to save.
+	 * Enforces the field's own numeric contract that WordPress does not check:
+	 * the value is coerced to an integer (negatives kept, unlike absint()) and
+	 * clamped into the configured [min, max] range.
+	 *
+	 * @param mixed $value The value to sanitize.
 	 *
 	 * @return int
 	 */
 	public function default_sanitize_callback( mixed $value ): int {
-		// bail if value is null.
-		if ( is_null( $value ) ) {
-			return 0;
+		// non-scalar input (e.g. an injected array) carries no meaningful number.
+		if ( ! is_scalar( $value ) ) {
+			$value = 0;
 		}
 
-		// return the value.
-		return absint( $value );
+		// coerce to an integer, keeping the sign.
+		$number = (int) $value;
+
+		// read the configured bounds.
+		$min = $this->get_min();
+		$max = $this->get_max();
+
+		// guard against a misconfigured range (min > max): fall back to min.
+		if ( $min > $max ) {
+			return $min;
+		}
+
+		// clamp into range.
+		if ( $number < $min ) {
+			return $min;
+		}
+		if ( $number > $max ) {
+			return $max;
+		}
+
+		// return the resulting number value.
+		return $number;
 	}
 
 	/**

@@ -18,6 +18,7 @@
 - New minimum requirement: PHP 8.2
 - Optimized styling for description of checkboxes
 - Optimized sanitizing of some fields
+- Optimized check for allowed Number values
 - Updated the documentation to use this package
 - Extended PHP Unit Tests to check for XSS and other possible attacks
 - TextInfo and Value are now automatically configured as "do not register"-fields
@@ -26,7 +27,8 @@
 ### Fixed
 
 - Fixed missing capability check in export tool
-- Fixed spelling of the internal name for MultiSelect from "Multiselect" to "multiSelect"
+- Fixed spelling of the internal name for MultiSelect from "Multiselect" to "MultiSelect"
+- Fixed handling of dependent Radio fields
 
 ## [2.2.2] - 27.06.2026
 

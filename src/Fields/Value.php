@@ -96,9 +96,9 @@ class Value extends Field_Base {
 	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
-	public function default_sanitize_callback( mixed $value ): mixed {
+	public function default_sanitize_callback( mixed $value ): string {
 		return sanitize_textarea_field( $value );
 	}
 
