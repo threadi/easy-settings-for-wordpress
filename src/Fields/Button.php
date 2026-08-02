@@ -60,6 +60,13 @@ class Button extends Field_Base {
 	private array $data = array();
 
 	/**
+	 * Whether this field should be registered (false) or not (true).
+	 *
+	 * @var bool
+	 */
+	protected bool $do_not_register = true;
+
+	/**
 	 * Return the HTML-code to display this field.
 	 *
 	 * @param array<string,mixed> $attr Attributes for this field.

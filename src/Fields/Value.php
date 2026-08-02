@@ -110,4 +110,18 @@ class Value extends Field_Base {
 	public function get_value(): string {
 		return $this->value;
 	}
+
+	/**
+	 * Return the REST schema for this field.
+	 *
+	 * The value is a single post ID, stored as an integer (see
+	 * default_sanitize_callback / absint).
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_rest_schema(): array {
+		return array(
+			'type' => 'null',
+		);
+	}
 }

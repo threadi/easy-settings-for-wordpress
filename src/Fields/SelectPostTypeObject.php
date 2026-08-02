@@ -370,7 +370,7 @@ class SelectPostTypeObject extends Field_Base {
 	 */
 	public function get_rest_schema(): array {
 		return array(
-			'type' => 'integer',
+			'type' => array( 'integer', 'null' ),
 		);
 	}
 }
