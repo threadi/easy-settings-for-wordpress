@@ -403,12 +403,14 @@ class Settings {
 	/**
 	 * Add a tab with its settings for this setting object.
 	 *
+	 * @deprcated Will be removed in future updates.
+	 *
 	 * @param string|Tab $tab The tab object or its internal name.
 	 *
 	 * @return Tab The object of the resulting Tab.
 	 */
 	public function add_tab( string|Tab $tab ): Tab {
-		// log error as  this should not be used.
+		// log error as this should not be used.
 		$this->add_error(
 			'tab_do_not_use',
 			'Do not use Settings::add_tab(), use Page::add_tab() instead.'
@@ -449,11 +451,19 @@ class Settings {
 	/**
 	 * Delete the given tab.
 	 *
+	 * @deprcated Will be removed in future updates.
+	 *
 	 * @param Tab $tab_to_delete The tab to delete.
 	 *
 	 * @return void
 	 */
 	public function delete_tab( Tab $tab_to_delete ): void {
+		// log error as this should not be used.
+		$this->add_error(
+			'tab_do_not_use',
+			'Do not use Settings::delete_tab(), use Page::delete_tab() instead.'
+		);
+
 		foreach ( $this->get_tabs() as $index => $tab ) {
 			// bail if tab does not match.
 			if ( $tab->get_name() !== $tab_to_delete->get_name() ) {
