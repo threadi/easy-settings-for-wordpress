@@ -39,4 +39,4 @@ An example you will find [here](example.json).
 
 You can validate your JSON against the schema via:
 
-`composer validate-schema -- /path/to/schema.json /path/to/your/custm.json`
+`composer validate-schema -- /path/to/schema.json /path/to/your/custom.json`

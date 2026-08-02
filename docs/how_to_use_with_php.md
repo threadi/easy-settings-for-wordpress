@@ -53,17 +53,15 @@ This is the slug used in the URL to access your settings. Default: "easy-setting
 
 `$settings_object->set_menu_slug( 'your-slug' );`
 
+See [pages](pages.md).
+
 #### Set the parent slug
 
 Specifies under which menu item your settings will be displayed. Default: "options-general.php".
 
 `$settings_object->set_menu_parent_slug( 'your-slug' );`
 
-The following options are supported here:
-
-* options-general.php - is located in the WordPress backend under Settings
-* admin.php - custom position; can also be placed as a submenu item elsewhere; tabs can optionally be displayed as submenu items
-* any other value - the submenu item corresponding to the specified value is displayed
+See [pages](pages.md).
 
 #### Show your settings in plugin list
 
@@ -105,7 +103,7 @@ Hint: if you set "dataview" users with WordPress < 7.0 will be use the classic v
 
 ### Add your settings
 
-For each setting, you'll need:
+For each setting, you will need:
 
 * a settings page
 * a tab in this settings page
