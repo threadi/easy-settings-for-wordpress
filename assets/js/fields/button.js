@@ -9,13 +9,6 @@ import { doAction } from '@wordpress/hooks';
  * @return {Function} The Edit component.
  */
 export function createButtonEdit( { buttonTitle, buttonUrl, buttonClasses, buttonData } ) {
-  console.log( 'Button:', {
-    buttonTitle,
-    buttonUrl,
-    buttonClasses,
-    buttonData,
-  } );
-
   return function ButtonEdit( { field } ) {
     // convert data attributes into React props.
     const dataProps = Object.fromEntries(

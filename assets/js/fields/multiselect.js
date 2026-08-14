@@ -33,6 +33,7 @@ export function createMultiSelectEdit( options ) {
         value={ currentLabels }
         suggestions={ options.map( ( o ) => o.label ) }
         onChange={ handleChange }
+        help={ field?.description }
         __experimentalExpandOnFocus
         __next40pxDefaultSize
       />
