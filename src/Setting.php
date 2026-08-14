@@ -409,6 +409,7 @@ class Setting extends Base_Object {
 	 * Return whether this setting has a help text.
 	 *
 	 * @return bool
+	 * @noinspection PhpUnused
 	 */
 	public function has_help(): bool {
 		return ! empty( $this->help );
@@ -489,6 +490,7 @@ class Setting extends Base_Object {
 	 * @param Setting $target_setting The setting before the actual object could be moved.
 	 *
 	 * @return void
+	 * @noinspection PhpUnused
 	 */
 	public function move_before_setting( Setting $target_setting ): void {
 		// get all settings.
@@ -568,7 +570,7 @@ class Setting extends Base_Object {
 		$configuration = array(
 			'id'          => $this->get_name(),
 			'label'       => $field->get_title(),
-			'description' => $field->get_description(),
+			'description' => wp_kses_post( $field->get_description() ),
 			'depend'      => $field->get_depend_as_array(),
 		);
 
@@ -599,6 +601,7 @@ class Setting extends Base_Object {
 					$configuration['options'] = $options;
 				}
 				break;
+			case 'Table':
 			case 'FieldTable':
 				$configuration['type'] = 'esfw-table';
 				break;
@@ -689,9 +692,6 @@ class Setting extends Base_Object {
 					$configuration['placeholder'] = $field->get_placeholder();
 				}
 				break;
-			case 'Table':
-				$configuration['type'] = 'esfw-table';
-				break;
 			case 'Textarea':
 				$configuration['type'] = 'text';
 				$configuration['Edit'] = 'textarea';
@@ -699,7 +699,7 @@ class Setting extends Base_Object {
 			case 'TextInfo':
 				$configuration['type']      = 'esfw-display';
 				$configuration['is_static'] = true;
-				$configuration['text']      = $field->get_description();
+				$configuration['text']      = wp_kses_post( $field->get_description() );
 				break;
 			case 'Value':
 				$configuration['type']      = 'esfw-display';

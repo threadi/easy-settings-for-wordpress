@@ -17,16 +17,16 @@ import { SectionCard } from './section-card';
  * @return {JSX.Element} The rendered node.
  */
 export function TabNode( {
-  node,
-  fields,
-  settings,
-  onChange,
-  depth = 0,
-  onActiveLeafChange,
-  inheritedHideSave = false,
-  activeTabPath,
-  onTabChange,
-} ) {
+                           node,
+                           fields,
+                           settings,
+                           onChange,
+                           depth = 0,
+                           onActiveLeafChange,
+                           inheritedHideSave = false,
+                           activeTabPath,
+                           onTabChange,
+                         } ) {
   // a parent tab's hide_save cascades down to all its (sub-)tabs.
   const effectiveHideSave = inheritedHideSave || !! node.hide_save;
   const isLeaf = ! ( Array.isArray( node.tabs ) && node.tabs.length > 0 );
@@ -62,7 +62,7 @@ export function TabNode( {
             title: t.url
               ? <span className="esfw-tab-title">{ t.label || t.name }</span>
               : ( t.label || t.name ),
-            className: t.url ? 'esfw-tab--external' : undefined,
+            className: t.classes,
           } ) ) }
           initialTabName={ activeContentTab }
           onSelect={ ( tabName ) => {
@@ -144,6 +144,12 @@ export function TabNode( {
         <div
           className="esfw-settings-tab-description"
           dangerouslySetInnerHTML={ { __html: node.description } }
+        />
+      ) }
+      { node.content && (
+        <div
+          className="esfw-settings-tab-content"
+          dangerouslySetInnerHTML={ { __html: node.content } }
         />
       ) }
       { ( node.sections ?? [] ).map( ( section ) => (

@@ -99,7 +99,15 @@ To set the view for your plugin/theme:
 
 `$settings_object->set_view( 'classic' );`
 
-Hint: if you set "dataview" users with WordPress < 7.0 will be use the classic view.
+Hint: if you set "dataview", only users with WordPress >= 7.0 will be using this modern view.
+
+#### Set the plugin version
+
+This setting is required if you want to let the package handle changes on your settings for your users.
+
+`$settings_object->set_plugin_version( '1.0.0' );`
+
+Hint: use the same version as your plugin.
 
 ### Add your settings
 

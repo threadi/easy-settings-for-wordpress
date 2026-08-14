@@ -10,6 +10,8 @@ import {
 } from '@wordpress/components';
 import { DataForm } from '@wordpress/dataviews';
 
+import { getVisibleFieldIds } from '../utils/visibility';
+
 /**
  * Render one section with its fields.
  *
@@ -30,7 +32,13 @@ export function SectionCard( { section, fields, settings, onChange } ) {
       ) }
       <CardBody>
         <VStack spacing={ 5 }>
-          { section.fields.map( ( fieldId ) => (
+          { section.content && (
+            <div
+              className="esfw-settings-section-content"
+              dangerouslySetInnerHTML={ { __html: section.content } }
+            />
+          ) }
+          { getVisibleFieldIds( section.fields, fields, settings ).map( ( fieldId ) => (
             <DataForm
               key={ fieldId }
               data={ settings }

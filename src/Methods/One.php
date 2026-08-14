@@ -49,19 +49,8 @@ class One extends Method_Base {
 		add_filter( 'pre_update_option_' . $this->get_option_name(), array( $this, 'save_settings' ), 10, 0 );
 		add_filter( 'allowed_options', array( $this, 'filter_allowed_options' ) );
 
-		// register settings.
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'rest_api_init', array( $this, 'register_settings' ) );
-
-		// register the settings during WP CLI run.
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			add_action( 'init', array( $this, 'register_settings' ), 200 );
-		}
-
-		// register the settings during WP Cron run.
-		if ( wp_doing_cron() ) {
-			add_action( 'init', array( $this, 'register_settings' ), 200 );
-		}
+		// initialize the parent object.
+		parent::init();
 	}
 
 	/**
@@ -82,7 +71,7 @@ class One extends Method_Base {
 	}
 
 	/**
-	 * Run this tasks during activation of the plugin.
+	 * Run these tasks during activation of the plugin.
 	 *
 	 * @return void
 	 */
@@ -144,6 +133,9 @@ class One extends Method_Base {
 			// save the option in the main settings field.
 			add_filter( 'pre_update_option_' . $setting->get_name(), array( $this, 'save_option' ), 10, 3 );
 		}
+
+		// check for any updates to the settings.
+		$this->get_settings_obj()->maybe_update();
 	}
 
 	/**

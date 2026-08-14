@@ -17,7 +17,7 @@ use easySettingsForWordPress\View_Base;
 use easySettingsForWordPress\Views\Classic\Styling_Base;
 
 /**
- * Object to hold handle the classic view of settings in the backend.
+ * Object to handle the classic view of settings in the backend.
  */
 class Classic extends View_Base {
 	/**

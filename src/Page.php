@@ -123,7 +123,7 @@ class Page extends Base_Object {
 	}
 
 	/**
-	 * Return list of tabs.
+	 * Return the list of tabs.
 	 *
 	 * @return array<int,Tab>
 	 */

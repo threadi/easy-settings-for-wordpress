@@ -11,12 +11,19 @@ export function createMultiSelectEdit( options ) {
   const valueByLabel = Object.fromEntries( options.map( ( o ) => [ o.label, o.value ] ) );
 
   return function MultiSelectEdit( { field, data, onChange } ) {
-    const currentValues = field.getValue( { item: data } ) ?? [];
+    const raw = field.getValue( { item: data } ) ?? [];
+    const currentValues = Array.isArray( raw ) ? raw : Object.keys( raw );
     const currentLabels = currentValues.map( ( v ) => labelByValue[ v ] ?? v );
 
     const handleChange = ( newLabels ) => {
+      const values = Array.isArray( newLabels )
+        ? newLabels
+          .map( ( label ) => valueByLabel[ label ] ?? label )
+          .filter( ( value ) => value !== '' )
+        : [];
+
       onChange( {
-        [ field.id ]: newLabels.map( ( label ) => valueByLabel[ label ] ?? label ),
+        [ field.id ]: values,
       } );
     };
 
@@ -26,6 +33,7 @@ export function createMultiSelectEdit( options ) {
         value={ currentLabels }
         suggestions={ options.map( ( o ) => o.label ) }
         onChange={ handleChange }
+        __experimentalExpandOnFocus
         __next40pxDefaultSize
       />
     );

@@ -17,7 +17,7 @@ use easySettingsForWordPress\Tab;
 use easySettingsForWordPress\Views\Classic\Styling_Base;
 
 /**
- * Object to hold single setting.
+ * Object to handle the output of settings with horizontal tabs.
  */
 class Vertical_Tabs extends Styling_Base {
 	/**

@@ -13,13 +13,14 @@ namespace easySettingsForWordPress\Views;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Helper;
+use easySettingsForWordPress\Page;
 use easySettingsForWordPress\Section;
 use easySettingsForWordPress\Settings;
 use easySettingsForWordPress\Tab;
 use easySettingsForWordPress\View_Base;
 
 /**
- * Object to hold handle the DataView to show settings in the backend.
+ * Objects to handle the DataView to show settings in the backend.
  */
 class DataView extends View_Base {
 	/**
@@ -48,7 +49,7 @@ class DataView extends View_Base {
 	 * @return void
 	 */
 	public function add_js_and_css( string $hook ): void {
-		// bail if not the menu slug is called.
+		// bail if the menu slug is not called.
 		if ( ! $this->get_settings_obj()->enqueue_styles_and_scripts( $hook ) ) {
 			return;
 		}
@@ -84,7 +85,7 @@ class DataView extends View_Base {
 	}
 
 	/**
-	 * Return the configuration used for the dataviews.
+	 * Return the configuration used for the DataView.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -154,7 +155,7 @@ class DataView extends View_Base {
 			$fields_by_section[ spl_object_id( $section ) ][] = $dataview['id'];
 		}
 
-		// collect the root tabs from the settings object AND from every page.
+		// collect the root tabs from the settings object AND from the requested page.
 		$root_tabs = array();
 		$seen      = array();
 		$add_root  = static function ( $tab ) use ( &$root_tabs, &$seen ) {
@@ -165,14 +166,31 @@ class DataView extends View_Base {
 		};
 
 		// tabs attached directly to the settings object.
-		foreach ( $this->get_settings_obj()->get_tabs() as $tab ) {
+		$settings_tabs = $this->get_settings_obj()->get_tabs();
+		ksort( $settings_tabs );
+		foreach ( $settings_tabs as $tab ) {
 			$add_root( $tab );
 		}
 
-		// tabs attached to pages.
-		foreach ( $this->get_settings_obj()->get_pages() as $page ) {
-			foreach ( $page->get_tabs() as $tab ) {
+		// get the requested page, the same way the classic view does it.
+		$page     = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$page_obj = is_null( $page ) ? false : $this->get_settings_obj()->get_page( $page );
+
+		if ( $page_obj instanceof Page ) {
+			// limit the tabs to the ones assigned to the requested page, respecting their position.
+			$page_tabs = $page_obj->get_tabs();
+			ksort( $page_tabs );
+			foreach ( $page_tabs as $tab ) {
 				$add_root( $tab );
+			}
+		} else {
+			// no (valid) page requested -> fall back to tabs of every page.
+			foreach ( $this->get_settings_obj()->get_pages() as $page_object ) {
+				$page_tabs = $page_object->get_tabs();
+				ksort( $page_tabs );
+				foreach ( $page_tabs as $tab ) {
+					$add_root( $tab );
+				}
 			}
 		}
 
@@ -203,7 +221,8 @@ class DataView extends View_Base {
 			'name'        => $tab->get_name(),
 			'label'       => $tab->get_title(),
 			'hide_save'   => $tab->is_save_hidden(),
-			'description' => $tab->get_description(),
+			'description' => wp_kses_post( $tab->get_description() ),
+			'classes'     => $tab->get_tab_class(),
 		);
 
 		// use the URL if set.
@@ -224,13 +243,20 @@ class DataView extends View_Base {
 			return $node;
 		}
 
+		// a custom callback replaces the standard rendering: capture its output
+		// and hand it to the tab as HTML (the same way section callbacks work).
+		if ( $tab->has_custom_callback() ) {
+			$node['content'] = $this->get_tab_content( $tab );
+		}
+
 		// leaf -> sections with their fields.
 		$node['sections'] = array();
 		foreach ( $tab->get_sections() as $section ) {
 			$node['sections'][] = array(
-				'name'   => $section->get_name(),
-				'label'  => $section->get_title(),
-				'fields' => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
+				'name'    => $section->get_name(),
+				'label'   => $section->get_title(),
+				'content' => $this->get_section_content( $section ),
+				'fields'  => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
 			);
 		}
 
@@ -243,7 +269,7 @@ class DataView extends View_Base {
 	 * @return void
 	 */
 	public function display(): void {
-		echo '<div class="wrap" id="easy-settings-for-wordpress-settings" data-config="' . esc_attr( Helper::get_json( $this->get_configuration() ) ) . '">Loading ..</div>';
+		echo '<div class="wrap" id="easy-settings-for-wordpress-settings" data-config="' . esc_attr( Helper::get_json( $this->get_configuration(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) ) . '">' . wp_kses_post( $this->get_settings_obj()->get_error_help() ) . '</div>';
 	}
 
 	/**
@@ -269,5 +295,61 @@ class DataView extends View_Base {
 
 		// mark this view as not usable.
 		return false;
+	}
+
+	/**
+	 * Return the HTML a custom tab callback produces.
+	 *
+	 * In the classic view a tab is rendered by its callback (the default one
+	 * outputs the tab's sections and fields; a developer-provided one outputs
+	 * whatever it wants, e.g., a log table). The DataView renders in React and
+	 * cannot run PHP callbacks, so for a custom callback we capture its output
+	 * here (this runs in the admin) and hand it to the tab as HTML.
+	 *
+	 * @param Tab $tab The tab.
+	 * @return string
+	 */
+	private function get_tab_content( Tab $tab ): string {
+		$callback = $tab->get_callback();
+
+		// capture the callback output.
+		ob_start();
+		$callback();
+
+		$content = ob_get_clean();
+		if ( ! $content ) {
+			return '';
+		}
+		return $content;
+	}
+
+
+	/**
+	 * Return the HTML a section callback produces.
+	 *
+	 * In the classic view a section callback is wired through
+	 * add_settings_section() and echoes its markup between the section title and
+	 * its fields. The DataView renders in React and cannot run PHP callbacks, so
+	 * we capture that output here (this runs in the admin, where everything the
+	 * callback may need is available) and hand it to the section card as HTML.
+	 *
+	 * @param Section $section The section.
+	 * @return string
+	 */
+	private function get_section_content( Section $section ): string {
+		$callback = $section->get_callback();
+
+		// capture the callback output, mirroring the arguments WordPress passes
+		// to an add_settings_section() callback.
+		ob_start();
+		$callback(
+			array(
+				'id'       => $section->get_name(),
+				'title'    => $section->get_title(),
+				'callback' => $callback,
+			)
+		);
+
+		return (string) ob_get_clean();
 	}
 }

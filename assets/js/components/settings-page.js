@@ -13,6 +13,7 @@ import { doAction } from '@wordpress/hooks';
 import { useSettings } from '../hooks/use-settings';
 import { mapFields } from '../fields';
 import { findTabPath } from '../utils/tabs';
+import { getVisibleFieldIds } from '../utils/visibility';
 import { Notices, SnackbarNotices } from './notices';
 import { SaveButton } from './save-button';
 import { SettingsTitle } from './settings-title';
@@ -97,12 +98,12 @@ export const SettingsPage = ( props ) => {
         <Card className="esfw-settings-section">
           <CardBody>
             <VStack spacing={ 5 }>
-              { fields.map( ( f ) => (
+              { getVisibleFieldIds( fields.map( ( f ) => f.id ), fields, settings ).map( ( fieldId ) => (
                 <DataForm
-                  key={ f.id }
+                  key={ fieldId }
                   data={ settings }
                   fields={ fields }
-                  form={ { fields: [ f.id ] } }
+                  form={ { fields: [ fieldId ] } }
                   onChange={ onFormChange }
                 />
               ) ) }

@@ -1,6 +1,7 @@
 /**
  * Maps field definitions to their custom Edit components.
  */
+import { createElement } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 
 import { createIsVisible } from '../utils/visibility';
@@ -39,6 +40,12 @@ export function mapFields( config ) {
     // add the visibility marker based on "depend".
     if ( field.depend && Object.keys( field.depend ).length > 0 ) {
       updatedField.isVisible = createIsVisible( field.depend, fieldsById );
+    }
+
+    if ( updatedField.description ) {
+      updatedField.description = createElement( 'span', {
+        dangerouslySetInnerHTML: { __html: updatedField.description },
+      } );
     }
 
     switch ( updatedField.type ) {
