@@ -6,7 +6,7 @@
     "license": "GPL-2.0-or-later",
     "devDependencies": {
         "@wordpress/env": "^10.37.0",
-        "@wordpress/scripts": "^33.0.0"
+        "@wordpress/scripts": "^34.1.0"
     },
     "scripts": {
         "build": "wp-scripts build assets/js/index.js --output-path=build/",

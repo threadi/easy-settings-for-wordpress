@@ -8,6 +8,7 @@
 - Use the tab position in DataView
 - Allow secured HTML for help texts in DataView
 - Recognize the usage of the classic function add_settings_error() and get_settings_errors() in DataView
+- Updated dependencies
 
 ### Fixed
 

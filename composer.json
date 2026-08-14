@@ -43,9 +43,9 @@
     "threadi/easy-dialog-for-wordpress": "*"
   },
   "require-dev": {
-    "wp-coding-standards/wpcs": "^3.1.0",
-    "automattic/vipwpcs": "^3.0",
-    "phpstan/phpstan": "^2.1",
+    "wp-coding-standards/wpcs": "^3.4.1",
+    "automattic/vipwpcs": "^3.1",
+    "phpstan/phpstan": "^2.2",
     "szepeviktor/phpstan-wordpress": "^2.0",
     "phpstan/extension-installer": "^1.4",
     "php-stubs/wp-cli-stubs": "^2.11",
@@ -53,6 +53,6 @@
     "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
     "yoast/phpunit-polyfills": "^1.0",
     "wp-phpunit/wp-phpunit": "^6.3",
-    "opis/json-schema": "^2.4"
+    "opis/json-schema": "^2.6"
   }
 }
