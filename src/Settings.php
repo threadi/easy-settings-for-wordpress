@@ -1816,6 +1816,9 @@ class Settings {
 			return;
 		}
 
+		// load required API helper.
+		Method_Base::ensure_settings_api_helpers();
+
 		// run the settings update.
 		$method->update_settings();
 
