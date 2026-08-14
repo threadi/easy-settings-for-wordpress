@@ -177,7 +177,7 @@ class Button extends Field_Base {
 	private function get_custom_attributes(): string {
 		$attributes = '';
 		foreach ( $this->button_custom_attributes as $name => $value ) {
-			$attributes .= ' ' . $name . '="' . esc_attr( $value ) . '"';
+			$attributes .= ' ' . esc_attr( $name ) . '="' . esc_attr( $value ) . '"';
 		}
 
 		return $attributes;
@@ -256,7 +256,7 @@ class Button extends Field_Base {
 
 		// loop through the data attributes.
 		foreach ( $this->get_data_as_array() as $key => $value ) {
-			$output .= ' data-' . $key . '="' . esc_attr( $value ) . '"';
+			$output .= ' data-' . esc_attr( $key ) . '="' . esc_attr( $value ) . '"';
 		}
 
 		// return the resulting string.

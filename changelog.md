@@ -20,6 +20,7 @@
 - Fixed missing usage of section callbacks in DataView
 - Fixed the missing usage of the label for field Button in DataView
 - Fixed security of values in "One" method
+- Fixed the key
 
 ## [3.0.2] - 02.08.2026
 
