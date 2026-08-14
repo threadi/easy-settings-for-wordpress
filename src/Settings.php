@@ -227,9 +227,9 @@ class Settings {
 	 */
 	public function __construct( string $plugin_path ) {
 		try {
-			$this->plugin_path = $plugin_path;
-			$this->path        = trailingslashit( dirname( $plugin_path ) ) . 'vendor/threadi/easy-settings-for-wordpress/';
-			$this->url         = trailingslashit( plugins_url( '', $this->path ) ) . 'easy-settings-for-wordpress/';
+			$this->plugin_path         = $plugin_path;
+			$this->path                = trailingslashit( dirname( $plugin_path ) ) . 'vendor/threadi/easy-settings-for-wordpress/';
+			$this->url                 = trailingslashit( plugins_url( '', $this->path ) ) . 'easy-settings-for-wordpress/';
 			$this->version_option_name = 'esfw_plugin_version_' . md5( dirname( $plugin_path ) );
 
 			// get import and export object.
@@ -1786,7 +1786,7 @@ class Settings {
 	 */
 	public function maybe_update(): void {
 		// bail if no settings are set.
-		if( ! $this->has_settings() ) {
+		if ( ! $this->has_settings() ) {
 			return;
 		}
 
@@ -1812,7 +1812,7 @@ class Settings {
 		$method = $this->get_methods()->get_method();
 
 		// bail if method could not be read.
-		if( ! $method instanceof Method_Base ) {
+		if ( ! $method instanceof Method_Base ) {
 			return;
 		}
 
@@ -1836,8 +1836,8 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function set_update_version(	string $version ): void {
-		$this->plugin_version      = $version;
+	public function set_update_version( string $version ): void {
+		$this->plugin_version = $version;
 	}
 
 

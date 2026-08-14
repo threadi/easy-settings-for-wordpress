@@ -252,7 +252,7 @@ class Simple extends Method_Base {
 			}
 
 			// add any new option.
-			$added = add_option( $setting->get_name(), $setting->get_default(),'', $setting->is_autoloaded() );
+			$added = add_option( $setting->get_name(), $setting->get_default(), '', $setting->is_autoloaded() );
 
 			// if a new option was added, update it to trigger callbacks.
 			if ( $added ) {
