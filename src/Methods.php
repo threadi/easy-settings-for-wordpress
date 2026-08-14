@@ -30,6 +30,8 @@ class Methods extends Base_Object {
 
 	/**
 	 * Constructor, not used as this a Singleton object.
+	 *
+	 * @param Settings $setting_obj The settings object.
 	 */
 	public function __construct( Settings $setting_obj ) {
 		$this->settings_obj = $setting_obj;

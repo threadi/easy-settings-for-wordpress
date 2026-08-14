@@ -147,3 +147,36 @@
 	font-size: 0.85em;
 	opacity: 0.7;
 }
+
+.esfw-settings-tab-content {
+	background-color: rgb(255, 255, 255);
+	color: rgb(30, 30, 30);
+	position: relative;
+	box-shadow: rgba(0, 0, 0, 0.1) 0 0 0 1px;
+	outline: none;
+	border-radius: calc(7px);
+	> * {
+		padding: calc(16px) calc(24px) !important
+	}
+	h2 {
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+		margin-bottom: 0;
+	}
+}
+
+.esfw-settings-tabs .components-tab-panel__tabs {
+	overflow-x: auto;
+	flex-wrap: nowrap;
+	white-space: nowrap;
+}
+
+.esfw-settings-tabs .components-tab-panel__tabs {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	white-space: nowrap;
+}
+
+.esfw-settings-tabs .components-tab-panel__tabs > * {
+	flex: 0 0 auto;
+}

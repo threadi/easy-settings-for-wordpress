@@ -1,23 +1,38 @@
 # Changelog
 
+## [3.0.3] - 14.08.2026
+
+### Changed
+
+- Show only tabs of the requested page in the settings page in DataView
+- Use the tab position in DataView
+- Allow secured HTML for help texts in DataView
+- Recognize the usage of the classic function add_settings_error() and get_settings_errors() in DataView
+
+### Fixed
+
+- Fixed some errors with the field MultiSelect in DataView
+- Fixed missing usage of section callbacks in DataView
+- Fixed the missing usage of the label for field Button in DataView
+
 ## [3.0.2] - 02.08.2026
 
 ### Fixed
 
 - Do not use Methods as Singleton
-- Accept null as value for some fields via REST API
+- Accept null as a value for some fields via REST API
 
 ## [3.0.1] - 02.08.2026
 
 ### Added
 
 - Added handling for different views the settings can be viewed in the backend
-- Added new view "DataView" to use WordPress-own DataViews to manage settings (requires WordPress 7.0 or newer)
+- Added a new view "DataView" to use WordPress-own DataViews to manage settings (requires WordPress 7.0 or newer)
 - Added handling for different methods the settings can be saved in WordPress
 - Added the simple method to save all configured settings in one single option-entry
 - Added autosave-mode (every change, tab change or off), default is "off".
-- Added method get_errors() to get any errors, which has been occurred during using the settings
-- Added demo settings if object is not configured
+- Added method get_errors() to get any errors which have occurred during using the settings
+- Added demo settings if the object is not configured
 - Added new hooks
 
 ### Changed

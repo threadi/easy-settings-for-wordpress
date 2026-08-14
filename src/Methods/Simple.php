@@ -49,6 +49,9 @@ class Simple extends Method_Base {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'rest_api_init', array( $this, 'register_settings' ) );
 
+		// make the classic Settings-API error helpers available for REST requests.
+		add_filter( 'rest_pre_dispatch', array( $this, 'load_settings_api_helpers' ), 10, 3 );
+
 		// register the settings during WP CLI run.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			add_action( 'init', array( $this, 'register_settings' ), 200 );
@@ -61,7 +64,7 @@ class Simple extends Method_Base {
 	}
 
 	/**
-	 * Run this tasks during activation of the plugin.
+	 * Run these tasks during activation of the plugin.
 	 *
 	 * @return void
 	 */
@@ -192,7 +195,7 @@ class Simple extends Method_Base {
 			}
 
 			// add the slug marker the DataView JS uses to discover its fields.
-			$schema[ $this->get_settings_obj()->get_slug() ] = true;
+			$schema[ $this->get_settings_obj()->get_slug() ] = $field_obj instanceof Field_Base;
 
 			// preserve a developer-provided show_in_rest array (name, prepare_callback, …).
 			$show_in_rest = is_array( $args['show_in_rest'] ) ? $args['show_in_rest'] : array();

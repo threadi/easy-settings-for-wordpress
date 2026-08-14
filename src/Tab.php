@@ -11,7 +11,7 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Object to hold single tab in settings.
+ * Object to hold a single tab in settings.
  */
 class Tab extends Base_Object {
 	/**
@@ -364,6 +364,18 @@ class Tab extends Base_Object {
 	}
 
 	/**
+	 * Return whether a custom (developer-provided) callback is set.
+	 *
+	 * The default callback renders the tab's sections and fields. A custom
+	 * callback replaces that with its own output.
+	 *
+	 * @return bool
+	 */
+	public function has_custom_callback(): bool {
+		return null !== $this->callback;
+	}
+
+	/**
 	 * Set the callback.
 	 *
 	 * @param callable $callback The callback.
@@ -450,7 +462,7 @@ class Tab extends Base_Object {
 
 		$instance = $this;
 		/**
-		 * Filter the class of a tabs object.
+		 * Filter the class of a tab object.
 		 *
 		 * @since 1.8.0 Available since 1.8.0.
 		 * @param string $tab_class The tab class.

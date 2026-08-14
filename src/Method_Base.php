@@ -12,6 +12,9 @@ namespace easySettingsForWordPress;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use WP_REST_Request;
+use WP_REST_Server;
+
 /**
  * Object to handle basic methods tasks.
  */
@@ -164,4 +167,39 @@ class Method_Base {
 	 * @return void
 	 */
 	public function migrate( Method_Base $old_method ): void {}
+
+	/**
+	 * Ensure the classic Settings-API helper functions are available during REST
+	 * requests to the settings endpoint.
+	 *
+	 * The functions add_settings_error(), get_settings_errors() and settings_errors() live in
+	 * wp-admin/includes/template.php, which is not loaded during a REST request.
+	 * Sanitize/validation callbacks that rely on them would otherwise trigger a
+	 * fatal error (HTTP 500) when settings are saved through the DataView.
+	 *
+	 * Hooked on rest_pre_dispatch so the file is loaded before the route callback
+	 * (and thus before any sanitized callback) runs.
+	 *
+	 * @param mixed           $result  The pre-dispatch result. Passed through unchanged.
+	 * @param WP_REST_Server  $server  The REST server instance.
+	 * @param WP_REST_Request $request The current REST request.
+	 *
+	 * @return mixed
+	 */
+	public function load_settings_api_helpers( mixed $result, WP_REST_Server $server, WP_REST_Request $request ): mixed {
+		// bail if the helpers are already available.
+		if ( function_exists( 'add_settings_error' ) ) {
+			return $result;
+		}
+
+		// bail if this is not a request to the settings endpoint.
+		if ( ! str_starts_with( $request->get_route(), '/wp/v2/settings' ) ) {
+			return $result;
+		}
+
+		// load the file that defines add_settings_error(), get_settings_errors(), etc.
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+
+		return $result;
+	}
 }

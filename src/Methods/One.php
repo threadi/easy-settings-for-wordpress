@@ -53,6 +53,9 @@ class One extends Method_Base {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'rest_api_init', array( $this, 'register_settings' ) );
 
+		// make the classic Settings-API error helpers available for REST requests.
+		add_filter( 'rest_pre_dispatch', array( $this, 'load_settings_api_helpers' ), 10, 3 );
+
 		// register the settings during WP CLI run.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			add_action( 'init', array( $this, 'register_settings' ), 200 );

@@ -1,4 +1,4 @@
-import { Button } from '@wordpress/components';
+import { BaseControl, Button } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { doAction } from '@wordpress/hooks';
 
@@ -9,8 +9,15 @@ import { doAction } from '@wordpress/hooks';
  * @return {Function} The Edit component.
  */
 export function createButtonEdit( { buttonTitle, buttonUrl, buttonClasses, buttonData } ) {
-  return function ButtonEdit() {
-    // convert data attributes into react props.
+  console.log( 'Button:', {
+    buttonTitle,
+    buttonUrl,
+    buttonClasses,
+    buttonData,
+  } );
+
+  return function ButtonEdit( { field } ) {
+    // convert data attributes into React props.
     const dataProps = Object.fromEntries(
       Object.entries( buttonData ?? {} ).map( ( [ key, value ] ) => [
         `data-${ key }`,
@@ -31,15 +38,29 @@ export function createButtonEdit( { buttonTitle, buttonUrl, buttonClasses, butto
       } );
     }, [] );
 
+    const buttonId = `esfw-button-${ field?.id }`;
+
+    // render the field label and description ourselves (like the other custom
+    // fields do); the DataForm does not render them for custom Edit components.
     return (
-      <Button
-        variant="primary"
-        href={ buttonUrl }
-        className={ ( buttonClasses ?? [] ).join( ' ' ) }
-        { ...dataProps }
+      <BaseControl
+        __nextHasNoMarginBottom
+        id={ buttonId }
+        label={ field?.label }
+        help={ field?.description }
       >
-        { buttonTitle }
-      </Button>
+        <div>
+          <Button
+            id={ buttonId }
+            variant="primary"
+            href={ buttonUrl }
+            className={ ( buttonClasses ?? [] ).join( ' ' ) }
+            { ...dataProps }
+          >
+            { buttonTitle }
+          </Button>
+        </div>
+      </BaseControl>
     );
   };
 }

@@ -36,10 +36,14 @@ export const useSettings = ( props ) => {
       }
 
       // load the actual values of these fields.
-      apiFetch( {
-        path: `/wp/v2/settings?_fields=${ fields.join( ',' ) }`,
-      } ).then( ( wpSettings ) => {
-        setSettings( wpSettings );
+      apiFetch( { path: '/wp/v2/settings' } ).then( ( wpSettings ) => {
+        const values = {};
+        fields.forEach( ( key ) => {
+          if ( key in wpSettings ) {
+            values[ key ] = wpSettings[ key ];
+          }
+        } );
+        setSettings( values );
       } );
     } );
   }, [] );
