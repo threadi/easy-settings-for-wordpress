@@ -165,15 +165,10 @@
 }
 
 .esfw-settings-tabs .components-tab-panel__tabs {
-	overflow-x: auto;
-	flex-wrap: nowrap;
-	white-space: nowrap;
-}
-
-.esfw-settings-tabs .components-tab-panel__tabs {
 	display: flex;
 	flex-wrap: nowrap;
 	overflow-x: auto;
+	overflow-y: hidden;
 	white-space: nowrap;
 }
 

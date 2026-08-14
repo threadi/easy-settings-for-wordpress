@@ -269,7 +269,7 @@ class DataView extends View_Base {
 	 * @return void
 	 */
 	public function display(): void {
-		echo '<div class="wrap" id="easy-settings-for-wordpress-settings" data-config="' . esc_attr( Helper::get_json( $this->get_configuration(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) ) . '">Loading ..</div>';
+		echo '<div class="wrap" id="easy-settings-for-wordpress-settings" data-config="' . esc_attr( Helper::get_json( $this->get_configuration(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) ) . '">' . wp_kses_post( $this->get_settings_obj()->get_error_help() ) . '</div>';
 	}
 
 	/**

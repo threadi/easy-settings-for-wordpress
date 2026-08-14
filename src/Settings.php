@@ -179,6 +179,13 @@ class Settings {
 	private string $version_option_name = '';
 
 	/**
+	 * The help in case of an error in views.
+	 *
+	 * @var string
+	 */
+	private string $error_help = '';
+
+	/**
 	 * List of errors.
 	 *
 	 * @var WP_Error|null
@@ -1828,5 +1835,26 @@ class Settings {
 	 */
 	public function set_update_version(	string $version ): void {
 		$this->plugin_version      = $version;
+	}
+
+
+	/**
+	 * Return help in case of error on loading of setup.
+	 *
+	 * @return string
+	 */
+	public function get_error_help(): string {
+		return $this->error_help;
+	}
+
+	/**
+	 * Set the error help.
+	 *
+	 * @param string $error_help The text for the error help.
+	 *
+	 * @return void
+	 */
+	public function set_error_help( string $error_help ): void {
+		$this->error_help = $error_help;
 	}
 }
