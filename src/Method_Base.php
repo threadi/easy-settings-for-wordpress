@@ -47,10 +47,27 @@ class Method_Base {
 	 *
 	 * @return void
 	 */
-	public function init(): void {}
+	public function init(): void {
+		// register settings.
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'rest_api_init', array( $this, 'register_settings' ) );
+
+		// make the classic Settings-API error helpers available for REST requests.
+		add_filter( 'rest_pre_dispatch', array( $this, 'load_settings_api_helpers' ), 10, 3 );
+
+		// register the settings during WP CLI run.
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			add_action( 'init', array( $this, 'register_settings' ), 200 );
+		}
+
+		// register the settings during WP Cron run.
+		if ( wp_doing_cron() ) {
+			add_action( 'init', array( $this, 'register_settings' ), 200 );
+		}
+	}
 
 	/**
-	 * Run this tasks during activation of the plugin.
+	 * Run these tasks during activation of the plugin.
 	 *
 	 * @return void
 	 */
@@ -62,6 +79,14 @@ class Method_Base {
 	 * @return void
 	 */
 	public function delete_settings(): void {}
+
+	/**
+	 * Register the handling of get_option() and update_option() for each setting field,
+	 * which should be read and write from the global settings field.
+	 *
+	 * @return void
+	 */
+	public function register_settings(): void {}
 
 	/**
 	 * Sanitize our own option values before output.
@@ -185,6 +210,7 @@ class Method_Base {
 	 * @param WP_REST_Request $request The current REST request.
 	 *
 	 * @return mixed
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function load_settings_api_helpers( mixed $result, WP_REST_Server $server, WP_REST_Request $request ): mixed {
 		// bail if the helpers are already available.
@@ -202,4 +228,11 @@ class Method_Base {
 
 		return $result;
 	}
+
+	/**
+	 * Add new or missing settings to the database.
+	 *
+	 * @return void
+	 */
+	public function update_settings(): void {}
 }

@@ -1,6 +1,10 @@
 # Changelog
 
-## [3.0.3] - 14.08.2026
+## [3.1.0] - 14.08.2026
+
+### Added
+
+- Added automatic handling for new settings during the plugin lifecycle
 
 ### Changed
 

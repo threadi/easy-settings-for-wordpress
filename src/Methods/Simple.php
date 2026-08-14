@@ -40,30 +40,6 @@ class Simple extends Method_Base {
 	}
 
 	/**
-	 * Initialize this object.
-	 *
-	 * @return void
-	 */
-	public function init(): void {
-		// register settings.
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'rest_api_init', array( $this, 'register_settings' ) );
-
-		// make the classic Settings-API error helpers available for REST requests.
-		add_filter( 'rest_pre_dispatch', array( $this, 'load_settings_api_helpers' ), 10, 3 );
-
-		// register the settings during WP CLI run.
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			add_action( 'init', array( $this, 'register_settings' ), 200 );
-		}
-
-		// register the settings during WP Cron run.
-		if ( wp_doing_cron() ) {
-			add_action( 'init', array( $this, 'register_settings' ), 200 );
-		}
-	}
-
-	/**
 	 * Run these tasks during activation of the plugin.
 	 *
 	 * @return void
@@ -224,6 +200,9 @@ class Simple extends Method_Base {
 				add_filter( 'pre_update_option_' . $setting->get_name(), $setting->get_save_callback(), 10, 3 );
 			}
 		}
+
+		// check for any updates to the settings.
+		$this->get_settings_obj()->maybe_update();
 	}
 
 	/**
@@ -258,6 +237,30 @@ class Simple extends Method_Base {
 
 			// save it as its own option entry.
 			update_option( $settings_name, $this->sanitize_option( $value, $settings_name ) );
+		}
+	}
+
+	/**
+	 * Add new or missing settings to the database.
+	 *
+	 * @return void
+	 */
+	public function update_settings(): void {
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			if ( ! $setting->is_default_set() ) {
+				continue;
+			}
+
+			// add any new option.
+			$added = add_option( $setting->get_name(), $setting->get_default(),'', $setting->is_autoloaded() );
+
+			// if a new option was added, update it to trigger callbacks.
+			if ( $added ) {
+				update_option(
+					$setting->get_name(),
+					$setting->get_default()
+				);
+			}
 		}
 	}
 }

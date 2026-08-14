@@ -13,6 +13,7 @@ defined( 'ABSPATH' ) || exit;
 use easySettingsForWordPress\Fields\TextInfo;
 use easySettingsForWordPress\Json\Parser;
 use easySettingsForWordPress\Json\Serializer;
+use Exception;
 use WP_Error;
 
 /**
@@ -139,7 +140,7 @@ class Settings {
 	private string $plugin_path;
 
 	/**
-	 * Show the settings link in plugin list.
+	 * Show the settings link in the list of plugins.
 	 *
 	 * @var bool
 	 */
@@ -164,6 +165,20 @@ class Settings {
 	private string $auto_save = 'off';
 
 	/**
+	 * Current plugin version.
+	 *
+	 * @var string
+	 */
+	private string $plugin_version = '';
+
+	/**
+	 * The internal name for the version field in options.
+	 *
+	 * @var string
+	 */
+	private string $version_option_name = '';
+
+	/**
 	 * List of errors.
 	 *
 	 * @var WP_Error|null
@@ -185,7 +200,7 @@ class Settings {
 	private Export $export_obj;
 
 	/**
-	 * The methods object.
+	 * The object for the methods.
 	 *
 	 * @var Methods
 	 */
@@ -208,6 +223,7 @@ class Settings {
 			$this->plugin_path = $plugin_path;
 			$this->path        = trailingslashit( dirname( $plugin_path ) ) . 'vendor/threadi/easy-settings-for-wordpress/';
 			$this->url         = trailingslashit( plugins_url( '', $this->path ) ) . 'easy-settings-for-wordpress/';
+			$this->version_option_name = 'esfw_plugin_version_' . md5( dirname( $plugin_path ) );
 
 			// get import and export object.
 			$this->import_obj = new Import( $this );
@@ -218,8 +234,9 @@ class Settings {
 
 			// prepare the views.
 			$this->views = new Views( $this );
-		} catch ( \Exception $e ) {
-			return;
+		} catch ( Exception $e ) {
+			// log this error.
+			$this->add_error( 'constructor_error', $e->getMessage() );
 		}
 	}
 
@@ -966,10 +983,13 @@ class Settings {
 
 		// delete the settings saved by this method.
 		$method->delete_settings();
+
+		// delete the plugin version marker.
+		delete_option( $this->version_option_name );
 	}
 
 	/**
-	 * Add single setting.
+	 * Add a single setting.
 	 *
 	 * @param string|Setting $setting The settings object or its internal name.
 	 *
@@ -1750,5 +1770,63 @@ class Settings {
 	 */
 	public function to_config(): array {
 		return Serializer::to_config( $this );
+	}
+
+	/**
+	 * Check whether the plugin was updated.
+	 *
+	 * @return void
+	 */
+	public function maybe_update(): void {
+		// bail if no settings are set.
+		if( ! $this->has_settings() ) {
+			return;
+		}
+
+		// bail if no plugin version is configured.
+		if ( '' === $this->plugin_version ) {
+			return;
+		}
+
+		$this->plugin_version = '5.4.0';
+
+		// get the version stored in the database.
+		$db_version = get_option(
+			$this->version_option_name,
+			'0.0.0'
+		);
+
+		// bail if the database already contains the current version.
+		if ( version_compare( $this->plugin_version, $db_version, '<=' ) ) {
+			return;
+		}
+
+		// get the active method.
+		$method = $this->get_methods()->get_method();
+
+		// bail if method could not be read.
+		if( ! $method instanceof Method_Base ) {
+			return;
+		}
+
+		// run the settings update.
+		$method->update_settings();
+
+		// store the new version.
+		update_option(
+			$this->version_option_name,
+			$this->plugin_version
+		);
+	}
+
+	/**
+	 * Set the plugin version used for settings updates.
+	 *
+	 * @param string $version     Current active plugin version.
+	 *
+	 * @return void
+	 */
+	public function set_update_version(	string $version ): void {
+		$this->plugin_version      = $version;
 	}
 }
