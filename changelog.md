@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.2] - 15.08.2026
+
+### Changed
+
+- Re-release to add the DataView scripts in the release
+
 ## [3.1.1] - 15.08.2026
 
 ### Changed
