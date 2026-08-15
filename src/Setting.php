@@ -647,7 +647,8 @@ class Setting extends Base_Object {
 							'label' => $label,
 						);
 					}
-					$configuration['options'] = $options;
+					$configuration['options']  = $options;
+					$configuration['sortable'] = $field->is_sortable();
 				}
 				break;
 			case 'Number':

@@ -75,7 +75,9 @@ export function mapFields( config ) {
       case 'esfw-multiselect':
         return {
           ...updatedField,
-          Edit: createMultiSelectEdit( updatedField.options ),
+          Edit: createMultiSelectEdit( updatedField.options, {
+            sortable: !! updatedField.sortable,
+          } ),
         };
       case 'esfw-permalink-slug':
         return {
