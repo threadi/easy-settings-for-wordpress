@@ -134,7 +134,7 @@ class MultiSelect extends Field_Base {
 	 *
 	 * @return bool
 	 */
-	private function is_sortable(): bool {
+	public function is_sortable(): bool {
 		return $this->sortable;
 	}
 

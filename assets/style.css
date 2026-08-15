@@ -229,3 +229,17 @@
 .esfw-settings-section--collapsible .esfw-settings-section__toggle:hover .esfw-settings-section__chevron {
 	opacity: 1;
 }
+
+.esfw-multiselect__order {
+	margin: 8px 0 0;
+	padding: 0;
+	list-style: none;
+}
+.esfw-multiselect__order-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 4px 0;
+	border-bottom: 1px solid #dcdcde;
+}
