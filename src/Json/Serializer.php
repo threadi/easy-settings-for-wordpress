@@ -184,6 +184,12 @@ class Serializer {
 		if ( $section->is_hidden() ) {
 			$config['hidden'] = true;
 		}
+		if ( $section->is_collapsible() ) {
+			$config['collapsible'] = true;
+		}
+		if ( $section->is_collapsed() ) {
+			$config['collapsed'] = true;
+		}
 
 		$section_settings = $settings_by_section[ spl_object_id( $section ) ] ?? array();
 		if ( ! empty( $section_settings ) ) {

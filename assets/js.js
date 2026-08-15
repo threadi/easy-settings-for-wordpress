@@ -126,7 +126,7 @@ jQuery(document).ready(function($) {
           multiple: false
         }).on('select', function() { // it also has "open" and "close" events
           let attachment = custom_uploader.state().get('selection').first().toJSON();
-          button.html('<img src="' + attachment.url + '">').next().show().next().val(attachment.id);
+          button.html('<img alt="" src="' + attachment.url + '">').next().show().next().val(attachment.id);
         }).open();
 
   });
@@ -310,6 +310,87 @@ jQuery(document).ready(function($) {
             }
         );
     })
+
+    /**
+     * Collapsible sections (classic view).
+     */
+    let map = ( typeof esfwJsVars !== 'undefined' && esfwJsVars.collapsible_sections ) ? esfwJsVars.collapsible_sections : {};
+
+    /**
+     * @param {jQuery} $heading
+     * @param {jQuery} $table
+     * @param {boolean} collapsed
+     */
+    function wireToggle( $heading, $table, collapsed ) {
+      if ( ! $heading.length || ! $table.length ) {
+        return;
+      }
+      if ( $heading.data( 'esfwCollapsibleBound' ) ) {
+        return;
+      }
+      $heading.data( 'esfwCollapsibleBound', true );
+
+      $heading
+        .attr( 'role', 'button' )
+        .attr( 'tabindex', '0' )
+        .attr( 'aria-expanded', collapsed ? 'false' : 'true' )
+        .addClass( 'esfw-section-toggle' );
+
+      function toggleSection() {
+        var willCollapse = ! $heading.hasClass( 'is-collapsed' );
+        $heading.toggleClass( 'is-collapsed', willCollapse );
+        $heading.attr( 'aria-expanded', willCollapse ? 'false' : 'true' );
+        $table.toggle( ! willCollapse );
+      }
+
+      $heading.on( 'click', function ( e ) {
+        e.preventDefault();
+        toggleSection();
+      } );
+
+      $heading.on( 'keydown', function ( e ) {
+        if ( e.key !== 'Enter' && e.key !== ' ' ) {
+          return;
+        }
+        e.preventDefault();
+        toggleSection();
+      } );
+
+      if ( collapsed ) {
+        $heading.addClass( 'is-collapsed' );
+        $table.hide();
+      }
+    }
+
+    // 1) Marker aus dem Section-Callback
+    $( '.easy-settings-for-wordpress .esfw-collapsible-marker' ).each( function () {
+      let $marker = $( this );
+      let name = $marker.attr( 'data-section' ) || '';
+      let fromMap = map[ name ] || {};
+      let collapsed = ( $marker.attr( 'data-collapsed' ) === '1' ) || !! fromMap.collapsed;
+      let $heading = $marker.prevAll( 'h2' ).first();
+      let $table = $marker.nextAll( 'table.form-table' ).first();
+      wireToggle( $heading, $table, collapsed );
+    } );
+
+    // 2) Fallback: Title-Match
+    $.each( map, function ( name, cfg ) {
+      let title = ( cfg && cfg.title ) ? String( cfg.title ).replace( /\s+/g, ' ' ).trim() : '';
+      if ( ! title ) {
+        return;
+      }
+      $( '.easy-settings-for-wordpress h2' ).each( function () {
+        let $heading = $( this );
+        if ( $heading.data( 'esfwCollapsibleBound' ) ) {
+          return;
+        }
+        if ( $heading.text().replace( /\s+/g, ' ' ).trim() !== title ) {
+          return;
+        }
+        var $table = $heading.nextAll( 'table.form-table' ).first();
+        wireToggle( $heading, $table, !!( cfg && cfg.collapsed ) );
+      } );
+    } );
 
     /**
      * Add dirty.js if we do not use autosave for "tab_change".

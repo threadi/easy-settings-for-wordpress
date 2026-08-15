@@ -7,6 +7,7 @@
 - Added automatic handling for new settings during the plugin lifecycle
 - Added option to reload or redirect DataView on saving single settings
 - Added to lock the form on save for both supported views
+- Added option to collapse sections in both supported views
 
 ### Changed
 
@@ -16,6 +17,7 @@
 - Recognize the usage of the classic function add_settings_error() and get_settings_errors() in DataView
 - Use JS-events in callbacks in DataView
 - Use subtab links for subtabs
+- Extended the PHP Unit Tests
 - Updated dependencies
 
 ### Fixed

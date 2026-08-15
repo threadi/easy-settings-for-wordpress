@@ -256,10 +256,12 @@ class DataView extends View_Base {
 		$node['sections'] = array();
 		foreach ( $tab->get_sections() as $section ) {
 			$node['sections'][] = array(
-				'name'    => $section->get_name(),
-				'label'   => $section->get_title(),
-				'content' => $this->get_section_content( $section ),
-				'fields'  => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
+				'name'        => $section->get_name(),
+				'label'       => $section->get_title(),
+				'content'     => $this->get_section_content( $section ),
+				'fields'      => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
+				'collapsible' => $section->is_collapsible(),
+				'collapsed'   => $section->is_collapsed(),
 			);
 		}
 

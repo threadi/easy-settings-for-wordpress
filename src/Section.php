@@ -57,6 +57,20 @@ class Section extends Base_Object {
 	private bool $hidden = false;
 
 	/**
+	 * Is collapsible.
+	 *
+	 * @var bool
+	 */
+	private bool $collapsible = false;
+
+	/**
+	 * Is collapsed.
+	 *
+	 * @var bool
+	 */
+	private bool $collapsed = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Settings $settings_obj The settings object.
@@ -222,5 +236,62 @@ class Section extends Base_Object {
 	 */
 	public function set_hidden( bool $hidden ): void {
 		$this->hidden = $hidden;
+	}
+
+	/**
+	 * Set collapsible.
+	 *
+	 * @param bool $collapsible True to make is collapsible.
+	 *
+	 * @return void
+	 */
+	public function set_collapsible( bool $collapsible ): void {
+		$this->collapsible = $collapsible;
+		if ( $collapsible && '__return_true' === $this->callback ) {
+			$this->callback = array( $this, 'render_collapsible_marker' );
+		}
+	}
+
+	/**
+	 * Marker between WP's <h2> and the form-table (classic view).
+	 */
+	public function render_collapsible_marker(): void {
+		printf(
+			'<span class="esfw-collapsible-marker" data-section="%s" data-collapsed="%s" hidden></span>',
+			esc_attr( $this->get_name() ),
+			$this->is_collapsed() ? '1' : '0'
+		);
+	}
+
+	/**
+	 * Return whether this section is collapsible.
+	 *
+	 * @return bool
+	 */
+	public function is_collapsible(): bool {
+		return $this->collapsible;
+	}
+
+	/**
+	 * Set collapsed.
+	 *
+	 * @param bool $collapsed True to set it collapsed.
+	 *
+	 * @return void
+	 */
+	public function set_collapsed( bool $collapsed ): void {
+		$this->collapsed = $collapsed;
+		if ( $collapsed ) {
+			$this->collapsible = true;
+		}
+	}
+
+	/**
+	 * Return whether this section is collapsed.
+	 *
+	 * @return bool
+	 */
+	public function is_collapsed(): bool {
+		return $this->collapsed;
 	}
 }

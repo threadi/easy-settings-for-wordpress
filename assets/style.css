@@ -187,3 +187,45 @@
 	pointer-events: auto;
 	opacity: 1;
 }
+
+.esfw-settings-section__toggle,
+.esfw-section-toggle {
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	width: 100%;
+}
+
+.esfw-settings-section__chevron {
+	margin-left: auto;
+}
+
+.esfw-section-toggle.is-collapsed::after {
+	content: "▸";
+}
+.esfw-section-toggle:not(.is-collapsed)::after {
+	content: "▾";
+}
+
+.esfw-settings-section__toggle {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	align-items: center;
+	text-align: left;
+	height: auto;
+	padding: 4px 0;
+}
+
+.esfw-settings-section__chevron {
+	font-size: 1.5rem;
+	line-height: 1;
+	margin-left: 12px;
+	flex-shrink: 0;
+	opacity: 0.7;
+}
+
+.esfw-settings-section--collapsible .esfw-settings-section__toggle:hover .esfw-settings-section__chevron {
+	opacity: 1;
+}

@@ -11,6 +11,7 @@ namespace easySettingsForWordPress\Views;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Helper;
+use easySettingsForWordPress\Section;
 use easySettingsForWordPress\Settings;
 use easySettingsForWordPress\Tab;
 use easySettingsForWordPress\View_Base;
@@ -105,6 +106,7 @@ class Classic extends View_Base {
 				'label_sortable_title' => $translations['drag_n_drop'],
 				'auto_save'            => $this->get_settings_obj()->get_auto_save(),
 				'lock_form_on_save'    => $this->get_settings_obj()->should_lock_form_on_save(),
+				'collapsible_sections' => $this->get_collapsible_sections_map(),
 				'label_saved'          => $translations['settings_saved'],
 				'label_save_error'     => $translations['settings_save_error'],
 			)
@@ -228,5 +230,60 @@ class Classic extends View_Base {
 
 		// show the styling object.
 		$styling_object->show_content( $tab );
+	}
+
+	/**
+	 * Return list of collapse sections.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_collapsible_sections_map(): array {
+		$map = array();
+
+		foreach ( $this->collect_all_tabs() as $tab ) {
+			foreach ( $tab->get_sections() as $section ) {
+				if ( ! $section->is_collapsible() ) {
+					continue;
+				}
+				$name = $section->get_name();
+				if ( isset( $map[ $name ] ) ) {
+					continue;
+				}
+				$map[ $name ] = array(
+					'title'     => $section->get_title(),
+					'collapsed' => $section->is_collapsed(),
+				);
+			}
+		}
+
+		return $map;
+	}
+
+	/**
+	 * Collect all tabs.
+	 *
+	 * @return array<int,Tab>
+	 */
+	private function collect_all_tabs(): array {
+		$all  = array();
+		$walk = static function ( array $tabs ) use ( &$all, &$walk ): void {
+			foreach ( $tabs as $tab ) {
+				if ( ! $tab instanceof Tab ) {
+					continue;
+				}
+				$all[] = $tab;
+				$subs  = $tab->get_tabs();
+				if ( ! empty( $subs ) ) {
+					$walk( $subs );
+				}
+			}
+		};
+
+		$walk( $this->get_settings_obj()->get_tabs() );
+		foreach ( $this->get_settings_obj()->get_pages() as $page ) {
+			$walk( $page->get_tabs() );
+		}
+
+		return $all;
 	}
 }

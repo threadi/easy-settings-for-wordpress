@@ -282,6 +282,12 @@ class Parser extends Base_Object {
 		if ( isset( $section_config['hidden'] ) ) {
 			$section->set_hidden( (bool) $section_config['hidden'] );
 		}
+		if ( isset( $section_config['collapsible'] ) ) {
+			$section->set_collapsible( (bool) $section_config['collapsible'] );
+		}
+		if ( isset( $section_config['collapsed'] ) ) {
+			$section->set_collapsed( (bool) $section_config['collapsed'] );
+		}
 
 		if ( ! empty( $section_config['settings'] ) && is_array( $section_config['settings'] ) ) {
 			foreach ( $section_config['settings'] as $setting_config ) {
