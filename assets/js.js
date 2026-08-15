@@ -319,6 +319,13 @@ jQuery(document).ready(function($) {
     }
 
     /**
+     * Lock the form on submit.
+     */
+    $( '.easy-settings-for-wordpress form' ).on( 'submit', function () {
+      esfw_lock_form( $ );
+    } );
+
+    /**
      * Drag & Drop for multiselect-fields.
      */
     $('.easy-settings-for-wordpress select.custom-sortable').each(function() {
@@ -389,6 +396,8 @@ function esfw_autosave( jquery ) {
    * @returns {Promise<Response>}
    */
   function submitFormViaAjax() {
+    esfw_lock_form( jquery );
+
     const formEl = $form.get( 0 );
     return fetch( formEl.getAttribute( 'action' ), {
       method: 'POST',
@@ -405,7 +414,9 @@ function esfw_autosave( jquery ) {
     } ).catch( function ( error ) {
       esfw_show_save_feedback( esfwJsVars.label_save_error || 'Settings could not be saved.', 'error' );
       throw error; // weiterreichen, damit z. B. der tab_change-Handler es auch mitbekommt.
-    } );
+    } ).finally( function () {
+        esfw_unlock_form( jquery );
+      } );
   }
 
   // Modus "change": nach jeder Änderung (debounced) automatisch speichern.
@@ -468,4 +479,39 @@ function esfw_show_save_feedback( message, status ) {
       $flyout.remove();
     }, 300 ); // muss zur CSS-Transition-Dauer passen
   }, 4000 );
+}
+
+/**
+ * Lock the classic settings form while saving.
+ */
+function esfw_lock_form( $ ) {
+  if ( false === ( esfwJsVars.lock_form_on_save ?? true ) ) {
+    return;
+  }
+  const $wrap = $( '.easy-settings-for-wordpress' );
+  $wrap.addClass( 'esfw-settings-form--saving' );
+  $wrap.each( function () {
+    this.setAttribute( 'inert', '' );
+  } );
+  // Submit-Button(s) optisch beschäftigen
+  $wrap.find( 'input[type="submit"], button[type="submit"]' )
+    .prop( 'disabled', true )
+    .addClass( 'is-busy' );
+}
+
+/**
+ * Unlock the classic settings form while saving.
+ */
+function esfw_unlock_form( $ ) {
+  if ( false === ( esfwJsVars.lock_form_on_save ?? true ) ) {
+    return;
+  }
+  const $wrap = $( '.easy-settings-for-wordpress' );
+  $wrap.removeClass( 'esfw-settings-form--saving' );
+  $wrap.each( function () {
+    this.removeAttribute( 'inert' );
+  } );
+  $wrap.find( 'input[type="submit"], button[type="submit"]' )
+    .prop( 'disabled', false )
+    .removeClass( 'is-busy' );
 }

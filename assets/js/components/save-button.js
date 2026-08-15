@@ -11,9 +11,15 @@ import { Button } from '@wordpress/components';
  * @param {Function} props.onClick The click handler.
  * @return {JSX.Element} The button.
  */
-export const SaveButton = ( { title, onClick } ) => (
+export const SaveButton = ( { title, onClick, isBusy = false, disabled = false } ) => (
   <div className="esfw-save-button">
-    <Button variant="primary" onClick={ onClick } __next40pxDefaultSize>
+    <Button
+      variant="primary"
+      onClick={ onClick }
+      isBusy={ isBusy }
+      disabled={ disabled || isBusy }
+      __next40pxDefaultSize
+    >
       { title }
     </Button>
   </div>

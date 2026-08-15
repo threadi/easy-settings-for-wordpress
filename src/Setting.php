@@ -110,6 +110,21 @@ class Setting extends Base_Object {
 	private bool $do_not_register = false;
 
 	/**
+	 * Whether to force a full page reload after this setting was saved with a changed value.
+	 *
+	 * @var bool
+	 */
+	private bool $reload_on_save = false;
+
+	/**
+	 * Optional URL to redirect to after this setting was saved with a changed value.
+	 * Takes precedence over reload_on_save.
+	 *
+	 * @var string
+	 */
+	private string $redirect_on_save = '';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Settings $settings_obj The settings object.
@@ -713,7 +728,57 @@ class Setting extends Base_Object {
 				break;
 		}
 
+		// set reload setting.
+		if ( $this->should_reload_on_save() ) {
+			$configuration['reload_on_save'] = true;
+		}
+
+		// set redirect setting.
+		if ( ! empty( $this->get_redirect_on_save() ) ) {
+			$configuration['redirect_on_save'] = $this->get_redirect_on_save();
+		}
+
 		// return the configuration for this setting to use in dataview.
 		return $configuration;
+	}
+
+	/**
+	 * Force a full page reload after saving a changed value of this setting.
+	 *
+	 * @param bool $reload Whether to reload.
+	 * @return void
+	 */
+	public function set_reload_on_save( bool $reload ): void {
+		$this->reload_on_save = $reload;
+	}
+
+	/**
+	 * Redirect to a URL after saving a changed value of this setting.
+	 *
+	 * @param string $url Absolute or relative URL.
+	 *
+	 * @return void
+	 * @noinspection PhpUnused
+	 **/
+	public function set_redirect_on_save( string $url ): void {
+		$this->redirect_on_save = $url;
+	}
+
+	/**
+	 * Return whether we should reload on save.
+	 *
+	 * @return bool
+	 */
+	public function should_reload_on_save(): bool {
+		return $this->reload_on_save;
+	}
+
+	/**
+	 * Return the redirect target on save.
+	 *
+	 * @return string
+	 */
+	public function get_redirect_on_save(): string {
+		return $this->redirect_on_save;
 	}
 }

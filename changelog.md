@@ -1,10 +1,12 @@
 # Changelog
 
-## [3.1.0] - 14.08.2026
+## [3.1.0] - 15.08.2026
 
 ### Added
 
 - Added automatic handling for new settings during the plugin lifecycle
+- Added option to reload or redirect DataView on saving single settings
+- Added to lock the form on save for both supported views
 
 ### Changed
 
@@ -12,6 +14,8 @@
 - Use the tab position in DataView
 - Allow secured HTML for help texts in DataView
 - Recognize the usage of the classic function add_settings_error() and get_settings_errors() in DataView
+- Use JS-events in callbacks in DataView
+- Use subtab links for subtabs
 - Updated dependencies
 
 ### Fixed

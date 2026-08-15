@@ -162,6 +162,7 @@
 		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 		margin-bottom: 0;
 	}
+	p:last-child { margin-bottom: 0 }
 }
 
 .esfw-settings-tabs .components-tab-panel__tabs {
@@ -174,4 +175,15 @@
 
 .esfw-settings-tabs .components-tab-panel__tabs > * {
 	flex: 0 0 auto;
+}
+
+.easy-settings-for-wordpress.esfw-settings-form--saving,
+.esfw-settings-form.esfw-settings-form--saving {
+	opacity: 0.6;
+	transition: opacity 0.15s ease;
+}
+
+.esfw-settings-form--saving .esfw-settings-tabs {
+	pointer-events: auto;
+	opacity: 1;
 }

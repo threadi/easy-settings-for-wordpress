@@ -54,12 +54,13 @@ class Serializer {
 
 		// optional scalar properties (only when set).
 		$scalars = array(
-			'plugin_slug'      => $settings->get_plugin_slug(),
-			'title'            => $settings->get_title(),
-			'menu_title'       => $settings->get_menu_title(),
-			'menu_parent_slug' => $settings->get_menu_parent_slug(),
-			'capability'       => $settings->get_capability(),
-			'auto_save'        => $settings->get_auto_save(),
+			'plugin_slug'       => $settings->get_plugin_slug(),
+			'title'             => $settings->get_title(),
+			'menu_title'        => $settings->get_menu_title(),
+			'menu_parent_slug'  => $settings->get_menu_parent_slug(),
+			'capability'        => $settings->get_capability(),
+			'auto_save'         => $settings->get_auto_save(),
+			'lock_form_on_save' => $settings->should_lock_form_on_save(),
 		);
 		foreach ( $scalars as $key => $value ) {
 			if ( '' !== $value ) {
@@ -79,6 +80,7 @@ class Serializer {
 			$config['tabs'][] = self::tab_to_config( $tab, $settings_by_section );
 		}
 
+		// return the config.
 		return $config;
 	}
 
@@ -229,6 +231,13 @@ class Serializer {
 		$field = $setting->get_field();
 		if ( $field instanceof Field_Base ) {
 			$config['field'] = self::field_to_config( $field );
+		}
+
+		if ( $setting->should_reload_on_save() ) {
+			$config['reload_on_save'] = true;
+		}
+		if ( '' !== $setting->get_redirect_on_save() ) {
+			$config['redirect_on_save'] = $setting->get_redirect_on_save();
 		}
 
 		return $config;

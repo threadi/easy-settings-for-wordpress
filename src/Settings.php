@@ -186,6 +186,13 @@ class Settings {
 	private string $error_help = '';
 
 	/**
+	 * Whether to lock the form UI while settings are being saved (DataView).
+	 *
+	 * @var bool
+	 */
+	private bool $lock_form_on_save = true;
+
+	/**
 	 * List of errors.
 	 *
 	 * @var WP_Error|null
@@ -1456,6 +1463,8 @@ class Settings {
 			'file_choose_image'                  => 'Upload or choose image',
 			'drag_n_drop'                        => 'Hold to drag & drop',
 			'settings_saved'                     => 'Settings saved.',
+			'settings_saved_redirect'            => 'Settings saved. You will be redirected.',
+			'settings_saved_reload'              => 'Settings saved. Page will reload.',
 			'settings_save_error'                => 'Settings could not be saved.',
 			'save_title'                         => 'Save',
 		);
@@ -1795,8 +1804,6 @@ class Settings {
 			return;
 		}
 
-		$this->plugin_version = '5.4.0';
-
 		// get the version stored in the database.
 		$db_version = get_option(
 			$this->version_option_name,
@@ -1859,5 +1866,25 @@ class Settings {
 	 */
 	public function set_error_help( string $error_help ): void {
 		$this->error_help = $error_help;
+	}
+
+	/**
+	 * Set lock for form on save.
+	 *
+	 * @param bool $lock True to lock the form.
+	 *
+	 * @return void
+	 */
+	public function set_lock_form_on_save( bool $lock ): void {
+		$this->lock_form_on_save = $lock;
+	}
+
+	/**
+	 * Return whether we should lock the form on save.
+	 *
+	 * @return bool
+	 */
+	public function should_lock_form_on_save(): bool {
+		return $this->lock_form_on_save;
 	}
 }

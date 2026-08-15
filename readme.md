@@ -8,6 +8,7 @@ This composer packages add a simple wrapper for settings for WordPress plugins a
 - Use settings that are interdependent.
 - Save time when configuring your plugin settings.
 - Have your AI generate a ready-made JSON file for your settings, which you can then simply drop in.
+- And don't worry about updates or cleaning up after them - the package takes care of that for you.
 
 ## Requirements
 
@@ -68,6 +69,10 @@ Follow the documentation [here](docs/how_to_use_it.md).
 #### Repair
 
 `vendor/bin/phpcbf .`
+
+## Analyze with PHPStan
+
+`vendor/bin/phpstan analyse`
 
 ## Check for WordPress VIP Coding Standards
 

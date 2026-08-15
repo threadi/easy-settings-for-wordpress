@@ -105,9 +105,9 @@ class Value extends Field_Base {
 	/**
 	 * Return the value for this field.
 	 *
-	 * @return string
+	 * @return mixed
 	 */
-	public function get_value(): string {
+	public function get_value(): mixed {
 		return $this->value;
 	}
 

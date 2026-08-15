@@ -104,6 +104,7 @@ class Classic extends View_Base {
 				'lbl_upload_image'     => $translations['file_choose_image'],
 				'label_sortable_title' => $translations['drag_n_drop'],
 				'auto_save'            => $this->get_settings_obj()->get_auto_save(),
+				'lock_form_on_save'    => $this->get_settings_obj()->should_lock_form_on_save(),
 				'label_saved'          => $translations['settings_saved'],
 				'label_save_error'     => $translations['settings_save_error'],
 			)
