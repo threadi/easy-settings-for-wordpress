@@ -65,7 +65,7 @@ See [pages](pages.md).
 
 #### Show your settings in plugin list
 
-If this value is set to true, the configured settings URL will be displayed next to your plugin in the list of all plugins. This helps users find your plugin's settings even faster.
+If this value is set to true, the configured settings URL will be displayed next to your plugin in the list of all plugins. This helps users find your plugins settings even faster.
 
 `$settings_object->show_settings_link_in_plugin_list( 'your-slug' );`
 
@@ -108,6 +108,12 @@ This setting is required if you want to let the package handle changes on your s
 `$settings_object->set_plugin_version( '1.0.0' );`
 
 Hint: use the same version as your plugin.
+
+#### Set to lock the form
+
+Per default clicking on save will lock the form. You can change these behavior for your settings.
+
+`$settings_object->set_lock_form_on_save( false );`
 
 ### Add your settings
 

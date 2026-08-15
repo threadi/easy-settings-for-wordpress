@@ -13,6 +13,7 @@ namespace easySettingsForWordPress\Methods;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Method_Base;
 use easySettingsForWordPress\Section;
 use easySettingsForWordPress\Setting;
@@ -101,7 +102,7 @@ class One extends Method_Base {
 			$setting_name = $setting->get_name();
 
 			// get the default value for this setting.
-			$settings[ $setting_name ] = $this->sanitize_option( $setting->get_default(), $setting_name );
+			$settings[ $setting_name ] = $this->sanitize_value( $setting->get_default(), $setting_name );
 		}
 
 		// add the single settings field.
@@ -184,7 +185,7 @@ class One extends Method_Base {
 		$settings = get_option( $this->get_option_name() );
 
 		// sanitize the value of this setting.
-		$value = $this->sanitize_option( $value, $setting_name );
+		$value = $this->sanitize_value( $value, $setting_name );
 
 		// get the settings object.
 		$setting = $this->get_settings_obj()->get_setting( $setting_name );
@@ -266,7 +267,7 @@ class One extends Method_Base {
 			$value = wp_unslash( $value );
 
 			// sanitize the value.
-			$value = $this->sanitize_option( $value, $setting_name );
+			$value = $this->sanitize_value( $value, $setting_name );
 
 			// run the custom callback before updating an option.
 			if ( $setting->has_save_callback() ) {
@@ -395,7 +396,7 @@ class One extends Method_Base {
 			$value = $old_method->get_setting_value( $settings_name );
 
 			// sanitize and store it in our own (merged) format.
-			$settings[ $settings_name ] = $this->sanitize_option( $value, $settings_name );
+			$settings[ $settings_name ] = $this->sanitize_value( $value, $settings_name );
 		}
 
 		// remove our own filter to avoid unwanted side effects while saving.
@@ -404,5 +405,42 @@ class One extends Method_Base {
 		update_option( $this->get_option_name(), $settings );
 
 		add_filter( 'pre_update_option_' . $this->get_option_name(), array( $this, 'save_settings' ), 10, 0 );
+	}
+
+	/**
+	 * Sanitize a single setting's value the same way the "simple" method does:
+	 * via the field's own sanitize_callback (whitelist checks against configured
+	 * options, numeric range clamping, ID coercion via absint(), etc.), which
+	 * register_setting() would run for us if this method also registered each
+	 * setting individually.
+	 *
+	 * Falls back to the generic type-coercion in Method_Base::sanitize_option()
+	 * only if no field is attached to this setting, so both storage methods end
+	 * up enforcing the same validation rules for the same field.
+	 *
+	 * @param mixed  $value The value to sanitize.
+	 * @param string $setting_name The internal name of the setting.
+	 *
+	 * @return mixed
+	 */
+	private function sanitize_value( mixed $value, string $setting_name ): mixed {
+		// get the setting object.
+		$setting = $this->get_settings_obj()->get_setting( $setting_name );
+
+		// bail if no setting could be found: fall back to the generic type-coercion.
+		if ( ! $setting instanceof Setting ) {
+			return $this->sanitize_option( $value, $setting_name );
+		}
+
+		// get the field object.
+		$field_obj = $setting->get_field();
+
+		// bail if no field is attached to this setting: fall back to the generic type-coercion.
+		if ( ! $field_obj instanceof Field_Base ) {
+			return $this->sanitize_option( $value, $setting_name );
+		}
+
+		// run the field's own sanitize_callback.
+		return call_user_func( $field_obj->get_sanitize_callback(), $value );
 	}
 }

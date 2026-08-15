@@ -1,10 +1,13 @@
 # Changelog
 
-## [3.1.0] - 14.08.2026
+## [3.1.0] - 15.08.2026
 
 ### Added
 
 - Added automatic handling for new settings during the plugin lifecycle
+- Added option to reload or redirect DataView on saving single settings
+- Added to lock the form on save for both supported views
+- Added option to collapse sections in both supported views
 
 ### Changed
 
@@ -12,6 +15,9 @@
 - Use the tab position in DataView
 - Allow secured HTML for help texts in DataView
 - Recognize the usage of the classic function add_settings_error() and get_settings_errors() in DataView
+- Use JS-events in callbacks in DataView
+- Use subtab links for subtabs
+- Extended the PHP Unit Tests
 - Updated dependencies
 
 ### Fixed
@@ -19,6 +25,8 @@
 - Fixed some errors with the field MultiSelect in DataView
 - Fixed missing usage of section callbacks in DataView
 - Fixed the missing usage of the label for field Button in DataView
+- Fixed security of values in "One" method
+- Fixed the key
 
 ## [3.0.2] - 02.08.2026
 

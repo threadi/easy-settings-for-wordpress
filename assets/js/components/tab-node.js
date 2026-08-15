@@ -1,7 +1,3 @@
-/**
- * Recursive tab renderer: sub-tabs become nested TabPanels, leaf tabs render
- * their sections. Link tabs (with a URL) navigate instead of switching.
- */
 import {
   __experimentalVStack as VStack,
   TabPanel,
@@ -9,6 +5,32 @@ import {
 import { useEffect, useRef, useState } from '@wordpress/element';
 
 import { SectionCard } from './section-card';
+
+/**
+ * Renders HTML content and re-inits easy-dialog-for-wordpress handlers
+ * so that .easy-dialog-for-wordpress links work after dangerouslySetInnerHTML.
+ */
+function HtmlContent( { className, html } ) {
+  const ref = useRef( null );
+
+  useEffect( () => {
+    if ( ! html || ! ref.current ) {
+      return;
+    }
+    // Re-bind click handlers for newly injected dialog links.
+    document.body.dispatchEvent(
+      new Event( 'easy-dialog-for-wordpress-reinit' )
+    );
+  }, [ html ] );
+
+  return (
+    <div
+      ref={ ref }
+      className={ className }
+      dangerouslySetInnerHTML={ { __html: html } }
+    />
+  );
+}
 
 /**
  * Render a tab node.
@@ -26,6 +48,7 @@ export function TabNode( {
                            inheritedHideSave = false,
                            activeTabPath,
                            onTabChange,
+                           parentTabName,
                          } ) {
   // a parent tab's hide_save cascades down to all its (sub-)tabs.
   const effectiveHideSave = inheritedHideSave || !! node.hide_save;
@@ -49,9 +72,15 @@ export function TabNode( {
     return (
       <VStack spacing={ 4 }>
         { node.description && (
-          <div
+          <HtmlContent
             className="esfw-settings-tab-description"
-            dangerouslySetInnerHTML={ { __html: node.description } }
+            html={ node.description }
+          />
+        ) }
+        { node.content && (
+          <HtmlContent
+            className="esfw-settings-tab-content"
+            html={ node.content }
           />
         ) }
         <TabPanel
@@ -66,7 +95,6 @@ export function TabNode( {
           } ) ) }
           initialTabName={ activeContentTab }
           onSelect={ ( tabName ) => {
-            // swallow the mount-select fired after a snap-back.
             if ( snapBackRef.current ) {
               snapBackRef.current = false;
               return;
@@ -77,12 +105,11 @@ export function TabNode( {
 
             const selected = node.tabs.find( ( t ) => t.name === tabName );
 
-            // link tab -> navigate instead of switching (never on mount-select).
+            // link tab -> navigate instead of switching
             if ( selected?.url ) {
               if ( ! wasFirstSelect ) {
                 const target = selected.target || '_self';
                 if ( target === '_blank' ) {
-                  // open elsewhere and snap back to the last content tab.
                   window.open( selected.url, '_blank' );
                   snapBackRef.current = true;
                   setRemountKey( ( k ) => k + 1 );
@@ -93,17 +120,33 @@ export function TabNode( {
               return;
             }
 
-            // real content tab: remember it for the snap-back.
             setActiveContentTab( tabName );
 
-            if ( depth === 0 ) {
+            // create deep links.
+            {
               const url = new URL( window.location.href );
-              const defaultTabName = node.tabs[ 0 ]?.name;
-              if ( tabName === defaultTabName ) {
-                url.searchParams.delete( 'tab' );
-              } else {
+
+              if ( depth === 0 ) {
+                // Main-Tab: immer tab setzen, subtab entfernen
                 url.searchParams.set( 'tab', tabName );
+                url.searchParams.delete( 'subtab' );
+              } else if ( depth === 1 ) {
+                // Subtab: tab (Parent) + subtab setzen
+                if ( parentTabName ) {
+                  url.searchParams.set( 'tab', parentTabName );
+                }
+                const defaultSub =
+                  ( node.tabs ?? [] ).find( ( t ) => ! t.url )?.name ??
+                  node.tabs?.[ 0 ]?.name;
+                if ( tabName === defaultSub ) {
+                  // Default-Subtab → Parameter weglassen (wie Classic)
+                  url.searchParams.delete( 'subtab' );
+                } else {
+                  url.searchParams.set( 'subtab', tabName );
+                }
               }
+              // depth >= 2: klassisches Schema kennt keine weiteren Ebenen
+
               window.history.replaceState( {}, '', url );
             }
 
@@ -130,6 +173,7 @@ export function TabNode( {
                 inheritedHideSave={ effectiveHideSave }
                 activeTabPath={ activeTabPath }
                 onTabChange={ onTabChange }
+                parentTabName={ child.name }
               />
             );
           } }
@@ -141,15 +185,15 @@ export function TabNode( {
   return (
     <VStack spacing={ 6 }>
       { node.description && (
-        <div
+        <HtmlContent
           className="esfw-settings-tab-description"
-          dangerouslySetInnerHTML={ { __html: node.description } }
+          html={ node.description }
         />
       ) }
       { node.content && (
-        <div
+        <HtmlContent
           className="esfw-settings-tab-content"
-          dangerouslySetInnerHTML={ { __html: node.content } }
+          html={ node.content }
         />
       ) }
       { ( node.sections ?? [] ).map( ( section ) => (

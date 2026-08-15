@@ -186,6 +186,13 @@ class Settings {
 	private string $error_help = '';
 
 	/**
+	 * Whether to lock the form UI while settings are being saved (DataView).
+	 *
+	 * @var bool
+	 */
+	private bool $lock_form_on_save = true;
+
+	/**
 	 * List of errors.
 	 *
 	 * @var WP_Error|null
@@ -227,9 +234,9 @@ class Settings {
 	 */
 	public function __construct( string $plugin_path ) {
 		try {
-			$this->plugin_path = $plugin_path;
-			$this->path        = trailingslashit( dirname( $plugin_path ) ) . 'vendor/threadi/easy-settings-for-wordpress/';
-			$this->url         = trailingslashit( plugins_url( '', $this->path ) ) . 'easy-settings-for-wordpress/';
+			$this->plugin_path         = $plugin_path;
+			$this->path                = trailingslashit( dirname( $plugin_path ) ) . 'vendor/threadi/easy-settings-for-wordpress/';
+			$this->url                 = trailingslashit( plugins_url( '', $this->path ) ) . 'easy-settings-for-wordpress/';
 			$this->version_option_name = 'esfw_plugin_version_' . md5( dirname( $plugin_path ) );
 
 			// get import and export object.
@@ -1456,6 +1463,8 @@ class Settings {
 			'file_choose_image'                  => 'Upload or choose image',
 			'drag_n_drop'                        => 'Hold to drag & drop',
 			'settings_saved'                     => 'Settings saved.',
+			'settings_saved_redirect'            => 'Settings saved. You will be redirected.',
+			'settings_saved_reload'              => 'Settings saved. Page will reload.',
 			'settings_save_error'                => 'Settings could not be saved.',
 			'save_title'                         => 'Save',
 		);
@@ -1786,7 +1795,7 @@ class Settings {
 	 */
 	public function maybe_update(): void {
 		// bail if no settings are set.
-		if( ! $this->has_settings() ) {
+		if ( ! $this->has_settings() ) {
 			return;
 		}
 
@@ -1794,8 +1803,6 @@ class Settings {
 		if ( '' === $this->plugin_version ) {
 			return;
 		}
-
-		$this->plugin_version = '5.4.0';
 
 		// get the version stored in the database.
 		$db_version = get_option(
@@ -1812,9 +1819,12 @@ class Settings {
 		$method = $this->get_methods()->get_method();
 
 		// bail if method could not be read.
-		if( ! $method instanceof Method_Base ) {
+		if ( ! $method instanceof Method_Base ) {
 			return;
 		}
+
+		// load required API helper.
+		Method_Base::ensure_settings_api_helpers();
 
 		// run the settings update.
 		$method->update_settings();
@@ -1833,8 +1843,8 @@ class Settings {
 	 *
 	 * @return void
 	 */
-	public function set_update_version(	string $version ): void {
-		$this->plugin_version      = $version;
+	public function set_update_version( string $version ): void {
+		$this->plugin_version = $version;
 	}
 
 
@@ -1856,5 +1866,25 @@ class Settings {
 	 */
 	public function set_error_help( string $error_help ): void {
 		$this->error_help = $error_help;
+	}
+
+	/**
+	 * Set lock for form on save.
+	 *
+	 * @param bool $lock True to lock the form.
+	 *
+	 * @return void
+	 */
+	public function set_lock_form_on_save( bool $lock ): void {
+		$this->lock_form_on_save = $lock;
+	}
+
+	/**
+	 * Return whether we should lock the form on save.
+	 *
+	 * @return bool
+	 */
+	public function should_lock_form_on_save(): bool {
+		return $this->lock_form_on_save;
 	}
 }

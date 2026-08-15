@@ -44,6 +44,7 @@ class JsonRoundTrip extends easySettingsForWordPressTest {
 			'title'      => 'RT Title',
 			'menu_title' => 'RT Menu',
 			'auto_save'  => 'change',
+			'lock_form_on_save' => false,
 			'tabs'       => array(
 				array(
 					'name'     => 'general',
@@ -52,12 +53,15 @@ class JsonRoundTrip extends easySettingsForWordPressTest {
 						array(
 							'name'     => 'main',
 							'title'    => 'Main',
+							'collapsible' => true,
+							'collapsed'   => true,
 							'settings' => array(
 								array(
 									'name'    => 's_text',
 									'type'    => 'string',
 									'default' => 'x',
 									'help'    => 'Some help.',
+									'reload_on_save' => true,
 									'field'   => array(
 										'type'        => 'Text',
 										'title'       => 'A text',
@@ -141,6 +145,7 @@ class JsonRoundTrip extends easySettingsForWordPressTest {
 		$this->assertSame( 'rt-menu', $out['menu_slug'] );
 		$this->assertSame( 'RT Title', $out['title'] );
 		$this->assertSame( 'change', $out['auto_save'] );
+		$this->assertFalse( $out['lock_form_on_save'] );
 
 		// general tab.
 		$general = $this->find_by_name( $out['tabs'], 'general' );
@@ -150,12 +155,15 @@ class JsonRoundTrip extends easySettingsForWordPressTest {
 		// its section + settings.
 		$section = $this->find_by_name( $general['sections'], 'main' );
 		$this->assertIsArray( $section );
+		$this->assertTrue( $section['collapsible'] );
+		$this->assertTrue( $section['collapsed'] );
 
 		$text = $this->find_by_name( $section['settings'], 's_text' );
 		$this->assertIsArray( $text );
 		$this->assertSame( 'string', $text['type'] );
 		$this->assertSame( 'x', $text['default'] );
 		$this->assertSame( 'Text', $text['field']['type'] );
+		$this->assertTrue( $text['reload_on_save'] );
 
 		$select = $this->find_by_name( $section['settings'], 's_select' );
 		$this->assertIsArray( $select );

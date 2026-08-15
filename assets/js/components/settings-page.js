@@ -12,7 +12,6 @@ import { doAction } from '@wordpress/hooks';
 
 import { useSettings } from '../hooks/use-settings';
 import { mapFields } from '../fields';
-import { findTabPath } from '../utils/tabs';
 import { getVisibleFieldIds } from '../utils/visibility';
 import { Notices, SnackbarNotices } from './notices';
 import { SaveButton } from './save-button';
@@ -27,7 +26,7 @@ import { TabNode } from './tab-node';
  * @return {JSX.Element} The page.
  */
 export const SettingsPage = ( props ) => {
-  const [ settings, setSettings, saveSettings ] = useSettings( props );
+  const [ settings, setSettings, saveSettings, isSaving ] = useSettings( props );
   const [ hideSave, setHideSave ] = useState( false );
 
   const hasUserEditedRef = useRef( false );
@@ -35,15 +34,35 @@ export const SettingsPage = ( props ) => {
 
   const config = props.config;
   const tabs = config.tabs ?? [];
+  const lockFormOnSave = config.lock_form_on_save !== false;
 
-  // resolve the deep-linked tab path from the URL.
+  // resolve the deep-linked tab path from the URL (classic-compatible).
   const activeTabPath = useMemo( () => {
     const params = new URLSearchParams( window.location.search );
-    const requestedTab = params.get( 'tab' );
-    if ( ! requestedTab ) {
+    const tab = params.get( 'tab' );
+    if ( ! tab ) {
       return null;
     }
-    return findTabPath( tabs, requestedTab );
+
+    const path = [ tab ];
+    const subtab = params.get( 'subtab' );
+    if ( subtab ) {
+      path.push( subtab );
+    }
+
+    // validate the structure.
+    const main = tabs.find( ( t ) => t.name === tab );
+    if ( ! main ) {
+      return null;
+    }
+    if ( subtab ) {
+      const sub = ( main.tabs ?? [] ).find( ( t ) => t.name === subtab );
+      if ( ! sub ) {
+        return [ tab ]; // open main tab.
+      }
+    }
+
+    return path;
   }, [ tabs ] );
 
   // map field types to their custom Edit components.
@@ -57,13 +76,16 @@ export const SettingsPage = ( props ) => {
 
   // change handler that also flags a genuine user edit.
   const onFormChange = ( edits ) => {
+    if ( lockFormOnSave && isSaving ) {
+      return;
+    }
     hasUserEditedRef.current = true;
     setSettings( ( current ) => ( { ...current, ...edits } ) );
   };
 
-  // auto-save on change (debounced).
+  // auto-save on change, if enabled.
   useEffect( () => {
-    if ( config.auto_save !== 'change' || ! hasUserEditedRef.current ) {
+    if ( config.auto_save !== 'change' || ! hasUserEditedRef.current || isSaving ) {
       return;
     }
     clearTimeout( autoSaveTimeoutRef.current );
@@ -71,7 +93,7 @@ export const SettingsPage = ( props ) => {
       saveSettings();
     }, 1000 );
     return () => clearTimeout( autoSaveTimeoutRef.current );
-  }, [ settings, config.auto_save ] );
+  }, [ settings, config.auto_save, isSaving ] );
 
   // auto-save on tab change.
   const handleTabChange = () => {
@@ -80,10 +102,33 @@ export const SettingsPage = ( props ) => {
     }
   };
 
+  const formRef = useRef( null );
+
+  useEffect( () => {
+    const el = formRef.current;
+    if ( ! el || ! lockFormOnSave ) {
+      return;
+    }
+    if ( isSaving ) {
+      el.setAttribute( 'inert', '' );
+    } else {
+      el.removeAttribute( 'inert' );
+    }
+  }, [ isSaving, lockFormOnSave ] );
+
   return (
     <>
       <SettingsTitle title={ config.title } />
       <Notices />
+      <div
+        ref={ formRef }
+        className={
+          lockFormOnSave && isSaving
+            ? 'esfw-settings-form esfw-settings-form--saving'
+            : 'esfw-settings-form'
+        }
+        aria-busy={ ( lockFormOnSave && isSaving ) || undefined }
+      >
       { tabs.length > 0 ? (
         <TabNode
           node={ { tabs } }
@@ -111,8 +156,14 @@ export const SettingsPage = ( props ) => {
           </CardBody>
         </Card>
       ) }
+      </div>
       { ! hideSave && (
-        <SaveButton title={ config.save_title } onClick={ saveSettings } />
+        <SaveButton
+          title={ config.save_title }
+          onClick={ saveSettings }
+          isBusy={ isSaving }
+          disabled={ isSaving }
+        />
       ) }
       <SnackbarNotices />
     </>

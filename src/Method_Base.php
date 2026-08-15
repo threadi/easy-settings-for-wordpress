@@ -223,10 +223,21 @@ class Method_Base {
 			return $result;
 		}
 
+		// embed the API helper.
+		self::ensure_settings_api_helpers();
+
+		// return resulting object.
+		return $result;
+	}
+
+	/**
+	 * Ensure to load the API helpers.
+	 *
+	 * @return void
+	 */
+	public static function ensure_settings_api_helpers(): void {
 		// load the file that defines add_settings_error(), get_settings_errors(), etc.
 		require_once ABSPATH . 'wp-admin/includes/template.php';
-
-		return $result;
 	}
 
 	/**

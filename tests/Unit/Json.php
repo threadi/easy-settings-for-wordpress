@@ -427,4 +427,64 @@ class Json extends easySettingsForWordPressTest {
 		$this->assertTrue( $result );
 		$this->assertInstanceOf( Setting::class, $this->settings_obj->get_setting( 'my_text' ) );
 	}
+
+	/**
+	 * Section collapsible / collapsed flags are parsed from JSON.
+	 *
+	 * @return void
+	 */
+	public function test_section_collapsible_from_json(): void {
+		$config = $this->base_config();
+		$config['tabs'][0]['sections'][0]['collapsible'] = true;
+		$config['tabs'][0]['sections'][0]['collapsed']   = true;
+
+		$this->assertTrue( $this->settings_obj->set_json( (string) wp_json_encode( $config ) ) );
+		$this->assertFalse( $this->settings_obj->has_errors() );
+
+		$tab = $this->settings_obj->get_page( 'test-menu' )->get_tab( 'general' );
+		$this->assertInstanceOf( Tab::class, $tab );
+
+		$sections = array_values( $tab->get_sections() );
+		$this->assertNotEmpty( $sections );
+		$section = $sections[0];
+		$this->assertInstanceOf( Section::class, $section );
+		$this->assertTrue( $section->is_collapsible() );
+		$this->assertTrue( $section->is_collapsed() );
+	}
+
+	/**
+	 * lock_form_on_save is parsed from JSON (default true when omitted).
+	 *
+	 * @return void
+	 */
+	public function test_lock_form_on_save_from_json(): void {
+		$config = $this->base_config();
+		unset( $config['lock_form_on_save'] );
+
+		$this->settings_obj->set_json( (string) wp_json_encode( $config ) );
+		$this->assertTrue( $this->settings_obj->should_lock_form_on_save() );
+
+		$config['lock_form_on_save'] = false;
+		$second = new Settings( self::$plugin_handle );
+		$second->set_json( (string) wp_json_encode( $config ) );
+		$this->assertFalse( $second->should_lock_form_on_save() );
+	}
+
+	/**
+	 * Setting reload_on_save and redirect_on_save are parsed from JSON.
+	 *
+	 * @return void
+	 */
+	public function test_setting_reload_redirect_from_json(): void {
+		$config = $this->base_config();
+		$config['tabs'][0]['sections'][0]['settings'][0]['reload_on_save']   = true;
+		$config['tabs'][0]['sections'][0]['settings'][0]['redirect_on_save'] = 'https://example.com/done';
+
+		$this->assertTrue( $this->settings_obj->set_json( (string) wp_json_encode( $config ) ) );
+
+		$setting = $this->settings_obj->get_setting( 'my_text' ); // Name aus base_config
+		$this->assertInstanceOf( Setting::class, $setting );
+		$this->assertTrue( $setting->should_reload_on_save() );
+		$this->assertSame( 'https://example.com/done', $setting->get_redirect_on_save() );
+	}
 }

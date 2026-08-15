@@ -127,6 +127,9 @@ class Parser extends Base_Object {
 				$view->set_styling( (string) $config['styling'] );
 			}
 		}
+		if ( isset( $config['lock_form_on_save'] ) ) {
+			$this->get_settings_obj()->set_lock_form_on_save( (bool) $config['lock_form_on_save'] );
+		}
 
 		// setting the menu slug auto-creates the page with this name (see Settings::set_menu_slug()).
 		$this->get_settings_obj()->set_menu_slug( (string) $config['menu_slug'] );
@@ -279,6 +282,12 @@ class Parser extends Base_Object {
 		if ( isset( $section_config['hidden'] ) ) {
 			$section->set_hidden( (bool) $section_config['hidden'] );
 		}
+		if ( isset( $section_config['collapsible'] ) ) {
+			$section->set_collapsible( (bool) $section_config['collapsible'] );
+		}
+		if ( isset( $section_config['collapsed'] ) ) {
+			$section->set_collapsed( (bool) $section_config['collapsed'] );
+		}
 
 		if ( ! empty( $section_config['settings'] ) && is_array( $section_config['settings'] ) ) {
 			foreach ( $section_config['settings'] as $setting_config ) {
@@ -329,6 +338,12 @@ class Parser extends Base_Object {
 		}
 		if ( isset( $setting_config['show_in_rest'] ) ) {
 			$setting->set_show_in_rest( $setting_config['show_in_rest'] );
+		}
+		if ( isset( $setting_config['reload_on_save'] ) ) {
+			$setting->set_reload_on_save( (bool) $setting_config['reload_on_save'] );
+		}
+		if ( ! empty( $setting_config['redirect_on_save'] ) ) {
+			$setting->set_redirect_on_save( (string) $setting_config['redirect_on_save'] );
 		}
 
 		if ( ! empty( $setting_config['field'] ) && is_array( $setting_config['field'] ) ) {

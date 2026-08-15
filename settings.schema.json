@@ -340,7 +340,21 @@
           "oneOf": [ { "type": "boolean" }, { "type": "object" } ],
           "default": false
         },
-        "field":        { "$ref": "#/$defs/field" }
+        "field":        { "$ref": "#/$defs/field" },
+        "reload_on_save": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, and the value changed, force a full page reload after save (DataView only)."
+        },
+        "redirect_on_save": {
+          "type": "string",
+          "description": "If set, and the value changed, redirect here after save. Takes precedence over reload_on_save. Absolute or admin-relative URL."
+        },
+        "lock_form_on_save": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true (default), the DataView form is locked (inert + dimmed) while a save is in progress."
+        }
       },
       "required": [ "name", "field" ]
     },
@@ -355,7 +369,9 @@
         "settings": {
           "type": "array",
           "items": { "$ref": "#/$defs/setting" }
-        }
+        },
+        "collapsible": { "type": "boolean", "default": false },
+        "collapsed":   { "type": "boolean", "default": false }
       },
       "required": [ "name" ]
     },

@@ -126,7 +126,7 @@ jQuery(document).ready(function($) {
           multiple: false
         }).on('select', function() { // it also has "open" and "close" events
           let attachment = custom_uploader.state().get('selection').first().toJSON();
-          button.html('<img src="' + attachment.url + '">').next().show().next().val(attachment.id);
+          button.html('<img alt="" src="' + attachment.url + '">').next().show().next().val(attachment.id);
         }).open();
 
   });
@@ -312,11 +312,99 @@ jQuery(document).ready(function($) {
     })
 
     /**
+     * Collapsible sections (classic view).
+     */
+    let map = ( typeof esfwJsVars !== 'undefined' && esfwJsVars.collapsible_sections ) ? esfwJsVars.collapsible_sections : {};
+
+    /**
+     * @param {jQuery} $heading
+     * @param {jQuery} $table
+     * @param {boolean} collapsed
+     */
+    function wireToggle( $heading, $table, collapsed ) {
+      if ( ! $heading.length || ! $table.length ) {
+        return;
+      }
+      if ( $heading.data( 'esfwCollapsibleBound' ) ) {
+        return;
+      }
+      $heading.data( 'esfwCollapsibleBound', true );
+
+      $heading
+        .attr( 'role', 'button' )
+        .attr( 'tabindex', '0' )
+        .attr( 'aria-expanded', collapsed ? 'false' : 'true' )
+        .addClass( 'esfw-section-toggle' );
+
+      function toggleSection() {
+        var willCollapse = ! $heading.hasClass( 'is-collapsed' );
+        $heading.toggleClass( 'is-collapsed', willCollapse );
+        $heading.attr( 'aria-expanded', willCollapse ? 'false' : 'true' );
+        $table.toggle( ! willCollapse );
+      }
+
+      $heading.on( 'click', function ( e ) {
+        e.preventDefault();
+        toggleSection();
+      } );
+
+      $heading.on( 'keydown', function ( e ) {
+        if ( e.key !== 'Enter' && e.key !== ' ' ) {
+          return;
+        }
+        e.preventDefault();
+        toggleSection();
+      } );
+
+      if ( collapsed ) {
+        $heading.addClass( 'is-collapsed' );
+        $table.hide();
+      }
+    }
+
+    // 1) Marker aus dem Section-Callback
+    $( '.easy-settings-for-wordpress .esfw-collapsible-marker' ).each( function () {
+      let $marker = $( this );
+      let name = $marker.attr( 'data-section' ) || '';
+      let fromMap = map[ name ] || {};
+      let collapsed = ( $marker.attr( 'data-collapsed' ) === '1' ) || !! fromMap.collapsed;
+      let $heading = $marker.prevAll( 'h2' ).first();
+      let $table = $marker.nextAll( 'table.form-table' ).first();
+      wireToggle( $heading, $table, collapsed );
+    } );
+
+    // 2) Fallback: Title-Match
+    $.each( map, function ( name, cfg ) {
+      let title = ( cfg && cfg.title ) ? String( cfg.title ).replace( /\s+/g, ' ' ).trim() : '';
+      if ( ! title ) {
+        return;
+      }
+      $( '.easy-settings-for-wordpress h2' ).each( function () {
+        let $heading = $( this );
+        if ( $heading.data( 'esfwCollapsibleBound' ) ) {
+          return;
+        }
+        if ( $heading.text().replace( /\s+/g, ' ' ).trim() !== title ) {
+          return;
+        }
+        var $table = $heading.nextAll( 'table.form-table' ).first();
+        wireToggle( $heading, $table, !!( cfg && cfg.collapsed ) );
+      } );
+    } );
+
+    /**
      * Add dirty.js if we do not use autosave for "tab_change".
      */
     if ( 'off' === ( ( typeof esfwJsVars !== 'undefined' && esfwJsVars.auto_save ) || 'off' ) ) {
       $( '.easy-settings-for-wordpress form' ).dirty( {preventLeaving: true} );
     }
+
+    /**
+     * Lock the form on submit.
+     */
+    $( '.easy-settings-for-wordpress form' ).on( 'submit', function () {
+      esfw_lock_form( $ );
+    } );
 
     /**
      * Drag & Drop for multiselect-fields.
@@ -389,6 +477,8 @@ function esfw_autosave( jquery ) {
    * @returns {Promise<Response>}
    */
   function submitFormViaAjax() {
+    esfw_lock_form( jquery );
+
     const formEl = $form.get( 0 );
     return fetch( formEl.getAttribute( 'action' ), {
       method: 'POST',
@@ -405,7 +495,9 @@ function esfw_autosave( jquery ) {
     } ).catch( function ( error ) {
       esfw_show_save_feedback( esfwJsVars.label_save_error || 'Settings could not be saved.', 'error' );
       throw error; // weiterreichen, damit z. B. der tab_change-Handler es auch mitbekommt.
-    } );
+    } ).finally( function () {
+        esfw_unlock_form( jquery );
+      } );
   }
 
   // Modus "change": nach jeder Änderung (debounced) automatisch speichern.
@@ -468,4 +560,39 @@ function esfw_show_save_feedback( message, status ) {
       $flyout.remove();
     }, 300 ); // muss zur CSS-Transition-Dauer passen
   }, 4000 );
+}
+
+/**
+ * Lock the classic settings form while saving.
+ */
+function esfw_lock_form( $ ) {
+  if ( false === ( esfwJsVars.lock_form_on_save ?? true ) ) {
+    return;
+  }
+  const $wrap = $( '.easy-settings-for-wordpress' );
+  $wrap.addClass( 'esfw-settings-form--saving' );
+  $wrap.each( function () {
+    this.setAttribute( 'inert', '' );
+  } );
+  // Submit-Button(s) optisch beschäftigen
+  $wrap.find( 'input[type="submit"], button[type="submit"]' )
+    .prop( 'disabled', true )
+    .addClass( 'is-busy' );
+}
+
+/**
+ * Unlock the classic settings form while saving.
+ */
+function esfw_unlock_form( $ ) {
+  if ( false === ( esfwJsVars.lock_form_on_save ?? true ) ) {
+    return;
+  }
+  const $wrap = $( '.easy-settings-for-wordpress' );
+  $wrap.removeClass( 'esfw-settings-form--saving' );
+  $wrap.each( function () {
+    this.removeAttribute( 'inert' );
+  } );
+  $wrap.find( 'input[type="submit"], button[type="submit"]' )
+    .prop( 'disabled', false )
+    .removeClass( 'is-busy' );
 }

@@ -95,14 +95,17 @@ class DataView extends View_Base {
 
 		// return the configuration for the view.
 		return array(
-			'slug'                => $this->get_settings_obj()->get_slug(),
-			'title'               => $this->get_settings_obj()->get_title(),
-			'fields'              => $this->get_fields(),
-			'tabs'                => $this->get_tabs_config(),
-			'auto_save'           => $this->get_settings_obj()->get_auto_save(),
-			'save_title'          => $translations['save_title'],
-			'settings_saved'      => $translations['settings_saved'],
-			'settings_save_error' => $translations['settings_save_error'],
+			'slug'                    => $this->get_settings_obj()->get_slug(),
+			'title'                   => $this->get_settings_obj()->get_title(),
+			'fields'                  => $this->get_fields(),
+			'tabs'                    => $this->get_tabs_config(),
+			'auto_save'               => $this->get_settings_obj()->get_auto_save(),
+			'lock_form_on_save'       => $this->get_settings_obj()->should_lock_form_on_save(),
+			'save_title'              => $translations['save_title'],
+			'settings_saved'          => $translations['settings_saved'],
+			'settings_saved_redirect' => $translations['settings_saved_redirect'],
+			'settings_saved_reload'   => $translations['settings_saved_reload'],
+			'settings_save_error'     => $translations['settings_save_error'],
 		);
 	}
 
@@ -233,6 +236,12 @@ class DataView extends View_Base {
 			return $node;
 		}
 
+		// a custom callback replaces the standard rendering: capture its output
+		// and hand it to the tab as HTML (the same way section callbacks work).
+		if ( $tab->has_custom_callback() ) {
+			$node['content'] = $this->get_tab_content( $tab );
+		}
+
 		// has sub-tabs -> nest and stop here.
 		$sub_tabs = $tab->get_tabs();
 		if ( ! empty( $sub_tabs ) ) {
@@ -243,20 +252,16 @@ class DataView extends View_Base {
 			return $node;
 		}
 
-		// a custom callback replaces the standard rendering: capture its output
-		// and hand it to the tab as HTML (the same way section callbacks work).
-		if ( $tab->has_custom_callback() ) {
-			$node['content'] = $this->get_tab_content( $tab );
-		}
-
 		// leaf -> sections with their fields.
 		$node['sections'] = array();
 		foreach ( $tab->get_sections() as $section ) {
 			$node['sections'][] = array(
-				'name'    => $section->get_name(),
-				'label'   => $section->get_title(),
-				'content' => $this->get_section_content( $section ),
-				'fields'  => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
+				'name'        => $section->get_name(),
+				'label'       => $section->get_title(),
+				'content'     => $this->get_section_content( $section ),
+				'fields'      => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
+				'collapsible' => $section->is_collapsible(),
+				'collapsed'   => $section->is_collapsed(),
 			);
 		}
 
