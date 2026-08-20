@@ -255,6 +255,12 @@ class DataView extends View_Base {
 		// leaf -> sections with their fields.
 		$node['sections'] = array();
 		foreach ( $tab->get_sections() as $section ) {
+			// bail if section is hidden.
+			if( $section->is_hidden() ) {
+				continue;
+			}
+
+			// add the section.
 			$node['sections'][] = array(
 				'name'        => $section->get_name(),
 				'label'       => $section->get_title(),
@@ -327,7 +333,6 @@ class DataView extends View_Base {
 		}
 		return $content;
 	}
-
 
 	/**
 	 * Return the HTML a section callback produces.

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Hide hidden sections in DataView
+
 ## [3.1.2] - 15.08.2026
 
 ### Changed
