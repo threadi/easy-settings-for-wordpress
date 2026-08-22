@@ -7,7 +7,8 @@ import { Button, TextControl } from '@wordpress/components';
  */
 export function createMultiFieldEdit() {
   return function MultiFieldEdit( { field, data, onChange } ) {
-    const currentValues = field.getValue( { item: data } ) ?? [ '' ];
+    const raw = field.getValue( { item: data } ) ?? [ '' ];
+    const currentValues = Array.isArray( raw ) ? raw : Object.values( raw );
 
     const updateEntry = ( index, value ) => {
       const newValues = [ ...currentValues ];

@@ -54,22 +54,36 @@ export const useSettings = ( props ) => {
       method: 'POST',
       data: settingsToSave,
     } )
-      .then( () => {
+      .then( ( response ) => {
         doAction( 'esfw.settingsPage.afterSave', settingsToSave, props.config );
 
-        // Per-setting reload / redirect (only if value actually changed).
         const fields = props.config.fields ?? [];
+
+        // A sanitize_callback can reject/revert part of what we sent (e.g. via
+        // add_settings_error()); the REST response reflects what WordPress
+        // actually stored. Use it as the new source of truth instead of
+        // trusting settingsToSave blindly, so a rejected field snaps back to
+        // its real value in the UI rather than keeping the invalid input.
+        const persisted = { ...settingsToSave };
+        fields.forEach( ( field ) => {
+          if ( response && field.id in response ) {
+            persisted[ field.id ] = response[ field.id ];
+          }
+        } );
+        setSettings( persisted );
+
+        // Per-setting reload / redirect (only if value actually changed).
         let redirectUrl = null;
         let shouldReload = false;
 
         for ( const field of fields ) {
           const id = field.id;
-          if ( ! ( id in settingsToSave ) ) {
+          if ( ! ( id in persisted ) ) {
             continue;
           }
 
           const prev = initialSettingsRef.current[ id ];
-          const next = settingsToSave[ id ];
+          const next = persisted[ id ];
           if ( JSON.stringify( prev ) === JSON.stringify( next ) ) {
             continue;
           }
@@ -84,7 +98,7 @@ export const useSettings = ( props ) => {
         }
 
         // Baseline für künftige Saves aktualisieren.
-        initialSettingsRef.current = { ...settingsToSave };
+        initialSettingsRef.current = { ...persisted };
 
         if ( redirectUrl ) {
           createSuccessNotice( props.config.settings_saved_redirect, { type: 'snackbar' } );
@@ -97,7 +111,22 @@ export const useSettings = ( props ) => {
           return;
         }
 
-        createSuccessNotice( props.config.settings_saved, { type: 'snackbar' } );
+        // Surface any add_settings_error() messages raised by a sanitize_callback
+        // while saving (e.g. an invalid entry that got reverted). Without this,
+        // the classic Settings-API notices never reach the DataView and the
+        // reset value looks unexplained.
+        const settingsErrors = Array.isArray( response?.esfw_settings_errors )
+          ? response.esfw_settings_errors
+          : [];
+
+        if ( settingsErrors.length > 0 ) {
+          settingsErrors.forEach( ( settingsError ) => {
+            createErrorNotice( settingsError.message, { type: 'snackbar' } );
+          } );
+        } else {
+          createSuccessNotice( props.config.settings_saved, { type: 'snackbar' } );
+        }
+
         setIsSaving( false );
       } )
       .catch( ( error ) => {

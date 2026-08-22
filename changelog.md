@@ -2,9 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added support to read and show errors from the classic "get_settings_errors()" in DataView
+
 ### Changed
 
 - Hide hidden sections in DataView
+- Optimized the usage of MultiField
 
 ## [3.1.2] - 15.08.2026
 
