@@ -11,6 +11,7 @@
 - Hide hidden sections in DataView
 - Optimized the usage of MultiField
 - Use identical styling for legends on each field in DataView
+- Extended the support for WP_List_Table in DataView
 
 ## [3.1.2] - 15.08.2026
 

@@ -217,9 +217,10 @@ class DataView extends View_Base {
 	 *
 	 * @param Tab                          $tab               The tab.
 	 * @param array<int,array<int,string>> $fields_by_section Field ids keyed by section object id.
+	 * @param ?string                      $parent_tab_name   The parent tab's name, if $tab is a sub-tab (null for a root tab).
 	 * @return array<string,mixed>
 	 */
-	private function build_tab_node( Tab $tab, array $fields_by_section ): array {
+	private function build_tab_node( Tab $tab, array $fields_by_section, ?string $parent_tab_name = null ): array {
 		$node = array(
 			'name'        => $tab->get_name(),
 			'label'       => $tab->get_title(),
@@ -239,7 +240,7 @@ class DataView extends View_Base {
 		// a custom callback replaces the standard rendering: capture its output
 		// and hand it to the tab as HTML (the same way section callbacks work).
 		if ( $tab->has_custom_callback() ) {
-			$node['content'] = $this->get_tab_content( $tab );
+			$node['content'] = $this->get_tab_content( $tab, $parent_tab_name );
 		}
 
 		// has sub-tabs -> nest and stop here.
@@ -247,7 +248,7 @@ class DataView extends View_Base {
 		if ( ! empty( $sub_tabs ) ) {
 			$node['tabs'] = array();
 			foreach ( $sub_tabs as $sub_tab ) {
-				$node['tabs'][] = $this->build_tab_node( $sub_tab, $fields_by_section );
+				$node['tabs'][] = $this->build_tab_node( $sub_tab, $fields_by_section, $tab->get_name() );
 			}
 			return $node;
 		}
@@ -264,7 +265,7 @@ class DataView extends View_Base {
 			$node['sections'][] = array(
 				'name'        => $section->get_name(),
 				'label'       => $section->get_title(),
-				'content'     => $this->get_section_content( $section ),
+				'content'     => $this->get_section_content( $section, $tab->get_name(), $parent_tab_name ),
 				'fields'      => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
 				'collapsible' => $section->is_collapsible(),
 				'collapsed'   => $section->is_collapsed(),
@@ -317,17 +318,57 @@ class DataView extends View_Base {
 	 * cannot run PHP callbacks, so for a custom callback we capture its output
 	 * here (this runs in the admin) and hand it to the tab as HTML.
 	 *
-	 * @param Tab $tab The tab.
+	 * @param Tab     $tab             The tab.
+	 * @param ?string $parent_tab_name The parent tab's name, if $tab is a sub-tab (null for a root tab).
 	 * @return string
 	 */
-	private function get_tab_content( Tab $tab ): string {
+	private function get_tab_content( Tab $tab, ?string $parent_tab_name = null ): string {
 		$callback = $tab->get_callback();
 
-		// capture the callback output.
-		ob_start();
-		$callback();
+		// Classic admin UI (most notably WP_List_Table) builds its filter, sort
+		// and pagination links with add_query_arg()/remove_query_arg(), which -
+		// without an explicit base URL - fall back to the CURRENT request's URL.
+		// Since every tab's callback runs once, up front, during the single
+		// initial page load (not only when that tab is actually being viewed),
+		// those links would otherwise be built against whichever tab happened to
+		// be in the URL at that moment and lose the "tab"/"subtab" parameters for
+		// every other tab. Make the request look like it targets THIS tab (and,
+		// for a sub-tab, its parent) while the callback runs, matching how the
+		// DataView reads/writes the URL: "tab" is the root tab, "subtab" is the
+		// nested one (see settings-page.js / tab-node.js).
+		$original_get         = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$original_request_uri = $_SERVER['REQUEST_URI'] ?? '';
 
-		$content = ob_get_clean();
+		if ( null === $parent_tab_name ) {
+			// root tab: set "tab", make sure no stale "subtab" from the real request leaks in.
+			$query_args   = array( 'tab' => $tab->get_name() );
+			$request_uri  = remove_query_arg( 'subtab', $original_request_uri );
+		} else {
+			// sub-tab: keep the parent as "tab", this tab becomes "subtab".
+			$query_args  = array(
+				'tab'    => $parent_tab_name,
+				'subtab' => $tab->get_name(),
+			);
+			$request_uri = $original_request_uri;
+		}
+
+		$_SERVER['REQUEST_URI'] = add_query_arg( $query_args, $request_uri );
+		$_GET                   = array_merge( $_GET, $query_args ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( null === $parent_tab_name ) {
+			unset( $_GET['subtab'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
+		try {
+			// capture the callback output.
+			ob_start();
+			$callback();
+			$content = ob_get_clean();
+		} finally {
+			// restore the original request context for the next tab / the rest of the page.
+			$_GET                    = $original_get; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$_SERVER['REQUEST_URI']  = $original_request_uri;
+		}
+
 		if ( ! $content ) {
 			return '';
 		}
@@ -337,29 +378,54 @@ class DataView extends View_Base {
 	/**
 	 * Return the HTML a section callback produces.
 	 *
-	 * In the classic view a section callback is wired through
-	 * add_settings_section() and echoes its markup between the section title and
-	 * its fields. The DataView renders in React and cannot run PHP callbacks, so
-	 * we capture that output here (this runs in the admin, where everything the
-	 * callback may need is available) and hand it to the section card as HTML.
-	 *
-	 * @param Section $section The section.
+	 * @param Section $section         The section.
+	 * @param string  $tab_name        The name of the tab this section belongs to.
+	 * @param ?string $parent_tab_name The parent tab's name, if $tab_name is a sub-tab (null for a root tab).
 	 * @return string
 	 */
-	private function get_section_content( Section $section ): string {
+	private function get_section_content( Section $section, string $tab_name, ?string $parent_tab_name = null ): string {
 		$callback = $section->get_callback();
 
-		// capture the callback output, mirroring the arguments WordPress passes
-		// to an add_settings_section() callback.
-		ob_start();
-		$callback(
-			array(
-				'id'       => $section->get_name(),
-				'title'    => $section->get_title(),
-				'callback' => $callback,
-			)
-		);
+		// same reasoning as get_tab_content(): a section callback can build links
+		// (e.g. via a WP_List_Table) with add_query_arg(), which needs the request
+		// to look like it targets this section's tab while the callback runs.
+		$original_get         = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$original_request_uri = $_SERVER['REQUEST_URI'] ?? '';
 
-		return (string) ob_get_clean();
+		if ( null === $parent_tab_name ) {
+			$query_args  = array( 'tab' => $tab_name );
+			$request_uri = remove_query_arg( 'subtab', $original_request_uri );
+		} else {
+			$query_args  = array(
+				'tab'    => $parent_tab_name,
+				'subtab' => $tab_name,
+			);
+			$request_uri = $original_request_uri;
+		}
+
+		$_SERVER['REQUEST_URI'] = add_query_arg( $query_args, $request_uri );
+		$_GET                   = array_merge( $_GET, $query_args ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( null === $parent_tab_name ) {
+			unset( $_GET['subtab'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
+		try {
+			// capture the callback output, mirroring the arguments WordPress passes
+			// to an add_settings_section() callback.
+			ob_start();
+			$callback(
+				array(
+					'id'       => $section->get_name(),
+					'title'    => $section->get_title(),
+					'callback' => $callback,
+				)
+			);
+			$content = ob_get_clean();
+		} finally {
+			$_GET                    = $original_get; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$_SERVER['REQUEST_URI']  = $original_request_uri;
+		}
+
+		return (string) $content;
 	}
 }
