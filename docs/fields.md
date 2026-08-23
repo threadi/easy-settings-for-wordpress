@@ -12,7 +12,7 @@ This composer package provides the following fields for use as settings in WordP
 | FieldTable    | Show a list of fields in a table                                     | false    |
 | File          | Choose a field from the media library or upload it here              | used     |
 | Files         | Choose one or more fields from the media library or upload them here | used     |
-| MultiField     | Show multiple files in a list                                        | used     |
+| MultiField     | Repeat one inner field to collect a list of entries                  | used     |
 | MultiSelect   | Show a field to select multiple entries | used     |
 | Number        | Show a field to input a number                                       | false    |
 | Passwort      | Show a password field, e.g., to enter a API key                      | false    |
@@ -29,6 +29,22 @@ This composer package provides the following fields for use as settings in WordP
 ## Hint
 
 Some fields provide their own configurations for the REST API. You do not need to specify these explicitly yourself.
+
+## Nested fields (MultiField and FieldTable)
+
+`MultiField` (its repeated inner field) and `FieldTable` (its cells) accept any of
+the following field types. In the classic view every field type works; in the
+DataView these types are supported:
+
+`Text`, `Textarea`, `Number`, `Password`, `Select`, `Radio`, `Checkbox`,
+`MultiSelect`, `File`, `Files`, `SelectPostTypeObject`, `PermalinkSlug`.
+
+Layout / action / display-only fields (`Button`, `TextInfo`, `Value`, `Table`,
+`FieldTable`) and a nested `MultiField` are not supported as inner fields and are
+ignored in the DataView.
+
+Hint: `FieldTable` in the DataView requires the `simple` storage method (the
+default), because its cells are registered as individual REST options.
 
 ## Usage
 

@@ -8,18 +8,20 @@
 namespace easySettingsForWordPress;
 
 // prevent direct access.
+defined( 'ABSPATH' ) || exit;
+
 use easySettingsForWordPress\Fields\Button;
 use easySettingsForWordPress\Fields\Checkboxes;
+use easySettingsForWordPress\Fields\FieldTable;
 use easySettingsForWordPress\Fields\File;
 use easySettingsForWordPress\Fields\Files;
+use easySettingsForWordPress\Fields\MultiField;
 use easySettingsForWordPress\Fields\MultiSelect;
 use easySettingsForWordPress\Fields\PermalinkSlug;
 use easySettingsForWordPress\Fields\Radio;
 use easySettingsForWordPress\Fields\Select;
 use easySettingsForWordPress\Fields\SelectPostTypeObject;
 use easySettingsForWordPress\Fields\Value;
-
-defined( 'ABSPATH' ) || exit;
 
 /**
  * Object to hold single setting.
@@ -578,17 +580,50 @@ class Setting extends Base_Object {
 			return array();
 		}
 
-		// get the field.
-		$field = $this->get_field();
+		// build the descriptor for this setting's own field.
+		$configuration = $this->build_field_descriptor( $this->get_field(), $this->get_name() );
 
+		// set reload setting.
+		if ( $this->should_reload_on_save() ) {
+			$configuration['reload_on_save'] = true;
+		}
+
+		// set redirect setting.
+		if ( ! empty( $this->get_redirect_on_save() ) ) {
+			$configuration['redirect_on_save'] = $this->get_redirect_on_save();
+		}
+
+		// return the configuration for this setting to use in dataview.
+		return $configuration;
+	}
+
+	/**
+	 * Build the DataView descriptor (type plus type-specific settings) for a
+	 * single field.
+	 *
+	 * This is used for a setting's own field and, reused, for the fields nested
+	 * inside a MultiField (its repeated template) and a FieldTable (its cells),
+	 * so every field type produces the same descriptor regardless of where it
+	 * appears.
+	 *
+	 * @param Field_Base $field The field to describe.
+	 * @param string     $id    The DataView field id (the setting name). Empty for nested template fields that have no own option.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function build_field_descriptor( Field_Base $field, string $id = '' ): array {
 		// prepare the basic data.
 		$configuration = array(
-			'id'          => $this->get_name(),
 			'label'       => $field->get_title(),
 			'description' => wp_kses_post( $field->get_description() ),
 			'depend'      => $field->get_depend_as_array(),
-			'type'        => 'text'
+			'type'        => 'text',
 		);
+
+		// add the id only when this field maps to an own option.
+		if ( '' !== $id ) {
+			$configuration = array( 'id' => $id ) + $configuration;
+		}
 
 		// add type specific settings.
 		switch ( $field->get_type_name() ) {
@@ -618,7 +653,37 @@ class Setting extends Base_Object {
 				}
 				break;
 			case 'FieldTable':
-				$configuration['type'] = 'esfw-table';
+				$configuration['type'] = 'esfw-field-table';
+				if ( $field instanceof FieldTable ) {
+					$configuration['columns'] = array_values( $field->get_columns() );
+
+					$rows      = array();
+					$row_count = $field->get_row_count();
+					$col_keys  = array_keys( $field->get_columns() );
+
+					for ( $r = 0; $r < $row_count; $r++ ) {
+						$columns = array();
+						foreach ( $col_keys as $c ) {
+							$cells = array();
+							foreach ( $field->get_cell_settings( $r, (int) $c ) as $cell_setting ) {
+								$cell_field = $cell_setting->get_field();
+								if ( ! $cell_field instanceof Field_Base ) {
+									continue;
+								}
+								// only expose supported cell field types to the DataView.
+								if ( ! self::is_allowed_nested_field( $cell_field->get_type_name() ) ) {
+									continue;
+								}
+								// each cell is its own registered setting, so it keeps its own id.
+								$cells[] = $cell_setting->build_field_descriptor( $cell_field, $cell_setting->get_name() );
+							}
+							$columns[] = $cells;
+						}
+						$rows[] = $columns;
+					}
+
+					$configuration['rows'] = $rows;
+				}
 				break;
 			case 'File':
 				$configuration['type']     = 'media';
@@ -636,6 +701,14 @@ class Setting extends Base_Object {
 				break;
 			case 'MultiField':
 				$configuration['type'] = 'esfw-multifield';
+				if ( $field instanceof MultiField ) {
+					$inner = $field->get_field();
+					// only expose supported inner field types to the DataView.
+					if ( $inner instanceof Field_Base && self::is_allowed_nested_field( $inner->get_type_name() ) ) {
+						$configuration['field']    = $this->build_field_descriptor( $inner );
+						$configuration['quantity'] = $field->get_quantity();
+					}
+				}
 				break;
 			case 'MultiSelect':
 				$configuration['type'] = 'esfw-multiselect';
@@ -729,18 +802,40 @@ class Setting extends Base_Object {
 				break;
 		}
 
-		// set reload setting.
-		if ( $this->should_reload_on_save() ) {
-			$configuration['reload_on_save'] = true;
-		}
-
-		// set redirect setting.
-		if ( ! empty( $this->get_redirect_on_save() ) ) {
-			$configuration['redirect_on_save'] = $this->get_redirect_on_save();
-		}
-
-		// return the configuration for this setting to use in dataview.
+		// return the descriptor for this field.
 		return $configuration;
+	}
+
+	/**
+	 * Return whether a field type may be used nested inside a MultiField or a
+	 * FieldTable cell in the DataView.
+	 *
+	 * Layout / action / display-only fields (Button, TextInfo, Value, Table,
+	 * FieldTable) and a nested MultiField are intentionally excluded.
+	 *
+	 * @param string $type_name The field type name.
+	 *
+	 * @return bool
+	 */
+	private static function is_allowed_nested_field( string $type_name ): bool {
+		return in_array(
+			$type_name,
+			array(
+				'Text',
+				'Textarea',
+				'Number',
+				'Password',
+				'Select',
+				'Radio',
+				'Checkbox',
+				'MultiSelect',
+				'File',
+				'Files',
+				'SelectPostTypeObject',
+				'PermalinkSlug',
+			),
+			true
+		);
 	}
 
 	/**

@@ -5,6 +5,8 @@
 ### Added
 
 - Added support to read and show errors from the classic "get_settings_errors()" in DataView
+- Added support for MultiField and FieldTable for DataView
+- Added visible hints for developers on any error if developer modus is enabled in WordPress
 
 ### Changed
 

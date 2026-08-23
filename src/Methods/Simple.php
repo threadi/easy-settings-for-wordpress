@@ -14,8 +14,10 @@ namespace easySettingsForWordPress\Methods;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
+use easySettingsForWordPress\Fields\FieldTable;
 use easySettingsForWordPress\Method_Base;
 use easySettingsForWordPress\Section;
+use easySettingsForWordPress\Setting;
 use easySettingsForWordPress\Settings;
 use easySettingsForWordPress\Tab;
 
@@ -96,10 +98,47 @@ class Simple extends Method_Base {
 			return;
 		}
 
+		// Field-table cells have no section of their own (they live inside the
+		// table, not in the section list), so the main loop below would treat
+		// them as misconfigured. Register them here for the REST API - using
+		// their owning table's tab - so the DataView can load and save them.
+		// Collect their names so the main loop skips them.
+		$handled_cells = array();
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			$field_obj = $setting->get_field();
+			if ( ! $field_obj instanceof FieldTable ) {
+				continue;
+			}
+
+			// resolve the table's own tab.
+			$section = $setting->get_section();
+			if ( ! $section instanceof Section ) {
+				continue;
+			}
+			$tab = $section->get_tab();
+			if ( ! $tab instanceof Tab ) {
+				continue;
+			}
+
+			// register every cell of this table under the table's tab.
+			foreach ( $field_obj->get_cell_settings_flat() as $cell_setting ) {
+				if ( $cell_setting->should_not_be_registered() ) {
+					continue;
+				}
+				$this->register_single_setting( $cell_setting, $tab );
+				$handled_cells[ $cell_setting->get_name() ] = true;
+			}
+		}
+
 		// loop through the settings.
 		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
 			// bail if setting should not be registered.
 			if ( $setting->should_not_be_registered() ) {
+				continue;
+			}
+
+			// skip field-table cells already registered above.
+			if ( isset( $handled_cells[ $setting->get_name() ] ) ) {
 				continue;
 			}
 
@@ -108,6 +147,12 @@ class Simple extends Method_Base {
 
 			// bail if section could not be read.
 			if ( ! $section instanceof Section ) {
+				// a field-table cell without a resolvable tab: skip silently,
+				// it was already attempted above.
+				if ( true === $setting->get_custom_var( 'esfw_field_table_cell' ) ) {
+					continue;
+				}
+
 				// log this as error.
 				$this->get_settings_obj()->add_error(
 					'setting_missing_section',
@@ -139,70 +184,87 @@ class Simple extends Method_Base {
 				continue;
 			}
 
-			// collect arguments.
-			$args = array(
-				'type'         => $setting->get_type(),
-				'default'      => $setting->get_default(),
-				'show_in_rest' => $setting->get_show_in_rest(),
-			);
-
-			// if field is set, add its sanitizing callback.
-			$field_obj = $setting->get_field();
-			if ( $field_obj instanceof Field_Base ) {
-				$args['sanitize_callback'] = $field_obj->get_sanitize_callback();
-			}
-
-			// build the REST schema, starting from the setting type ...
-			$schema = array( 'type' => $setting->get_type() );
-
-			// ... let the field refine it (e.g. object shape for Checkboxes) ...
-			if ( $field_obj instanceof Field_Base ) {
-				$schema = array_merge( $schema, $field_obj->get_rest_schema() );
-			}
-
-			// ... and let an explicit show_in_rest schema from the developer win.
-			if ( is_array( $args['show_in_rest'] ) && isset( $args['show_in_rest']['schema'] ) ) {
-				$schema = array_merge( $schema, $args['show_in_rest']['schema'] );
-			}
-
-			// keep register_setting's own type in sync with the REST schema type.
-			if ( isset( $schema['type'] ) ) {
-				$args['type'] = $schema['type'];
-			}
-
-			// add the slug marker the DataView JS uses to discover its fields.
-			$schema[ $this->get_settings_obj()->get_slug() ] = $field_obj instanceof Field_Base;
-
-			// preserve a developer-provided show_in_rest array (name, prepare_callback, …).
-			$show_in_rest = is_array( $args['show_in_rest'] ) ? $args['show_in_rest'] : array();
-
-			// put the schema back, preserving any other show_in_rest keys.
-			$show_in_rest['schema'] = $schema;
-			$args['show_in_rest']   = $show_in_rest;
-
 			// register the setting.
-			register_setting(
-				$tab->get_name(),
-				$setting->get_name(),
-				$args
-			);
-
-			// sanitize the option before any output.
-			add_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ), 10, 2 );
-
-			// run the custom callback after reading an option.
-			if ( $setting->has_read_callback() ) {
-				add_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
-			}
-
-			// run the custom callback before updating an option.
-			if ( $setting->has_save_callback() ) {
-				add_filter( 'pre_update_option_' . $setting->get_name(), $setting->get_save_callback(), 10, 3 );
-			}
+			$this->register_single_setting( $setting, $tab );
 		}
 
 		// check for any updates to the settings.
 		$this->get_settings_obj()->maybe_update();
+	}
+
+	/**
+	 * Register a single setting for the Settings API and the REST API.
+	 *
+	 * Extracted so both regular (section-bound) settings and FieldTable cells -
+	 * which have no section of their own - go through the exact same
+	 * registration, schema building and callback wiring.
+	 *
+	 * @param Setting $setting The setting to register.
+	 * @param Tab     $tab     The tab (settings group) to register it under.
+	 *
+	 * @return void
+	 */
+	private function register_single_setting( Setting $setting, Tab $tab ): void {
+		// collect arguments.
+		$args = array(
+			'type'         => $setting->get_type(),
+			'default'      => $setting->get_default(),
+			'show_in_rest' => $setting->get_show_in_rest(),
+		);
+
+		// if field is set, add its sanitizing callback.
+		$field_obj = $setting->get_field();
+		if ( $field_obj instanceof Field_Base ) {
+			$args['sanitize_callback'] = $field_obj->get_sanitize_callback();
+		}
+
+		// build the REST schema, starting from the setting type ...
+		$schema = array( 'type' => $setting->get_type() );
+
+		// ... let the field refine it (e.g. object shape for Checkboxes) ...
+		if ( $field_obj instanceof Field_Base ) {
+			$schema = array_merge( $schema, $field_obj->get_rest_schema() );
+		}
+
+		// ... and let an explicit show_in_rest schema from the developer win.
+		if ( is_array( $args['show_in_rest'] ) && isset( $args['show_in_rest']['schema'] ) ) {
+			$schema = array_merge( $schema, $args['show_in_rest']['schema'] );
+		}
+
+		// keep register_setting's own type in sync with the REST schema type.
+		if ( isset( $schema['type'] ) ) {
+			$args['type'] = $schema['type'];
+		}
+
+		// add the slug marker the DataView JS uses to discover its fields.
+		$schema[ $this->get_settings_obj()->get_slug() ] = $field_obj instanceof Field_Base;
+
+		// preserve a developer-provided show_in_rest array (name, prepare_callback, …).
+		$show_in_rest = is_array( $args['show_in_rest'] ) ? $args['show_in_rest'] : array();
+
+		// put the schema back, preserving any other show_in_rest keys.
+		$show_in_rest['schema'] = $schema;
+		$args['show_in_rest']   = $show_in_rest;
+
+		// register the setting.
+		register_setting(
+			$tab->get_name(),
+			$setting->get_name(),
+			$args
+		);
+
+		// sanitize the option before any output.
+		add_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ), 10, 2 );
+
+		// run the custom callback after reading an option.
+		if ( $setting->has_read_callback() ) {
+			add_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
+		}
+
+		// run the custom callback before updating an option.
+		if ( $setting->has_save_callback() ) {
+			add_filter( 'pre_update_option_' . $setting->get_name(), $setting->get_save_callback(), 10, 3 );
+		}
 	}
 
 	/**

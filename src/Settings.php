@@ -1466,6 +1466,7 @@ class Settings {
 			'settings_saved_redirect'            => 'Settings saved. You will be redirected.',
 			'settings_saved_reload'              => 'Settings saved. Page will reload.',
 			'settings_save_error'                => 'Settings could not be saved.',
+			'settings_save_error_details'        => 'Details:',
 			'save_title'                         => 'Save',
 			'dataview_config_failure'            => 'DataView configuration error:',
 			'dataview_config_error'              => 'DataView configuration error: JSON encoding failed.'

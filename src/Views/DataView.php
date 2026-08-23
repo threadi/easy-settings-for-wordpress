@@ -109,17 +109,26 @@ class DataView extends View_Base {
 			'settings_saved_redirect' => $translations['settings_saved_redirect'],
 			'settings_saved_reload'   => $translations['settings_saved_reload'],
 			'settings_save_error'     => $translations['settings_save_error'],
+			'settings_save_error_details' => $translations['settings_save_error_details'],
+			'developer_mode'          => Helper::is_development_mode(),
 		);
 	}
 
 	/**
-	 * Return a list of all settings.
+	 * Return a list of all fields.
 	 *
 	 * @return array<int,mixed>
 	 */
 	private function get_fields(): array {
 		$fields = array();
 		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			// skip field-table cells: they have no section of their own and are
+			// rendered inside their table (see the FieldTable descriptor), not
+			// as standalone fields.
+			if ( true === $setting->get_custom_var( 'esfw_field_table_cell' ) ) {
+				continue;
+			}
+
 			// get the data view settings.
 			$dataview = $setting->get_dataview();
 

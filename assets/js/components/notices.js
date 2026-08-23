@@ -31,7 +31,15 @@ const SnackbarNotices = () => {
   const { removeNotice } = useDispatch( noticesStore );
   const notices = useSelect( ( select ) => select( noticesStore ).getNotices() );
 
-  const snackbarNotices = notices.filter( ( notice ) => notice.type === 'snackbar' );
+  const snackbarNotices = notices
+    .filter( ( notice ) => notice.type === 'snackbar' )
+    .map( ( notice ) => ( {
+      ...notice,
+      // SnackbarList spreads each notice onto <Snackbar>, which accepts a
+      // className. Color errors; leave everything else at the default (black).
+      className:
+        notice.status === 'error' ? 'esfw-snackbar--error' : undefined,
+    } ) );
 
   if ( snackbarNotices.length === 0 ) {
     return null;

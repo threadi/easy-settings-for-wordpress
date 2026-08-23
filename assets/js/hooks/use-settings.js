@@ -4,6 +4,45 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { applyFilters, doAction } from '@wordpress/hooks';
 import { store as noticesStore } from '@wordpress/notices';
 
+/**
+ * Collect human-readable messages from a REST/apiFetch error.
+ *
+ * A failed POST to /wp/v2/settings rejects with a WP_Error-shaped object. The
+ * top-level message covers the common single-field case (e.g. "The X property
+ * has an invalid stored value..."); per-parameter problems may additionally
+ * sit under data.details or additional_errors.
+ *
+ * @param {Object} error The rejected error object.
+ * @return {Array<string>} The de-duplicated messages.
+ */
+function collectErrorMessages( error ) {
+  const messages = [];
+  const push = ( message ) => {
+    if ( message && ! messages.includes( message ) ) {
+      messages.push( message );
+    }
+  };
+
+  push( error?.message );
+
+  const details = error?.data?.details;
+  if ( details && typeof details === 'object' ) {
+    Object.values( details ).forEach( ( detail ) => push( detail?.message ) );
+  }
+
+  if ( Array.isArray( error?.additional_errors ) ) {
+    error.additional_errors.forEach( ( detail ) => push( detail?.message ) );
+  }
+
+  return messages;
+}
+
+/**
+ * Export the settings.
+ *
+ * @param props
+ * @returns {[*,*,saveSettings,*]}
+ */
 export const useSettings = ( props ) => {
   const [ settings, setSettings ] = useState( {} );
   const [ isSaving, setIsSaving ] = useState( false );
@@ -130,8 +169,30 @@ export const useSettings = ( props ) => {
         setIsSaving( false );
       } )
       .catch( ( error ) => {
-        createErrorNotice( props.config.settings_save_error, { type: 'snackbar' } );
         doAction( 'esfw.settingsPage.saveError', error, props.config );
+
+        // In developer mode, surface the actual (technical) REST error(s) so
+        // the cause is visible in the UI, not only in the browser console.
+        // Otherwise, keep the generic, user-facing message.
+        const technicalMessages = props.config.developer_mode
+          ? collectErrorMessages( error )
+          : [];
+
+        if ( technicalMessages.length > 0 ) {
+          const prefix = props.config.settings_save_error_details ?? '';
+          technicalMessages.forEach( ( message ) => {
+            createErrorNotice(
+              prefix ? `${ prefix } ${ message }` : message, {
+                type: 'snackbar',
+              }
+            );
+          } );
+        } else {
+          createErrorNotice( props.config.settings_save_error, {
+            type: 'snackbar',
+          } );
+        }
+
         setIsSaving( false );
       } );
   };

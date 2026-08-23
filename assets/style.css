@@ -247,3 +247,38 @@
 .esfw_demo_table .wp-list-table th {
 	padding-left: 10px;
 }
+
+.esfw-field-table__table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 8px;
+}
+.esfw-field-table__table th,
+.esfw-field-table__table td {
+	padding: 8px;
+	border: 1px solid #dcdcde;
+	vertical-align: top;
+	text-align: left;
+}
+.esfw-field-table__table th {
+	background: #f6f7f7;
+	font-weight: 600;
+}
+
+.esfw_demo_fieldtable td td {
+	padding-left: 0;
+	vertical-align: top;
+}
+
+.components-snackbar.esfw-snackbar--error {
+	background: #d63638;
+	color: #fff;
+}
+.components-snackbar.esfw-snackbar--error:hover {
+	background: #b32d2e;
+}
+/* Falls eine Fehler-Snackbar mal Action-Links enthält: lesbar halten. */
+.components-snackbar.esfw-snackbar--error .components-snackbar__action {
+	color: #fff;
+	text-decoration: underline;
+}
