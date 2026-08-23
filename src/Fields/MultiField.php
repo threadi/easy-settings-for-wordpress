@@ -100,7 +100,7 @@ class MultiField extends Field_Base {
 	 *
 	 * @return Field_Base|null
 	 */
-	private function get_field(): Field_Base|null {
+	public function get_field(): Field_Base|null {
 		return $this->field;
 	}
 
@@ -120,7 +120,7 @@ class MultiField extends Field_Base {
 	 *
 	 * @return int
 	 */
-	private function get_quantity(): int {
+	public function get_quantity(): int {
 		return $this->quantity;
 	}
 
@@ -138,9 +138,14 @@ class MultiField extends Field_Base {
 	/**
 	 * The sanitize callback for this field.
 	 *
+	 * Each entry is sanitized by the inner field's own sanitize callback, so a
+	 * MultiField of e.g. Number, Select or MultiSelect enforces the same rules
+	 * per entry as a standalone field of that type would. Falls back to plain
+	 * text sanitizing when no inner field is configured.
+	 *
 	 * @param mixed $value The value to save.
 	 *
-	 * @return array<int,string>
+	 * @return array<int,mixed>
 	 */
 	public function default_sanitize_callback( mixed $value ): array {
 		// bail if value is not an array.
@@ -148,27 +153,56 @@ class MultiField extends Field_Base {
 			return array();
 		}
 
-		// keep only scalar entries, sanitized as plain text.
-		$sanitized = array();
-		foreach ( $value as $entry ) {
-			if ( ! is_scalar( $entry ) ) {
-				continue;
+		// get the inner field.
+		$inner = $this->get_field();
+
+		// without an inner field, fall back to plain-text sanitizing of scalars.
+		if ( ! $inner instanceof Field_Base ) {
+			$sanitized = array();
+			foreach ( $value as $entry ) {
+				if ( ! is_scalar( $entry ) ) {
+					continue;
+				}
+				$sanitized[] = sanitize_text_field( (string) $entry );
 			}
-			$sanitized[] = sanitize_text_field( (string) $entry );
+			return $sanitized;
 		}
 
+		// delegate each entry to the inner field's sanitize callback.
+		$callback  = $inner->get_sanitize_callback();
+		$sanitized = array();
+		foreach ( $value as $entry ) {
+			$sanitized[] = $callback( $entry );
+		}
+
+		// return the resulting list.
 		return $sanitized;
 	}
 
 	/**
 	 * Return the REST schema for this field.
 	 *
+	 * The list is always an array; its items reflect the inner field's own REST
+	 * schema (e.g. integer for a File, object for Checkboxes, array for a
+	 * MultiSelect). Falls back to string items when the inner field provides no
+	 * schema or is not set.
+	 *
 	 * @return array<string,mixed>
 	 */
 	public function get_rest_schema(): array {
+		$items = array( 'type' => 'string' );
+
+		$inner = $this->get_field();
+		if ( $inner instanceof Field_Base ) {
+			$inner_schema = $inner->get_rest_schema();
+			if ( ! empty( $inner_schema ) ) {
+				$items = $inner_schema;
+			}
+		}
+
 		return array(
 			'type'  => 'array',
-			'items' => array( 'type' => 'string' ),
+			'items' => $items,
 		);
 	}
 }

@@ -5,15 +5,7 @@ import { createElement } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 
 import { createIsVisible } from '../utils/visibility';
-import { createButtonEdit } from './button';
-import { createCheckboxListEdit } from './checkbox-list';
-import { createDisplayEdit } from './display';
-import { createMediaFieldEdit } from './media';
-import { createMultiFieldEdit } from './multifield';
-import { createMultiSelectEdit } from './multiselect';
-import { createPermalinkSlugEdit } from './permalink-slug';
-import { createPostSelectEdit } from './post-select';
-import { createTableEdit } from './table';
+import { getEditComponent } from './editor-registry';
 
 /**
  * Resolve the field list into DataView field definitions with custom editors.
@@ -48,74 +40,13 @@ export function mapFields( config ) {
       } );
     }
 
-    switch ( updatedField.type ) {
-      case 'esfw-button':
-        return {
-          ...updatedField,
-          Edit: createButtonEdit( {
-            buttonTitle: updatedField.button_title,
-            buttonUrl: updatedField.button_url,
-            buttonClasses: updatedField.button_classes,
-            buttonData: updatedField.button_data,
-          } ),
-        };
-      case 'esfw-checkboxes':
-        return {
-          ...updatedField,
-          Edit: createCheckboxListEdit( updatedField.options ),
-        };
-      case 'media':
-        return {
-          ...updatedField,
-          Edit: createMediaFieldEdit( {
-            multiple: updatedField.multiple,
-            allowedTypes: updatedField.allowed_types,
-          } ),
-        };
-      case 'esfw-multiselect':
-        return {
-          ...updatedField,
-          Edit: createMultiSelectEdit( updatedField.options, {
-            sortable: !! updatedField.sortable,
-          } ),
-        };
-      case 'esfw-permalink-slug':
-        return {
-          ...updatedField,
-          Edit: createPermalinkSlugEdit( {
-            options: updatedField.options,
-            listTitle: updatedField.list_title,
-          } ),
-        };
-      case 'esfw-display':
-        return {
-          ...updatedField,
-          Edit: createDisplayEdit( {
-            isStatic: updatedField.is_static,
-            staticText: updatedField.text,
-          } ),
-        };
-      case 'esfw-table':
-        return {
-          ...updatedField,
-          Edit: createTableEdit(),
-        };
-      case 'esfw-multifield':
-        return {
-          ...updatedField,
-          Edit: createMultiFieldEdit(),
-        };
-      case 'esfw-post-select':
-        return {
-          ...updatedField,
-          Edit: createPostSelectEdit( {
-            endpoint: updatedField.endpoint,
-            limit: updatedField.limit,
-            placeholder: updatedField.placeholder,
-          } ),
-        };
-      default:
-        return updatedField;
+    // resolve a custom Edit component; native types (text, select, …) keep the
+    // DataViews-native control and return null here.
+    const Edit = getEditComponent( updatedField );
+    if ( Edit ) {
+      updatedField.Edit = Edit;
     }
+
+    return updatedField;
   } );
 }

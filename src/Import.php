@@ -120,12 +120,6 @@ class Import extends Base_Object {
 			wp_send_json( $dialog );
 		}
 
-		// bail if file type is not JSON.
-		if ( isset( $_FILES['file']['type'] ) && 'application/json' !== $_FILES['file']['type'] ) {
-			$dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_no_json'] . '</p>';
-			wp_send_json( $dialog );
-		}
-
 		// allow JSON-files.
 		add_filter( 'upload_mimes', array( $this, 'allow_json' ) );
 
@@ -151,13 +145,17 @@ class Import extends Base_Object {
 		}
 
 		// get WP Filesystem-handler for read the file.
-		require_once ABSPATH . '/wp-admin/includes/file.php';
-		\WP_Filesystem();
-		global $wp_filesystem;
-		$file_content = $wp_filesystem->get_contents( sanitize_text_field( wp_unslash( $_FILES['file']['tmp_name'] ) ) );
+		$wp_filesystem = Helper::get_wp_filesystem();
+		$file_content  = $wp_filesystem->get_contents( sanitize_text_field( wp_unslash( $_FILES['file']['tmp_name'] ) ) );
 
 		// convert JSON to array.
-		$settings_array = json_decode( $file_content, true );
+		$settings_array = json_decode( (string) $file_content, true );
+
+		// bail if the file did not contain a valid JSON object.
+		if ( ! is_array( $settings_array ) ) {
+			$dialog['detail']['texts'][1] = '<p>' . $translations['dialog_import_error_no_json'] . '</p>';
+			wp_send_json( $dialog );
+		}
 
 		// bail if JSON-code does not contain one of our settings.
 		$setting_to_test = false;

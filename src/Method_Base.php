@@ -52,8 +52,9 @@ class Method_Base {
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'rest_api_init', array( $this, 'register_settings' ) );
 
-		// make the classic Settings-API error helpers available for REST requests.
+		// support the classic error handler.
 		add_filter( 'rest_pre_dispatch', array( $this, 'load_settings_api_helpers' ), 10, 3 );
+		add_filter( 'rest_request_after_callbacks', array( $this, 'attach_settings_errors_to_response' ), 10, 3 );
 
 		// register the settings during WP CLI run.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -134,7 +135,7 @@ class Method_Base {
 		if ( 'array' === $field_settings->get_type() ) {
 			// if it is an array, use it 1:1.
 			if ( is_array( $value ) ) {
-				return $value;
+				return array_values( $value );
 			}
 
 			// secure the value.
@@ -229,6 +230,75 @@ class Method_Base {
 		// return resulting object.
 		return $result;
 	}
+
+	/**
+	 * Attach any add_settings_error() messages raised while saving settings via the
+	 * REST API to the response, so the DataView (React) can show them to the user.
+	 *
+	 * Without this, a sanitize_callback that rejects a value and calls
+	 * add_settings_error() (e.g. to revert an invalid entry back to its previous
+	 * value) fails silently in the DataView: the classic settings_errors() markup
+	 * is only ever rendered on the old wp-admin options.php page, never here. The
+	 * value visibly "resets" with no explanation of why.
+	 *
+	 * @param mixed                        $response The response, prior to serving.
+	 * @param callable|array<string,mixed> $handler  The matched route handler.
+	 * @param WP_REST_Request              $request  The request that was used to match the route.
+	 *
+	 * @return mixed
+	 * @noinspection PhpUnusedParameterInspection
+	 */
+	public function attach_settings_errors_to_response( mixed $response, callable|array $handler, WP_REST_Request $request ): mixed {
+		// bail if this is not a request to the settings endpoint.
+		if ( ! str_starts_with( $request->get_route(), '/wp/v2/settings' ) ) {
+			return $response;
+		}
+
+		// bail if response is not an array.
+		if ( ! is_array( $response ) ) {
+			return $response;
+		}
+
+		// bail if the helper functions were never loaded (nothing could have called add_settings_error()).
+		if ( ! function_exists( 'get_settings_errors' ) ) {
+			return $response;
+		}
+
+		// only take the errors that were added while handling this request.
+		$errors = array_slice( get_settings_errors(), 0 );
+
+		// bail if there is nothing new to report.
+		if ( empty( $errors ) ) {
+			return $response;
+		}
+
+		// get the settings object.
+		$settings_obj = $this->get_settings_obj();
+
+		// add the errors to the response data so the DataView can display them.
+		$response['esfw_settings_errors'] = array_map(
+			static function ( array $error ) use ( $settings_obj ): array {
+				// get the setting.
+				$setting_obj = $settings_obj->get_setting( $error['setting'] );
+
+				// bail if setting could not be loaded.
+				if ( ! $setting_obj instanceof Setting ) {
+					return array();
+				}
+
+				// return the error-array.
+				return array(
+					'code'    => $error['code'],
+					'message' => ( $setting_obj->get_field() instanceof Field_Base ? $setting_obj->get_field()->get_title() . '[' . $setting_obj->get_name() . ']: ' : '' ) . $error['message'],
+					'type'    => ! empty( $error['type'] ) ? $error['type'] : 'error',
+				);
+			},
+			$errors
+		);
+
+		return $response;
+	}
+
 
 	/**
 	 * Ensure to load the API helpers.

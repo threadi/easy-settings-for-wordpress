@@ -1,7 +1,4 @@
-import {
-  __experimentalVStack as VStack,
-  CheckboxControl,
-} from '@wordpress/components';
+import { BaseControl, __experimentalVStack as VStack, CheckboxControl } from '@wordpress/components';
 
 /**
  * Create the custom checkboxes field.
@@ -30,7 +27,7 @@ export function createCheckboxListEdit( options ) {
     return (
       <fieldset>
         <VStack spacing={ 2 }>
-          <legend>{ field.label }</legend>
+          <legend><BaseControl.VisualLabel>{ field.label }</BaseControl.VisualLabel></legend>
           { options.map( ( option ) => (
             <CheckboxControl
               key={ option.value }

@@ -13,15 +13,25 @@ import { SettingsPage } from './components/settings-page';
  * Initialize the settings page if "easy-settings-for-wordpress-settings" exist.
  */
 domReady( () => {
-  // get the container.
   const obj = document.getElementById( 'easy-settings-for-wordpress-settings' );
-
-  // bail if config is not set.
-  if ( ! obj || ! obj.dataset.config ) {
+  if ( ! obj ) {
     return;
   }
 
-  // parse the configuration and render.
-  const config = JSON.parse( obj.dataset.config );
+  let config = null;
+  if ( typeof window.esfwSettingsConfig !== 'undefined' && window.esfwSettingsConfig ) {
+    config = window.esfwSettingsConfig;
+  } else if ( obj.dataset.config ) {
+    try {
+      config = JSON.parse( obj.dataset.config );
+    } catch ( e ) {
+      return;
+    }
+  }
+
+  if ( ! config ) {
+    return;
+  }
+
   createRoot( obj ).render( <SettingsPage config={ config } /> );
 } );

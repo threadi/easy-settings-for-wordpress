@@ -283,4 +283,16 @@ class Helper {
 		// return the requested filesystem object.
 		return $wp_filesystem;
 	}
+
+	/**
+	 * Return whether this WordPress runs in development mode (available since WordPress 6.3).
+	 *
+	 * @return bool
+	 */
+	public static function is_development_mode(): bool {
+		if ( ! function_exists( 'wp_is_development_mode' ) ) {
+			return false;
+		}
+		return function_exists( 'wp_is_development_mode' ) && false !== wp_is_development_mode( 'plugin' );
+	}
 }

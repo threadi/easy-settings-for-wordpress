@@ -1,3 +1,5 @@
+import { BaseControl } from '@wordpress/components';
+
 /**
  * Create the display field (static text or a read-only value).
  *
@@ -10,7 +12,7 @@ export function createDisplayEdit( { isStatic, staticText } ) {
 
     return (
       <div>
-        { field.label && <label>{ field.label }: </label> }
+        { field.label && <label><BaseControl.VisualLabel>{ field.label }:</BaseControl.VisualLabel></label> }
         <div dangerouslySetInnerHTML={ { __html: content ?? '' } } />
       </div>
     );

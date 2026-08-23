@@ -1,28 +1,45 @@
+import { BaseControl } from '@wordpress/components';
+import { useEffect, useRef } from '@wordpress/element';
+
 /**
- * Create the read-only table output.
+ * Render the table field.
  *
- * TODO Allow editing for fields in this table later.
+ * The Table field renders itself server-side - entries plus their configured
+ * per-entry option links, exactly like the classic WP_List_Table view - and
+ * hands the result to the DataView as ready-made HTML via field.content (see
+ * Views/DataView.php::get_field_content()). This avoids duplicating that
+ * rendering, including each entry's configurable action links, in React.
  *
+ * @param {string} content The pre-rendered table HTML (may be empty).
  * @return {Function} The Edit component.
  */
-export function createTableEdit() {
-  return function TableEdit( { field, data } ) {
-    const rows = field.getValue( { item: data } ) ?? [];
+export function createTableEdit( content ) {
+  return function TableEdit( { field } ) {
+    const ref = useRef( null );
 
-    if ( rows.length === 0 ) {
+    useEffect( () => {
+      if ( ! content || ! ref.current ) {
+        return;
+      }
+      // Re-bind click handlers in case an option link opens a dialog.
+      document.body.dispatchEvent(
+        new Event( 'easy-dialog-for-wordpress-reinit' )
+      );
+    }, [ content ] );
+
+    if ( ! content ) {
       return null;
     }
 
     return (
-      <table className="widefat striped">
-        <tbody>
-          { rows.map( ( row, index ) => (
-            <tr key={ index }>
-              <td>{ row }</td>
-            </tr>
-          ) ) }
-        </tbody>
-      </table>
+      <fieldset>
+        <legend><BaseControl.VisualLabel>{ field.label }</BaseControl.VisualLabel></legend>
+        <div
+          ref={ ref }
+          className="esfw-table"
+          dangerouslySetInnerHTML={ { __html: content } }
+        />
+      </fieldset>
     );
   };
 }

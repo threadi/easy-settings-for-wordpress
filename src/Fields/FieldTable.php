@@ -147,16 +147,60 @@ class FieldTable extends Field_Base {
 	 * @return void
 	 */
 	public function add_setting( Setting $setting, int $row, int $column ): void {
+		// mark this setting as a field-table cell. Cells have no section of
+		// their own; the DataView uses this marker to render them inside the
+		// table (not as a standalone field) and the "simple" method uses it to
+		// still register them for the REST API.
+		$setting->add_custom_var( 'esfw_field_table_cell', true );
+
 		$this->settings[ $row ][ $column ][] = $setting;
 	}
 
 	/**
-	 * Set the columns for the table.
+	 * Return the columns for the table.
 	 *
 	 * @return array<int,string>
 	 */
-	private function get_columns(): array {
+	public function get_columns(): array {
 		return $this->columns;
+	}
+
+	/**
+	 * Return the settings placed in a single cell.
+	 *
+	 * @param int $row The row.
+	 * @param int $column The column.
+	 *
+	 * @return array<int,Setting>
+	 */
+	public function get_cell_settings( int $row, int $column ): array {
+		return $this->get_settings( $row, $column );
+	}
+
+	/**
+	 * Return all cell settings of this table as a flat list.
+	 *
+	 * @return array<int,Setting>
+	 */
+	public function get_cell_settings_flat(): array {
+		$result = array();
+		foreach ( $this->settings as $columns ) {
+			foreach ( $columns as $cell_settings ) {
+				foreach ( $cell_settings as $cell_setting ) {
+					$result[] = $cell_setting;
+				}
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * Return the amount of rows.
+	 *
+	 * @return int
+	 */
+	public function get_row_count(): int {
+		return $this->rows;
 	}
 
 	/**
