@@ -1467,6 +1467,8 @@ class Settings {
 			'settings_saved_reload'              => 'Settings saved. Page will reload.',
 			'settings_save_error'                => 'Settings could not be saved.',
 			'save_title'                         => 'Save',
+			'dataview_config_failure'            => 'DataView configuration error:',
+			'dataview_config_error'              => 'DataView configuration error: JSON encoding failed.'
 		);
 
 		// return combined list of translations.

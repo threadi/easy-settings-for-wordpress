@@ -98,7 +98,7 @@ export function mapFields( config ) {
       case 'esfw-table':
         return {
           ...updatedField,
-          Edit: createTableEdit(),
+          Edit: createTableEdit( updatedField.content ),
         };
       case 'esfw-multifield':
         return {

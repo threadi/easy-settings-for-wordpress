@@ -58,8 +58,8 @@ class Table extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get values.
-		$values = get_option( $setting->get_name() );
-		if ( ! is_array( $values ) || empty( $values[0] ) ) {
+		$values = get_option( $setting->get_name(), $setting->get_default() );
+		if ( ! is_array( $values ) ) {
 			$values = array();
 		}
 
@@ -67,7 +67,7 @@ class Table extends Field_Base {
 		$table_obj = new \easySettingsForWordPress\Tables\Table();
 		$table_obj->set_settings_obj( $this->get_settings_obj() );
 		$table_obj->set_table_data( $values );
-		$table_obj->set_table_options( $this->table_options );
+		$table_obj->set_table_options( $this->get_table_options() );
 		$table_obj->prepare_items();
 		$table_obj->display();
 
@@ -98,6 +98,15 @@ class Table extends Field_Base {
 	 */
 	public function set_table_options( array $options ): void {
 		$this->table_options = $options;
+	}
+
+	/**
+	 * Return the configured options for each entry in the table.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_table_options(): array {
+		return $this->table_options;
 	}
 
 	/**

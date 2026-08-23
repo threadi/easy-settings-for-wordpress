@@ -587,6 +587,7 @@ class Setting extends Base_Object {
 			'label'       => $field->get_title(),
 			'description' => wp_kses_post( $field->get_description() ),
 			'depend'      => $field->get_depend_as_array(),
+			'type'        => 'text'
 		);
 
 		// add type specific settings.
@@ -616,7 +617,6 @@ class Setting extends Base_Object {
 					$configuration['options'] = $options;
 				}
 				break;
-			case 'Table':
 			case 'FieldTable':
 				$configuration['type'] = 'esfw-table';
 				break;
@@ -708,6 +708,9 @@ class Setting extends Base_Object {
 					$configuration['placeholder'] = $field->get_placeholder();
 				}
 				break;
+			case 'Table':
+				$configuration['type'] = 'esfw-table';
+				break;
 			case 'Textarea':
 				$configuration['type'] = 'text';
 				$configuration['Edit'] = 'textarea';
@@ -723,9 +726,6 @@ class Setting extends Base_Object {
 				if ( $field instanceof Value ) {
 					$configuration['text'] = $field->get_value();
 				}
-				break;
-			default:
-				$configuration['type'] = 'text';
 				break;
 		}
 

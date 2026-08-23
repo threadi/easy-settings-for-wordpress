@@ -243,3 +243,7 @@
 	padding: 4px 0;
 	border-bottom: 1px solid #dcdcde;
 }
+
+.esfw_demo_table .wp-list-table th {
+	padding-left: 10px;
+}

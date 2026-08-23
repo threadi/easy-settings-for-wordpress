@@ -176,22 +176,48 @@
       "required": [ "type" ]
     },
 
-    "field_table": {
-      "description": "Corresponds to Fields\\Table (a free-form, user-editable list table using set_table_options()).",
-      "allOf": [ { "$ref": "#/$defs/field_common" } ],
-      "type": "object",
-      "properties": {
-        "type": { "const": "Table" },
-        "table_options": {
+      "field_table": {
+          "description": "Corresponds to Fields\\Table (a free-form, user-editable list table using set_table_options()).",
+          "allOf": [
+              {
+                  "$ref": "#/$defs/field_common"
+              }
+          ],
           "type": "object",
-          "description": "Custom options per entry, e.g., {\"url\": \"...\", \"icon\": \"...\"}.",
-          "additionalProperties": true
-        }
+          "properties": {
+              "type": {
+                  "const": "Table"
+              },
+              "table_options": {
+                  "type": "array",
+                  "description": "One or more actions shown per entry. Each entry's URL gets the entry's value appended as the \"item\" query arg.",
+                  "items": {
+                      "type": "object",
+                      "properties": {
+                          "url": {
+                              "type": "string",
+                              "description": "Base URL for this action; the entry's value is appended as the \"item\" query arg."
+                          },
+                          "icon": {
+                              "type": "string",
+                              "description": "HTML/dashicon markup shown as the link's content."
+                          }
+                      },
+                      "required": [
+                          "url",
+                          "icon"
+                      ],
+                      "additionalProperties": false
+                  }
+              }
+          },
+          "required": [
+              "type"
+          ]
       },
-      "required": [ "type" ]
-    },
 
-    "field_field_table": {
+
+      "field_field_table": {
       "description": "Corresponds to Fields\\FieldTable: a grid-like arrangement of multiple settings. 'cells' is rows -> columns -> a list of setting objects (usually exactly one per cell).",
       "allOf": [ { "$ref": "#/$defs/field_common" } ],
       "type": "object",

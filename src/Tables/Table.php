@@ -39,6 +39,25 @@ class Table extends WP_List_Table {
 	private Settings $settings_obj;
 
 	/**
+	 * Constructor.
+	 *
+	 * Explicitly pass a screen (when available) so the list table is stable
+	 * when rendered early by DataView::get_field_content(), where
+	 * get_current_screen() may still be null.
+	 */
+	public function __construct() {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		parent::__construct(
+			array(
+				'singular' => 'esfw_table_entry',
+				'plural'   => 'esfw_table_entries',
+				'ajax'     => false,
+				'screen'   => $screen,
+			)
+		);
+	}
+
+	/**
 	 * Set the setting object.
 	 *
 	 * @param Settings $settings_obj The settings object.

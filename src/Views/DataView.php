@@ -12,12 +12,15 @@ namespace easySettingsForWordPress\Views;
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
+use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Helper;
 use easySettingsForWordPress\Page;
 use easySettingsForWordPress\Section;
+use easySettingsForWordPress\Setting;
 use easySettingsForWordPress\Settings;
 use easySettingsForWordPress\Tab;
 use easySettingsForWordPress\View_Base;
+use Throwable;
 
 /**
  * Objects to handle the DataView to show settings in the backend.
@@ -123,6 +126,11 @@ class DataView extends View_Base {
 			// bail if no data view settings are given.
 			if ( empty( $dataview ) ) {
 				continue;
+			}
+
+			// special case for fields which render their content themselves.
+			if ( 'esfw-table' === $dataview['type'] ) {
+				$dataview['content'] = (string) $this->get_field_content( $setting );
 			}
 
 			// add the field to the dataview.
@@ -281,7 +289,33 @@ class DataView extends View_Base {
 	 * @return void
 	 */
 	public function display(): void {
-		echo '<div class="wrap" id="easy-settings-for-wordpress-settings" data-config="' . esc_attr( Helper::get_json( $this->get_configuration(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) ) . '">' . wp_kses_post( $this->get_settings_obj()->get_error_help() ) . '</div>';
+		// get the translations.
+		$translations = $this->get_settings_obj()->get_translations();
+
+		try {
+			$config_json = Helper::get_json(
+				$this->get_configuration(),
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+			);
+		} catch ( Throwable $e ) {
+			echo '<div class="wrap"><div class="notice notice-error"><p>' . $translations['dataview_config_failure'] . ' ' . esc_html( $e->getMessage() ) . '</p></div></div>';
+			return;
+		}
+
+		if ( '' === $config_json ) {
+			echo '<div class="wrap"><div class="notice notice-error"><p>' . $translations['dataview_config_error'] . '</p></div></div>';
+			return;
+		}
+
+		echo '<div class="wrap" id="easy-settings-for-wordpress-settings">' . wp_kses_post( $this->get_settings_obj()->get_error_help() ) . '</div>';
+
+		// add the script with the JSON config.
+		$handle = $this->get_settings_obj()->get_slug() . '-dataview';
+		wp_add_inline_script(
+			$handle,
+			'window.esfwSettingsConfig = ' . $config_json . ';',
+			'before'
+		);
 	}
 
 	/**
@@ -427,5 +461,130 @@ class DataView extends View_Base {
 		}
 
 		return (string) $content;
+	}
+
+	/**
+	 * Return the HTML a field's own callback produces.
+	 *
+	 * Some fields (currently: Table) already fully render themselves,
+	 * including working per-entry actions, via their display() method - the
+	 * same one the classic view calls. Rather than duplicating that rendering
+	 * in React, capture it here the same way tab and section callbacks are
+	 * captured.
+	 *
+	 * @param Setting $setting The setting whose field should render itself.
+	 * @return string
+	 */
+	private function get_field_content( Setting $setting ): string {
+		$field = $setting->get_field();
+		if ( ! $field instanceof Field_Base ) {
+			return '';
+		}
+
+		$callback = $field->get_callback();
+
+		// same reasoning as get_tab_content() / get_section_content(): a field
+		// that renders a WP_List_Table (or similar) builds its action / filter /
+		// pagination links with add_query_arg(), which needs the request to look
+		// like it targets this field's tab while the callback runs.
+		$original_get         = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$original_request_uri = $_SERVER['REQUEST_URI'] ?? '';
+		$original_screen      = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+
+		$tab_name        = null;
+		$parent_tab_name = null;
+		$section         = $setting->get_section();
+		if ( $section instanceof Section ) {
+			$tab = $section->get_tab();
+			if ( $tab instanceof Tab ) {
+				$tab_name = $tab->get_name();
+				// Detect whether this tab is nested as a sub-tab of another tab.
+				foreach ( $this->get_settings_obj()->get_tabs() as $root_tab ) {
+					if ( ! $root_tab instanceof Tab ) {
+						continue;
+					}
+					foreach ( $root_tab->get_tabs() as $sub_tab ) {
+						if ( $sub_tab instanceof Tab && $sub_tab->get_name() === $tab_name ) {
+							$parent_tab_name = $root_tab->get_name();
+							break 2;
+						}
+					}
+				}
+				// Also check tabs that live under pages.
+				if ( null === $parent_tab_name ) {
+					foreach ( $this->get_settings_obj()->get_pages() as $page_object ) {
+						foreach ( $page_object->get_tabs() as $root_tab ) {
+							if ( ! $root_tab instanceof Tab ) {
+								continue;
+							}
+							foreach ( $root_tab->get_tabs() as $sub_tab ) {
+								if ( $sub_tab instanceof Tab && $sub_tab->get_name() === $tab_name ) {
+									$parent_tab_name = $root_tab->get_name();
+									break 3;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if ( null !== $tab_name ) {
+			if ( null === $parent_tab_name ) {
+				$query_args  = array( 'tab' => $tab_name );
+				$request_uri = remove_query_arg( 'subtab', $original_request_uri );
+			} else {
+				$query_args  = array(
+					'tab'    => $parent_tab_name,
+					'subtab' => $tab_name,
+				);
+				$request_uri = $original_request_uri;
+			}
+
+			$_SERVER['REQUEST_URI'] = add_query_arg( $query_args, $request_uri );
+			$_GET                   = array_merge( $_GET, $query_args ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( null === $parent_tab_name ) {
+				unset( $_GET['subtab'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			}
+		}
+
+		// WP_List_Table (used by the Table field) needs a current screen. When
+		// DataView builds its config the screen may not be set yet, which makes
+		// the list table render intermittently empty or error out. Provide a
+		// temporary screen so the capture is stable across reloads.
+		$screen_was_set = false;
+		if ( null === $original_screen && function_exists( 'set_current_screen' ) ) {
+			$screen_id = 'settings_page_' . $this->get_settings_obj()->get_menu_slug();
+			set_current_screen( $screen_id );
+			$screen_was_set = true;
+		}
+
+		$content = '';
+		try {
+			// capture the callback output, mirroring the $attr argument WordPress
+			// passes to a field's display() method elsewhere in this library.
+			ob_start();
+			$callback( array( 'setting' => $setting ) );
+			$captured = ob_get_clean();
+			if ( is_string( $captured ) && '' !== $captured ) {
+				$content = $captured;
+			}
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Never let a single field break the whole DataView config. Surface
+			// the error in the field so it is visible in the UI / data-config.
+			if ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+			$content = '<!-- esfw-table render error: ' . esc_html( $e->getMessage() ) . ' -->';
+		} finally {
+			$_GET                   = $original_get; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$_SERVER['REQUEST_URI'] = $original_request_uri;
+			if ( $screen_was_set && function_exists( 'set_current_screen' ) ) {
+				// Restore previous state (null screen).
+				$GLOBALS['current_screen'] = $original_screen;
+			}
+		}
+
+		return $content;
 	}
 }

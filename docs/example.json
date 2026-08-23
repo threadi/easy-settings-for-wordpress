@@ -176,7 +176,7 @@
             {
               "name": "allowed_domains",
               "type": "array",
-              "field": { "type": "Table", "title": "Allowed domains", "table_options": { "url": "domain" } }
+              "field": { "type": "Table", "title": "Allowed domains", "table_options": [ { "url": "domain", "icon": "icon" } ] }
             },
             {
               "name": "webhook_urls",
