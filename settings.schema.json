@@ -217,7 +217,7 @@
     },
 
     "field_multifield": {
-      "description": "Entspricht Fields\\MultiField: zeigt 'field' 'quantity'-mal an, um eine Liste gleichartiger Werte zu erfassen.",
+      "description": "Entspricht Fields\\MultiField: show a 'field' 'quantity'-times to get a list of same values.",
       "allOf": [ { "$ref": "#/$defs/field_common" } ],
       "type": "object",
       "properties": {

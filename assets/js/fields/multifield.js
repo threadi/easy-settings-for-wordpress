@@ -1,4 +1,4 @@
-import { Button, TextControl } from '@wordpress/components';
+import { BaseControl, Button, TextControl } from '@wordpress/components';
 
 /**
  * Create the multi-value text field.
@@ -26,7 +26,7 @@ export function createMultiFieldEdit() {
 
     return (
       <fieldset>
-        <legend>{ field.label }</legend>
+        <legend><BaseControl.VisualLabel>{ field.label }</BaseControl.VisualLabel></legend>
         { currentValues.map( ( value, index ) => (
           <div
             key={ index }
@@ -50,6 +50,9 @@ export function createMultiFieldEdit() {
         <Button variant="secondary" onClick={ addEntry }>
           +
         </Button>
+        { field.description && (
+          <p className="components-base-control__help">{ field.description }</p>
+        ) }
       </fieldset>
     );
   };
