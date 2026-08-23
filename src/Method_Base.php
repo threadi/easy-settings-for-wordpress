@@ -13,7 +13,6 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 use WP_REST_Request;
-use WP_REST_Response;
 use WP_REST_Server;
 
 /**
@@ -33,15 +32,6 @@ class Method_Base {
 	 * @var string
 	 */
 	protected string $name = '';
-
-	/**
-	 * Number of settings errors already present before the current REST request's
-	 * route callback ran. Used to isolate only the errors a sanitize_callback added
-	 * during THIS save, so we do not re-send stale errors from earlier requests.
-	 *
-	 * @var int
-	 */
-	private int $settings_error_baseline = 0;
 
 	/**
 	 * Return the settings object to use.
@@ -251,9 +241,9 @@ class Method_Base {
 	 * is only ever rendered on the old wp-admin options.php page, never here. The
 	 * value visibly "resets" with no explanation of why.
 	 *
-	 * @param mixed           $response The response, prior to serving.
-	 * @param callable|array        $handler  The matched route handler.
-	 * @param WP_REST_Request $request  The request that was used to match the route.
+	 * @param mixed                        $response The response, prior to serving.
+	 * @param callable|array<string,mixed> $handler  The matched route handler.
+	 * @param WP_REST_Request              $request  The request that was used to match the route.
 	 *
 	 * @return mixed
 	 * @noinspection PhpUnusedParameterInspection
@@ -265,7 +255,7 @@ class Method_Base {
 		}
 
 		// bail if response is not an array.
-		if( ! is_array( $response ) ) {
+		if ( ! is_array( $response ) ) {
 			return $response;
 		}
 
@@ -275,7 +265,7 @@ class Method_Base {
 		}
 
 		// only take the errors that were added while handling this request.
-		$errors = array_slice( get_settings_errors(), $this->settings_error_baseline );
+		$errors = array_slice( get_settings_errors(), 0 );
 
 		// bail if there is nothing new to report.
 		if ( empty( $errors ) ) {
@@ -286,13 +276,21 @@ class Method_Base {
 		$settings_obj = $this->get_settings_obj();
 
 		// add the errors to the response data so the DataView can display them.
-		$response['esfw_settings_errors']  = array_map(
+		$response['esfw_settings_errors'] = array_map(
 			static function ( array $error ) use ( $settings_obj ): array {
+				// get the setting.
 				$setting_obj = $settings_obj->get_setting( $error['setting'] );
+
+				// bail if setting could not be loaded.
+				if ( ! $setting_obj instanceof Setting ) {
+					return array();
+				}
+
+				// return the error-array.
 				return array(
-					'code'    => $error['code'] ?? '',
-					'message' => ( $setting_obj->get_field() instanceof Field_Base ? $setting_obj->get_field()->get_title() . '[' . $setting_obj->get_name() .']: ' : '' ) . $error['message'] ?? '',
-					'type'    => $error['type'] ?? 'error',
+					'code'    => $error['code'],
+					'message' => ( $setting_obj->get_field() instanceof Field_Base ? $setting_obj->get_field()->get_title() . '[' . $setting_obj->get_name() . ']: ' : '' ) . $error['message'],
+					'type'    => ! empty( $error['type'] ) ? $error['type'] : 'error',
 				);
 			},
 			$errors

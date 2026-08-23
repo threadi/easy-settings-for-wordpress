@@ -355,7 +355,7 @@ class Settings {
 	 *
 	 * The JSON must follow settings.schema.json (JSON Schema Draft 2020-12), which
 	 * is a 1:1 mapping of the PHP object graph (Settings -> Page -> Tab -> Section ->
-	 * Setting -> Field_Base). See Json_Config_Parser for the exact mapping.
+	 * Setting -> Field_Base). See "Json_Config_Parser" for the exact mapping.
 	 *
 	 * @param string $json The JSON configuration as string.
 	 *
@@ -1023,7 +1023,7 @@ class Settings {
 		$name = $setting_obj->get_name();
 		if ( '' !== $name && $this->has_setting_with_name( $name ) ) {
 			$message = sprintf(
-				'A setting with the name "%s" has already been added. Setting names must be unique across the whole settings object',
+				'A setting with the name "%s" has already been added. Setting names must be unique across settings object',
 				$name
 			);
 
@@ -1469,7 +1469,7 @@ class Settings {
 			'settings_save_error_details'        => 'Details:',
 			'save_title'                         => 'Save',
 			'dataview_config_failure'            => 'DataView configuration error:',
-			'dataview_config_error'              => 'DataView configuration error: JSON encoding failed.'
+			'dataview_config_error'              => 'DataView configuration error: JSON encoding failed.',
 		);
 
 		// return combined list of translations.

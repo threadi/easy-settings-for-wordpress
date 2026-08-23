@@ -290,9 +290,9 @@ class Helper {
 	 * @return bool
 	 */
 	public static function is_development_mode(): bool {
-		return (
-			       function_exists( 'wp_is_development_mode' ) && false !== wp_is_development_mode( 'plugin' )
-		       )
-		       || ! function_exists( 'wp_is_development_mode' );
+		if ( ! function_exists( 'wp_is_development_mode' ) ) {
+			return false;
+		}
+		return function_exists( 'wp_is_development_mode' ) && false !== wp_is_development_mode( 'plugin' );
 	}
 }

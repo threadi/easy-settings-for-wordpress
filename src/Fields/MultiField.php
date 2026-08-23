@@ -172,10 +172,11 @@ class MultiField extends Field_Base {
 		$callback  = $inner->get_sanitize_callback();
 		$sanitized = array();
 		foreach ( $value as $entry ) {
-			$sanitized[] = call_user_func( $callback, $entry );
+			$sanitized[] = $callback( $entry );
 		}
 
-		return array_values( $sanitized );
+		// return the resulting list.
+		return $sanitized;
 	}
 
 	/**

@@ -4,11 +4,11 @@ This composer packages add a simple wrapper for settings for WordPress plugins a
 
 ## Advantages
 
-- Don't worry about the data type accuracy of your settings - WordPress doesn't (yet) take that into account.
-- Use settings that are interdependent.
+- Don't worry about the data type accuracy of your settings - WordPress doesn't (yet) take that into account, but this package does.
 - Save time when configuring your plugin settings.
+- Use settings that are interdependent.
 - Have your AI generate a ready-made JSON file for your settings, which you can then simply drop in.
-- And don't worry about updates or cleaning up after them - the package takes care of that for you.
+- And don't worry about updates or cleaning up after them - this package takes care of that for you.
 
 ## Requirements
 

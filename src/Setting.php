@@ -674,7 +674,7 @@ class Setting extends Base_Object {
 								if ( ! self::is_allowed_nested_field( $cell_field->get_type_name() ) ) {
 									continue;
 								}
-								// each cell is its own registered setting, so it keeps its own id.
+								// each cell is its own-registered setting, so it keeps its own id.
 								$cells[] = $cell_setting->build_field_descriptor( $cell_field, $cell_setting->get_name() );
 							}
 							$columns[] = $cells;
@@ -797,7 +797,7 @@ class Setting extends Base_Object {
 				$configuration['type']      = 'esfw-display';
 				$configuration['is_static'] = true;
 				if ( $field instanceof Value ) {
-					$configuration['text'] = $field->get_value();
+					$configuration['text'] = wp_kses_post( (string) $field->get_value() );
 				}
 				break;
 		}

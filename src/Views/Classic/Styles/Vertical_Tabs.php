@@ -233,10 +233,12 @@ class Vertical_Tabs extends Styling_Base {
 		?>
 		<form method="POST" action="<?php echo esc_url( get_admin_url() ); ?>options.php">
 			<?php
-			'options-general.php' !== $this->settings_obj->get_menu_parent_slug() ? settings_errors() : '';
+			if ( 'options-general.php' !== $this->settings_obj->get_menu_parent_slug() ) {
+				settings_errors(); }
 			settings_fields( $tab->get_name() );
 			do_settings_sections( $tab->get_name() );
-			$tab->is_save_hidden() ? '' : submit_button();
+			if ( $tab->is_save_hidden() ) {
+				submit_button(); }
 			?>
 		</form>
 		<?php

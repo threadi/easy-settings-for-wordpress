@@ -79,8 +79,20 @@ class Simple extends Method_Base {
 				remove_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
 			}
 
-			// unregister this setting.
-			unregister_setting( $setting->get_name(), $setting->get_name() );
+			// get the section of this setting.
+			$section = $setting->get_section();
+
+			// if a section is set, get its tab to unregister the setting.
+			if ( $section instanceof Section ) {
+				// get the tab of this section.
+				$tab = $section->get_tab();
+
+				// use the tab to unregister this setting.
+				if ( $tab instanceof Tab ) {
+					// unregister this setting.
+					unregister_setting( $tab->get_name(), $setting->get_name() );
+				}
+			}
 
 			// delete the option.
 			delete_option( $setting->get_name() );
@@ -105,27 +117,41 @@ class Simple extends Method_Base {
 		// Collect their names so the main loop skips them.
 		$handled_cells = array();
 		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			// get the field object.
 			$field_obj = $setting->get_field();
+
+			// bail if we do not have a FieldTable field.
 			if ( ! $field_obj instanceof FieldTable ) {
 				continue;
 			}
 
-			// resolve the table's own tab.
+			// get the section this setting is assigned to.
 			$section = $setting->get_section();
+
+			// bail if no section is given.
 			if ( ! $section instanceof Section ) {
 				continue;
 			}
+
+			// get the tab of this section.
 			$tab = $section->get_tab();
+
+			// bail if no tab is given.
 			if ( ! $tab instanceof Tab ) {
 				continue;
 			}
 
 			// register every cell of this table under the table's tab.
 			foreach ( $field_obj->get_cell_settings_flat() as $cell_setting ) {
+				// bail if this setting should not be registered.
 				if ( $cell_setting->should_not_be_registered() ) {
 					continue;
 				}
+
+				// register the single setting.
 				$this->register_single_setting( $cell_setting, $tab );
+
+				// add it to the list of cells.
 				$handled_cells[ $cell_setting->get_name() ] = true;
 			}
 		}

@@ -11,7 +11,6 @@ namespace easySettingsForWordPress\Views;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Helper;
-use easySettingsForWordPress\Section;
 use easySettingsForWordPress\Settings;
 use easySettingsForWordPress\Tab;
 use easySettingsForWordPress\View_Base;

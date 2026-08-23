@@ -98,19 +98,19 @@ class DataView extends View_Base {
 
 		// return the configuration for the view.
 		return array(
-			'slug'                    => $this->get_settings_obj()->get_slug(),
-			'title'                   => $this->get_settings_obj()->get_title(),
-			'fields'                  => $this->get_fields(),
-			'tabs'                    => $this->get_tabs_config(),
-			'auto_save'               => $this->get_settings_obj()->get_auto_save(),
-			'lock_form_on_save'       => $this->get_settings_obj()->should_lock_form_on_save(),
-			'save_title'              => $translations['save_title'],
-			'settings_saved'          => $translations['settings_saved'],
-			'settings_saved_redirect' => $translations['settings_saved_redirect'],
-			'settings_saved_reload'   => $translations['settings_saved_reload'],
-			'settings_save_error'     => $translations['settings_save_error'],
+			'slug'                        => $this->get_settings_obj()->get_slug(),
+			'title'                       => $this->get_settings_obj()->get_title(),
+			'fields'                      => $this->get_fields(),
+			'tabs'                        => $this->get_tabs_config(),
+			'auto_save'                   => $this->get_settings_obj()->get_auto_save(),
+			'lock_form_on_save'           => $this->get_settings_obj()->should_lock_form_on_save(),
+			'save_title'                  => $translations['save_title'],
+			'settings_saved'              => $translations['settings_saved'],
+			'settings_saved_redirect'     => $translations['settings_saved_redirect'],
+			'settings_saved_reload'       => $translations['settings_saved_reload'],
+			'settings_save_error'         => $translations['settings_save_error'],
 			'settings_save_error_details' => $translations['settings_save_error_details'],
-			'developer_mode'          => Helper::is_development_mode(),
+			'developer_mode'              => Helper::is_development_mode(),
 		);
 	}
 
@@ -139,7 +139,7 @@ class DataView extends View_Base {
 
 			// special case for fields which render their content themselves.
 			if ( 'esfw-table' === $dataview['type'] ) {
-				$dataview['content'] = (string) $this->get_field_content( $setting );
+				$dataview['content'] = $this->get_field_content( $setting );
 			}
 
 			// add the field to the dataview.
@@ -274,7 +274,7 @@ class DataView extends View_Base {
 		$node['sections'] = array();
 		foreach ( $tab->get_sections() as $section ) {
 			// bail if section is hidden.
-			if( $section->is_hidden() ) {
+			if ( $section->is_hidden() ) {
 				continue;
 			}
 
@@ -307,12 +307,12 @@ class DataView extends View_Base {
 				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 			);
 		} catch ( Throwable $e ) {
-			echo '<div class="wrap"><div class="notice notice-error"><p>' . $translations['dataview_config_failure'] . ' ' . esc_html( $e->getMessage() ) . '</p></div></div>';
+			echo '<div class="wrap"><div class="notice notice-error"><p>' . esc_html( $translations['dataview_config_failure'] ) . ' ' . esc_html( $e->getMessage() ) . '</p></div></div>';
 			return;
 		}
 
 		if ( '' === $config_json ) {
-			echo '<div class="wrap"><div class="notice notice-error"><p>' . $translations['dataview_config_error'] . '</p></div></div>';
+			echo '<div class="wrap"><div class="notice notice-error"><p>' . esc_html( $translations['dataview_config_error'] ) . '</p></div></div>';
 			return;
 		}
 
@@ -380,12 +380,12 @@ class DataView extends View_Base {
 		// DataView reads/writes the URL: "tab" is the root tab, "subtab" is the
 		// nested one (see settings-page.js / tab-node.js).
 		$original_get         = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$original_request_uri = $_SERVER['REQUEST_URI'] ?? '';
+		$original_request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
 		if ( null === $parent_tab_name ) {
 			// root tab: set "tab", make sure no stale "subtab" from the real request leaks in.
-			$query_args   = array( 'tab' => $tab->get_name() );
-			$request_uri  = remove_query_arg( 'subtab', $original_request_uri );
+			$query_args  = array( 'tab' => $tab->get_name() );
+			$request_uri = remove_query_arg( 'subtab', $original_request_uri );
 		} else {
 			// sub-tab: keep the parent as "tab", this tab becomes "subtab".
 			$query_args  = array(
@@ -401,15 +401,23 @@ class DataView extends View_Base {
 			unset( $_GET['subtab'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
+		// remember the cache level.
+		$ob_level = ob_get_level();
+
 		try {
 			// capture the callback output.
 			ob_start();
 			$callback();
 			$content = ob_get_clean();
 		} finally {
+			// On exception ob_get_clean() never ran, so our buffer is still open.
+			// Close only buffers we opened above $ob_level; never touch WP's.
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
 			// restore the original request context for the next tab / the rest of the page.
-			$_GET                    = $original_get; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$_SERVER['REQUEST_URI']  = $original_request_uri;
+			$_GET                   = $original_get; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$_SERVER['REQUEST_URI'] = $original_request_uri;
 		}
 
 		if ( ! $content ) {
@@ -433,7 +441,7 @@ class DataView extends View_Base {
 		// (e.g. via a WP_List_Table) with add_query_arg(), which needs the request
 		// to look like it targets this section's tab while the callback runs.
 		$original_get         = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$original_request_uri = $_SERVER['REQUEST_URI'] ?? '';
+		$original_request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 
 		if ( null === $parent_tab_name ) {
 			$query_args  = array( 'tab' => $tab_name );
@@ -452,6 +460,9 @@ class DataView extends View_Base {
 			unset( $_GET['subtab'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 
+		// remember the cache level.
+		$ob_level = ob_get_level();
+
 		try {
 			// capture the callback output, mirroring the arguments WordPress passes
 			// to an add_settings_section() callback.
@@ -465,8 +476,13 @@ class DataView extends View_Base {
 			);
 			$content = ob_get_clean();
 		} finally {
-			$_GET                    = $original_get; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$_SERVER['REQUEST_URI']  = $original_request_uri;
+			// On exception ob_get_clean() never ran, so our buffer is still open.
+			// Close only buffers we opened above $ob_level; never touch WP's.
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
+			$_GET                   = $original_get; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$_SERVER['REQUEST_URI'] = $original_request_uri;
 		}
 
 		return (string) $content;
@@ -497,7 +513,7 @@ class DataView extends View_Base {
 		// pagination links with add_query_arg(), which needs the request to look
 		// like it targets this field's tab while the callback runs.
 		$original_get         = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$original_request_uri = $_SERVER['REQUEST_URI'] ?? '';
+		$original_request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_url( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$original_screen      = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
 		$tab_name        = null;
@@ -509,11 +525,8 @@ class DataView extends View_Base {
 				$tab_name = $tab->get_name();
 				// Detect whether this tab is nested as a sub-tab of another tab.
 				foreach ( $this->get_settings_obj()->get_tabs() as $root_tab ) {
-					if ( ! $root_tab instanceof Tab ) {
-						continue;
-					}
 					foreach ( $root_tab->get_tabs() as $sub_tab ) {
-						if ( $sub_tab instanceof Tab && $sub_tab->get_name() === $tab_name ) {
+						if ( $sub_tab->get_name() === $tab_name ) {
 							$parent_tab_name = $root_tab->get_name();
 							break 2;
 						}
@@ -523,11 +536,8 @@ class DataView extends View_Base {
 				if ( null === $parent_tab_name ) {
 					foreach ( $this->get_settings_obj()->get_pages() as $page_object ) {
 						foreach ( $page_object->get_tabs() as $root_tab ) {
-							if ( ! $root_tab instanceof Tab ) {
-								continue;
-							}
 							foreach ( $root_tab->get_tabs() as $sub_tab ) {
-								if ( $sub_tab instanceof Tab && $sub_tab->get_name() === $tab_name ) {
+								if ( $sub_tab->get_name() === $tab_name ) {
 									$parent_tab_name = $root_tab->get_name();
 									break 3;
 								}
@@ -578,7 +588,7 @@ class DataView extends View_Base {
 			if ( is_string( $captured ) && '' !== $captured ) {
 				$content = $captured;
 			}
-		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Never let a single field break the whole DataView config. Surface
 			// the error in the field so it is visible in the UI / data-config.
 			if ( ob_get_level() > 0 ) {

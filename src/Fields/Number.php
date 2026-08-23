@@ -12,7 +12,6 @@ defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Setting;
-use easySettingsForWordPress\Settings;
 
 /**
  * Object to handle a number field for single setting.
