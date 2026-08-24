@@ -1,5 +1,4 @@
 import { BaseControl, Button } from '@wordpress/components';
-
 import { InnerFieldControl, emptyValueFor } from './inner-field';
 
 /**
@@ -7,7 +6,7 @@ import { InnerFieldControl, emptyValueFor } from './inner-field';
  *
  * Repeats one inner field so the user can collect a list of entries. The inner
  * field can be any supported type (text, number, select, multiselect, media,
- * post-select, …); its descriptor is provided by PHP.
+ * post-select, …); PHP provides its descriptor.
  *
  * @param {Object} innerDescriptor The descriptor of the repeated inner field.
  * @param {number} [quantity]      The initial number of entries to show.
@@ -79,7 +78,7 @@ export function createMultiFieldEdit( innerDescriptor, quantity = 1 ) {
                 descriptor={ innerDescriptor }
                 value={ value }
                 onChange={ ( newValue ) => updateEntry( index, newValue ) }
-                label={ `${ field.label } #${ index + 1 }` }
+                label={ `${ innerDescriptor.label || field.label } #${ index + 1 }` }
                 hideDescription
               />
             </div>

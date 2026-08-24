@@ -277,8 +277,22 @@
 .components-snackbar.esfw-snackbar--error:hover {
 	background: #b32d2e;
 }
-/* Falls eine Fehler-Snackbar mal Action-Links enthält: lesbar halten. */
+
 .components-snackbar.esfw-snackbar--error .components-snackbar__action {
 	color: #fff;
 	text-decoration: underline;
+}
+
+.esfw-image-choose .fields__media-edit-placeholder, .esfw-image-choose .components-button {
+	border-radius: 8px;
+	cursor: pointer;
+	padding: 12px 10px;
+	display: inline-block;
+	border: 1px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+	white-space: nowrap;
+	color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+}
+
+.esfw-image-choose .components-text {
+	display: block;
 }
