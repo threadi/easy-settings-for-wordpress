@@ -237,7 +237,7 @@ class Vertical_Tabs extends Styling_Base {
 				settings_errors(); }
 			settings_fields( $tab->get_name() );
 			do_settings_sections( $tab->get_name() );
-			if ( $tab->is_save_hidden() ) {
+			if ( ! $tab->is_save_hidden() ) {
 				submit_button(); }
 			?>
 		</form>

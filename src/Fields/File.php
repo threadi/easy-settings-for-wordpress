@@ -191,7 +191,7 @@ class File extends Field_Base {
 	 */
 	public function get_rest_schema(): array {
 		return array(
-			'type' => array( 'integer', 'null' ),
+			'type' => 'integer',
 		);
 	}
 }

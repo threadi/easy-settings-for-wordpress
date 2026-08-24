@@ -15,7 +15,7 @@ use easySettingsForWordPress\Setting;
 use WP_Post;
 
 /**
- * Object to handle a select field for single setting.
+ * Object to handle a select field for a single setting.
  */
 class SelectPostTypeObject extends Field_Base {
 	/**
@@ -370,7 +370,7 @@ class SelectPostTypeObject extends Field_Base {
 	 */
 	public function get_rest_schema(): array {
 		return array(
-			'type' => array( 'integer', 'null' ),
+			'type' => 'integer',
 		);
 	}
 }

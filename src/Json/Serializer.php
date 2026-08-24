@@ -123,7 +123,9 @@ class Serializer {
 	 * @return array<string,mixed>
 	 */
 	private static function tab_to_config( Tab $tab, array $settings_by_section ): array {
-		$config = array( 'name' => $tab->get_name() );
+		$config = array(
+			'name' => $tab->get_name(),
+		);
 
 		if ( '' !== $tab->get_title() ) {
 			$config['title'] = $tab->get_title();

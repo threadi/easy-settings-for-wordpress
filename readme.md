@@ -1,6 +1,6 @@
 # Easy Settings for WordPress
 
-This composer packages add a simple wrapper for settings for WordPress plugins and themes. You no longer need to worry about inputting or outputting settings for your own implementation - leave that to this package. Simply use the WordPress-own `get_option()` to get the values of your settings.
+This composer package adds a simple wrapper for settings for WordPress plugins and themes. You no longer need to worry about inputting or outputting settings for your own implementation - leave that to this package. Use the WordPress-own `get_option()` to get the values of your settings.
 
 ## Advantages
 
@@ -21,7 +21,7 @@ Run this in your custom plugin or theme directory:
 
 `composer require threadi/easy-settings-for-wordpress`
 
-Don't forget to embed the composer autoloader in your plugin or theme:
+Remember to embed the composer autoloader in your plugin or theme:
 
 `require __DIR__ . '/vendor/autoload.php';`
 
@@ -52,7 +52,7 @@ Follow the documentation [here](docs/how_to_use_it.md).
 - remove do_not_register() from TextInfo() and Value() fields
 - remove set_type() from Checkbox() fields
 - use add_data() instead of set_custom_attributes() for Import and Export buttons
-- Do not use add_tab() on Settings object.
+- Do not use add_tab() on "Settings"-object.
 
 ## For developers of this package
 

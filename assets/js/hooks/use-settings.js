@@ -46,6 +46,7 @@ function collectErrorMessages( error ) {
 export const useSettings = ( props ) => {
   const [ settings, setSettings ] = useState( {} );
   const [ isSaving, setIsSaving ] = useState( false );
+  const [ isLoading, setIsLoading ] = useState( true );
   const initialSettingsRef = useRef( {} );
 
   const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
@@ -59,6 +60,7 @@ export const useSettings = ( props ) => {
 
       if ( fields.length === 0 ) {
         setSettings( {} );
+        setIsLoading( false );
         return;
       }
 
@@ -71,6 +73,7 @@ export const useSettings = ( props ) => {
         } );
         initialSettingsRef.current = values;
         setSettings( values );
+        setIsLoading( false );
       } );
     } );
   }, [] );
@@ -197,5 +200,5 @@ export const useSettings = ( props ) => {
       } );
   };
 
-  return [ settings, setSettings, saveSettings, isSaving ];
+  return [ settings, setSettings, saveSettings, isSaving, isLoading ];
 };

@@ -1,12 +1,13 @@
 # Changelog
 
-## [Unreleased]
+## [3.2.0] - 24.08.2026
 
 ### Added
 
 - Added support to read and show errors from the classic "get_settings_errors()" in DataView
 - Added support for MultiField and FieldTable for DataView
 - Added visible hints for developers on any error if developer modus is enabled in WordPress
+- Added loading-spinner in DataView as long as the settings are loading
 
 ### Changed
 
@@ -16,7 +17,12 @@
 - Use identical styling for legends on each field in DataView
 - Extended the support for WP_List_Table in DataView
 - Optimized error handling for faulty JSON configurations
-- Optimized styling of tables in classic view
+- Optimized styling of tables in the classic view
+- Set styling for the file upload fields in DataView depending on the actual color scheme in the backend
+
+### Fixed
+
+- Fixed a wrong used schema for File and SelectPostTypeObject which prevents the save of their values in DataView
 
 ## [3.1.2] - 15.08.2026
 

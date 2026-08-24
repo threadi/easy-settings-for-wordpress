@@ -5,6 +5,7 @@ import {
   __experimentalVStack as VStack,
   Card,
   CardBody,
+  Spinner,
 } from '@wordpress/components';
 import { DataForm } from '@wordpress/dataviews';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
@@ -26,7 +27,7 @@ import { TabNode } from './tab-node';
  * @return {JSX.Element} The page.
  */
 export const SettingsPage = ( props ) => {
-  const [ settings, setSettings, saveSettings, isSaving ] = useSettings( props );
+  const [ settings, setSettings, saveSettings, isSaving, isLoading ] = useSettings( props );
   const [ hideSave, setHideSave ] = useState( false );
 
   const hasUserEditedRef = useRef( false );
@@ -120,15 +121,20 @@ export const SettingsPage = ( props ) => {
     <>
       <SettingsTitle title={ config.title } />
       <Notices />
-      <div
-        ref={ formRef }
-        className={
-          lockFormOnSave && isSaving
-            ? 'esfw-settings-form esfw-settings-form--saving'
-            : 'esfw-settings-form'
-        }
-        aria-busy={ ( lockFormOnSave && isSaving ) || undefined }
-      >
+      { isLoading ? (
+        <div className="esfw-settings-loading">
+          <Spinner />
+        </div>
+      ) : (
+        <div
+          ref={ formRef }
+          className={
+            lockFormOnSave && isSaving
+              ? 'esfw-settings-form esfw-settings-form--saving'
+              : 'esfw-settings-form'
+          }
+          aria-busy={ ( lockFormOnSave && isSaving ) || undefined }
+        >
       { tabs.length > 0 ? (
         <TabNode
           node={ { tabs } }
@@ -157,7 +163,8 @@ export const SettingsPage = ( props ) => {
         </Card>
       ) }
       </div>
-      { ! hideSave && (
+      ) }
+      { ! hideSave && ! isLoading && (
         <SaveButton
           title={ config.save_title }
           onClick={ saveSettings }
