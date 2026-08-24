@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Allow Value as nested field for FieldTable
+
 ### Fixed
 
 - Fixed to hide save for tabs with sub-tabs in classic view
