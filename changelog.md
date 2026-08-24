@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed to hide save for tabs with sub-tabs in classic view
+
 ## [3.2.1] - 24.08.2026
 
 ### Fixed
