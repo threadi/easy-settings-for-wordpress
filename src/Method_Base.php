@@ -135,7 +135,7 @@ class Method_Base {
 		if ( 'array' === $field_settings->get_type() ) {
 			// if it is an array, use it 1:1.
 			if ( is_array( $value ) ) {
-				return array_values( $value );
+				return array_is_list( $value ) ? array_values( $value ) : $value; // @phpstan-ignore arrayValues.list
 			}
 
 			// secure the value.
