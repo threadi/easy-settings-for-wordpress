@@ -320,8 +320,9 @@ jQuery(document).ready(function($) {
      * @param {jQuery} $heading
      * @param {jQuery} $table
      * @param {boolean} collapsed
+     * @param {string} sectionName
      */
-    function wireToggle( $heading, $table, collapsed ) {
+    function wireToggle( $heading, $table, collapsed, sectionName ) {
       if ( ! $heading.length || ! $table.length ) {
         return;
       }
@@ -337,10 +338,31 @@ jQuery(document).ready(function($) {
         .addClass( 'esfw-section-toggle' );
 
       function toggleSection() {
-        var willCollapse = ! $heading.hasClass( 'is-collapsed' );
+        let willCollapse = ! $heading.hasClass( 'is-collapsed' );
         $heading.toggleClass( 'is-collapsed', willCollapse );
         $heading.attr( 'aria-expanded', willCollapse ? 'false' : 'true' );
         $table.toggle( ! willCollapse );
+
+        // Persist state per user when the plugin opted in.
+        if ( typeof esfwJsVars !== 'undefined' && esfwJsVars.persist_section_collapse && sectionName ) {
+          const state = {};
+
+          $.each( map, function ( name, cfg ) {
+            state[ name ] = !! ( cfg && cfg.collapsed );
+          } );
+
+          state[ sectionName ] = willCollapse;
+
+          wp.apiFetch( {
+            path: '/wp/v2/users/me',
+            method: 'POST',
+            data: {
+              meta: {
+                [ esfwJsVars.section_collapse_meta_key ]: state,
+              },
+            },
+          } );
+        }
       }
 
       $heading.on( 'click', function ( e ) {
@@ -370,7 +392,7 @@ jQuery(document).ready(function($) {
       let collapsed = ( $marker.attr( 'data-collapsed' ) === '1' ) || !! fromMap.collapsed;
       let $heading = $marker.prevAll( 'h2' ).first();
       let $table = $marker.nextAll( 'table.form-table' ).first();
-      wireToggle( $heading, $table, collapsed );
+      wireToggle( $heading, $table, collapsed, name );
     } );
 
     // 2) Fallback: Title-Match
@@ -387,8 +409,8 @@ jQuery(document).ready(function($) {
         if ( $heading.text().replace( /\s+/g, ' ' ).trim() !== title ) {
           return;
         }
-        var $table = $heading.nextAll( 'table.form-table' ).first();
-        wireToggle( $heading, $table, !!( cfg && cfg.collapsed ) );
+        let $table = $heading.nextAll( 'table.form-table' ).first();
+        wireToggle( $heading, $table, !!( cfg && cfg.collapsed ), name );
       } );
     } );
 

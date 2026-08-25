@@ -256,10 +256,14 @@ class Section extends Base_Object {
 	 * Marker between WP's <h2> and the form-table (classic view).
 	 */
 	public function render_collapsible_marker(): void {
+		// get the collapsed state.
+		$collapsed = $this->get_settings_obj()->get_effective_section_collapsed( $this );
+
+		// return the marker.
 		printf(
 			'<span class="esfw-collapsible-marker" data-section="%s" data-collapsed="%s" hidden></span>',
 			esc_attr( $this->get_name() ),
-			$this->is_collapsed() ? '1' : '0'
+			$collapsed ? '1' : '0'
 		);
 	}
 

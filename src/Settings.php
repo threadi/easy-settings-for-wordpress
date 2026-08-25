@@ -193,6 +193,13 @@ class Settings {
 	private bool $lock_form_on_save = true;
 
 	/**
+	 * Whether the section collapse should be persisted in user meta.
+	 *
+	 * @var bool
+	 */
+	private bool $persist_section_collapse = false;
+
+	/**
 	 * List of errors.
 	 *
 	 * @var WP_Error|null
@@ -296,6 +303,9 @@ class Settings {
 		// initiate import and export.
 		$this->get_import_obj()->init();
 		$this->get_export_obj()->init();
+
+		// register the meta fields.
+		$this->register_meta_fields();
 
 		// use hooks.
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
@@ -1000,6 +1010,9 @@ class Settings {
 
 		// delete the plugin version marker.
 		delete_option( $this->version_option_name );
+
+		// delete user settings.
+		$this->delete_section_collapse_usermeta();
 	}
 
 	/**
@@ -1889,5 +1902,143 @@ class Settings {
 	 */
 	public function should_lock_form_on_save(): bool {
 		return $this->lock_form_on_save;
+	}
+
+	/**
+	 * Enable or disable persisting collapsible section state in user meta.
+	 *
+	 * When enabled, each user's open/closed state for collapsible sections is
+	 * stored in usermeta and restored on the next page load. Disabled by default
+	 * (opt-in for plugin developers).
+	 *
+	 * @param bool $persist True to persist section collapse state per user.
+	 * @return void
+	 */
+	public function set_persist_section_collapse( bool $persist ): void {
+		$this->persist_section_collapse = $persist;
+	}
+
+	/**
+	 * Return whether section collapse state is persisted per user.
+	 *
+	 * @return bool
+	 */
+	public function should_persist_section_collapse(): bool {
+		return $this->persist_section_collapse;
+	}
+
+	/**
+	 * Meta key used to store section collapse state for the current settings object.
+	 *
+	 * @return string
+	 */
+	public function get_section_collapse_meta_key(): string {
+		return $this->get_slug() . '_section_collapse';
+	}
+
+	/**
+	 * Return the current user's saved section collapse map (section name => collapsed).
+	 *
+	 * @return array<string,bool>
+	 */
+	public function get_section_collapse_state(): array {
+		// bail if user is not logged in or feature is not used.
+		if ( ! $this->should_persist_section_collapse() || ! is_user_logged_in() ) {
+			return array();
+		}
+
+		// get the user meta for collapsed sections.
+		$state = get_user_meta( get_current_user_id(), $this->get_section_collapse_meta_key(), true );
+		if ( ! is_array( $state ) ) {
+			return array();
+		}
+
+		// normalize the list.
+		$normalized = array();
+		foreach ( $state as $section_name => $collapsed ) {
+			if ( is_string( $section_name ) && '' !== $section_name ) {
+				$normalized[ $section_name ] = (bool) $collapsed;
+			}
+		}
+
+		// return the resulting list.
+		return $normalized;
+	}
+
+	/**
+	 * Persist whether a single section is collapsed for the current user.
+	 *
+	 * @param string $section_name The section internal name.
+	 * @param bool   $collapsed    True if collapsed.
+	 * @return void
+	 */
+	public function set_section_collapse_state( string $section_name, bool $collapsed ): void {
+		if ( ! $this->should_persist_section_collapse() || ! is_user_logged_in() || '' === $section_name ) {
+			return;
+		}
+
+		$state                  = $this->get_section_collapse_state();
+		$state[ $section_name ] = $collapsed;
+		update_user_meta( get_current_user_id(), $this->get_section_collapse_meta_key(), $state );
+	}
+
+	/**
+	 * Effective collapsed flag for a section: user preference if set, else section default.
+	 *
+	 * @param Section $section The section.
+	 * @return bool
+	 */
+	public function get_effective_section_collapsed( Section $section ): bool {
+		// use the user setting, if persist is enabled.
+		if ( $this->should_persist_section_collapse() ) {
+			$state = $this->get_section_collapse_state();
+			$name  = $section->get_name();
+			if ( array_key_exists( $name, $state ) ) {
+				return $state[ $name ];
+			}
+		}
+
+		// return the setting for the given section.
+		return $section->is_collapsed();
+	}
+
+	/**
+	 * Delete section-collapse usermeta for all users (uninstall / delete_settings).
+	 *
+	 * @return void
+	 */
+	public function delete_section_collapse_usermeta(): void {
+		delete_metadata( 'user', 0, $this->get_section_collapse_meta_key(), '', true );
+	}
+
+	/**
+	 * Register meta fields we use.
+	 *
+	 * @return void
+	 */
+	private function register_meta_fields(): void {
+		$settings_obj = $this;
+
+		// register our user meta field for the collapse state of each section.
+		register_meta(
+			'user',
+			$settings_obj->get_section_collapse_meta_key(),
+			array(
+				'type'          => 'object',
+				'single'        => true,
+				'default'       => array(),
+				'show_in_rest'  => array(
+					'schema' => array(
+						'type'                 => 'object',
+						'additionalProperties' => array(
+							'type' => 'boolean',
+						),
+					),
+				),
+				'auth_callback' => static function () use ( $settings_obj ) {
+					return current_user_can( $settings_obj->get_capability() );
+				},
+			)
+		);
 	}
 }
