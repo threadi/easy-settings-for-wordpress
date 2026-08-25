@@ -92,22 +92,27 @@ class Classic extends View_Base {
 		// get the translations.
 		$translations = $this->get_settings_obj()->get_translations();
 
+		// get the settings object.
+		$settings_obj = $this->get_settings_obj();
+
 		// add php-vars to our js-script.
 		wp_localize_script(
-			$this->get_settings_obj()->get_slug() . '-settings',
+			$settings_obj->get_slug() . '-settings',
 			'esfwJsVars',
 			array(
-				'rest_settings'        => rest_url( 'wp/v2/settings' ),
-				'rest_nonce'           => wp_create_nonce( 'wp_rest' ),
-				'title_add_image'      => $translations['file_add_file'],
-				'button_add_image'     => $translations['file_choose_file'],
-				'lbl_upload_image'     => $translations['file_choose_image'],
-				'label_sortable_title' => $translations['drag_n_drop'],
-				'auto_save'            => $this->get_settings_obj()->get_auto_save(),
-				'lock_form_on_save'    => $this->get_settings_obj()->should_lock_form_on_save(),
-				'collapsible_sections' => $this->get_collapsible_sections_map(),
-				'label_saved'          => $translations['settings_saved'],
-				'label_save_error'     => $translations['settings_save_error'],
+				'rest_settings'             => rest_url( 'wp/v2/settings' ),
+				'rest_nonce'                => wp_create_nonce( 'wp_rest' ),
+				'title_add_image'           => $translations['file_add_file'],
+				'button_add_image'          => $translations['file_choose_file'],
+				'lbl_upload_image'          => $translations['file_choose_image'],
+				'label_sortable_title'      => $translations['drag_n_drop'],
+				'auto_save'                 => $settings_obj->get_auto_save(),
+				'lock_form_on_save'         => $settings_obj->should_lock_form_on_save(),
+				'collapsible_sections'      => $this->get_collapsible_sections_map(),
+				'persist_section_collapse'  => $settings_obj->should_persist_section_collapse(),
+				'section_collapse_meta_key' => $settings_obj->get_section_collapse_meta_key(),
+				'label_saved'               => $translations['settings_saved'],
+				'label_save_error'          => $translations['settings_save_error'],
 			)
 		);
 
@@ -250,7 +255,7 @@ class Classic extends View_Base {
 				}
 				$map[ $name ] = array(
 					'title'     => $section->get_title(),
-					'collapsed' => $section->is_collapsed(),
+					'collapsed' => $this->get_settings_obj()->get_effective_section_collapsed( $section ),
 				);
 			}
 		}

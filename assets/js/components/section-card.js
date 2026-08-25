@@ -11,8 +11,41 @@ import {
 import { DataForm } from '@wordpress/dataviews';
 import { useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
 
 import { getVisibleFieldIds } from '../utils/visibility';
+
+/**
+ * Persist collapsed state for the current user when the plugin opted in.
+ *
+ * @param {string}  sectionName Section internal name.
+ * @param {boolean} collapsed   Whether the section is now collapsed.
+ */
+function persistSectionCollapse( sectionName, collapsed ) {
+  const cfg = typeof window !== 'undefined' ? window.esfwSettingsConfig : null;
+
+  // bail if anything is missing.
+  if ( ! cfg?.persist_section_collapse || ! sectionName || ! cfg.section_collapse_meta_key ) {
+    return;
+  }
+
+  // get the current map.
+  const currentMap = cfg.section_collapse_state || {};
+
+  // submit the request.
+  apiFetch( {
+    path: '/wp/v2/users/me',
+    method: 'POST',
+    data: {
+      meta: {
+        [ cfg.section_collapse_meta_key ]: {
+          ...currentMap,
+          [ sectionName ]: collapsed,
+        },
+      },
+    },
+  } ).catch( () => {} );
+}
 
 /**
  * Render one section with its fields.
@@ -28,6 +61,14 @@ export function SectionCard( { section, fields, settings, onChange } ) {
   const collapsible = !! section.collapsible;
   const [ isOpen, setIsOpen ] = useState( ! section.collapsed );
 
+  const onToggle = () => {
+    setIsOpen( ( open ) => {
+      const nextOpen = ! open;
+      persistSectionCollapse( section.name, ! nextOpen );
+      return nextOpen;
+    } );
+  };
+
   return (
     <Card className={
       'esfw-settings-section' +
@@ -39,7 +80,7 @@ export function SectionCard( { section, fields, settings, onChange } ) {
           { collapsible ? (
             <Button
               className="esfw-settings-section__toggle"
-              onClick={ () => setIsOpen( ( o ) => ! o ) }
+              onClick={ onToggle }
               aria-expanded={ isOpen }
               variant="tertiary"
             >

@@ -96,14 +96,17 @@ class DataView extends View_Base {
 		// get the translations.
 		$translations = $this->settings_obj->get_translations();
 
+		// get the settings object.
+		$settings_obj = $this->get_settings_obj();
+
 		// return the configuration for the view.
 		return array(
-			'slug'                        => $this->get_settings_obj()->get_slug(),
-			'title'                       => $this->get_settings_obj()->get_title(),
+			'slug'                        => $settings_obj->get_slug(),
+			'title'                       => $settings_obj->get_title(),
 			'fields'                      => $this->get_fields(),
 			'tabs'                        => $this->get_tabs_config(),
-			'auto_save'                   => $this->get_settings_obj()->get_auto_save(),
-			'lock_form_on_save'           => $this->get_settings_obj()->should_lock_form_on_save(),
+			'auto_save'                   => $settings_obj->get_auto_save(),
+			'lock_form_on_save'           => $settings_obj->should_lock_form_on_save(),
 			'save_title'                  => $translations['save_title'],
 			'settings_saved'              => $translations['settings_saved'],
 			'settings_saved_redirect'     => $translations['settings_saved_redirect'],
@@ -111,6 +114,9 @@ class DataView extends View_Base {
 			'settings_save_error'         => $translations['settings_save_error'],
 			'settings_save_error_details' => $translations['settings_save_error_details'],
 			'developer_mode'              => Helper::is_development_mode(),
+			'persist_section_collapse'    => $settings_obj->should_persist_section_collapse(),
+			'section_collapse_state'      => $settings_obj->get_section_collapse_state(),
+			'section_collapse_meta_key'   => $settings_obj->get_section_collapse_meta_key(),
 		);
 	}
 
@@ -292,7 +298,7 @@ class DataView extends View_Base {
 				'content'     => $this->get_section_content( $section, $tab->get_name(), $parent_tab_name ),
 				'fields'      => $fields_by_section[ spl_object_id( $section ) ] ?? array(),
 				'collapsible' => $section->is_collapsible(),
-				'collapsed'   => $section->is_collapsed(),
+				'collapsed'   => $this->get_settings_obj()->get_effective_section_collapsed( $section ),
 			);
 		}
 

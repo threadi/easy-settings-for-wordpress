@@ -1,6 +1,10 @@
 # Changelog
 
-## [3.2.2] - 25.08.2026
+## [3.3.0] - 25.08.2026
+
+### Added
+
+- Added option to save collapsed sections in user meta
 
 ### Changed
 
