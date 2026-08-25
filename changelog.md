@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [3.2.2] - 25.08.2026
 
 ### Changed
 
@@ -9,6 +9,7 @@
 ### Fixed
 
 - Fixed to hide save for tabs with sub-tabs in classic view
+- Fixed handling of default sub-tabs and their ordering in DataView
 
 ## [3.2.1] - 24.08.2026
 

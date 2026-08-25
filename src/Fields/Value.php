@@ -73,7 +73,7 @@ class Value extends Field_Base {
 	 *
 	 * @return mixed
 	 */
-	private function get_the_value( mixed $value ): mixed {
+	public function get_the_value( mixed $value ): mixed {
 		if ( null === $this->value ) {
 			return $value;
 		}

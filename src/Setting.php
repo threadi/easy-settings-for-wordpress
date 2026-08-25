@@ -797,7 +797,7 @@ class Setting extends Base_Object {
 				$configuration['type']      = 'esfw-display';
 				$configuration['is_static'] = true;
 				if ( $field instanceof Value ) {
-					$configuration['text'] = wp_kses_post( (string) $field->get_value() );
+					$configuration['text'] = wp_kses_post( (string) $field->get_the_value( $this->get_value() ) );
 				}
 				break;
 		}

@@ -57,9 +57,20 @@ export function TabNode( {
   const snapBackRef = useRef( false );
   const [ remountKey, setRemountKey ] = useState( 0 );
   const deepLinkTab = activeTabPath?.[ depth ];
-  const firstContentTab = ( node.tabs ?? [] ).find( ( t ) => ! t.url )?.name;
+  // Prefer the PHP-configured default, then the first non-link tab.
+  const defaultContentTab =
+    node.default_tab ??
+    ( node.tabs ?? [] ).find( ( t ) => ! t.url )?.name;
+  // Only honor a deep-link if it actually exists on THIS node (avoids empty
+  // panels when switching main tabs while a stale subtab from another main
+  // tab is still in activeTabPath).
+  const resolvedInitialTab =
+    deepLinkTab &&
+    ( node.tabs ?? [] ).some( ( t ) => t.name === deepLinkTab && ! t.url )
+      ? deepLinkTab
+      : defaultContentTab;
   const [ activeContentTab, setActiveContentTab ] = useState(
-    deepLinkTab ?? firstContentTab
+    resolvedInitialTab
   );
 
   useEffect( () => {
@@ -136,6 +147,7 @@ export function TabNode( {
                   url.searchParams.set( 'tab', parentTabName );
                 }
                 const defaultSub =
+                  node.default_tab ??
                   ( node.tabs ?? [] ).find( ( t ) => ! t.url )?.name ??
                   node.tabs?.[ 0 ]?.name;
                 if ( tabName === defaultSub ) {

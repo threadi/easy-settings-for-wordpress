@@ -263,9 +263,16 @@ class DataView extends View_Base {
 		// has sub-tabs -> nest and stop here.
 		$sub_tabs = $tab->get_tabs();
 		if ( ! empty( $sub_tabs ) ) {
+			ksort( $sub_tabs );
 			$node['tabs'] = array();
 			foreach ( $sub_tabs as $sub_tab ) {
 				$node['tabs'][] = $this->build_tab_node( $sub_tab, $fields_by_section, $tab->get_name() );
+			}
+			// expose the configured default sub-tab (if any) so the React view
+			// can open it instead of always falling back to the first tab.
+			$default_tab = $tab->get_default_tab();
+			if ( $default_tab instanceof Tab ) {
+				$node['default_tab'] = $default_tab->get_name();
 			}
 			return $node;
 		}
