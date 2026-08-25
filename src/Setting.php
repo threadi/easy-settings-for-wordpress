@@ -833,6 +833,7 @@ class Setting extends Base_Object {
 				'Files',
 				'SelectPostTypeObject',
 				'PermalinkSlug',
+				'Value'
 			),
 			true
 		);

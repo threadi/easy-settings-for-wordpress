@@ -32,11 +32,31 @@ class Styling_Base extends Base_Object {
 	public function show_nav(): void {}
 
 	/**
-	 * Output the HTML-code for this styling.
+	 * Output the HTML-code for the settings.
 	 *
 	 * @param Tab $tab The tab to show.
 	 *
 	 * @return void
 	 */
-	public function show_content( Tab $tab ): void {}
+	public function show_content( Tab $tab ): void {
+		// show the tab description.
+		if ( ! empty( $tab->get_description() ) ) {
+			echo wp_kses_post( $tab->get_description() );
+		}
+
+		?>
+		<form method="POST" action="<?php echo esc_url( get_admin_url() ); ?>options.php">
+			<?php
+			if ( 'options-general.php' !== $this->settings_obj->get_menu_parent_slug() ) {
+				settings_errors();
+			}
+			settings_fields( $tab->get_name() );
+			do_settings_sections( $tab->get_name() );
+			if ( ! $tab->is_save_hidden() && $tab->has_tabs() ) {
+				submit_button();
+			}
+			?>
+		</form>
+		<?php
+	}
 }

@@ -726,4 +726,13 @@ class Tab extends Base_Object {
 		}
 		return false;
 	}
+
+	/**
+	 * Return whether this tab has sub-tabs.
+	 *
+	 * @return bool
+	 */
+	public function has_tabs(): bool {
+		return empty( $this->get_tabs() );
+	}
 }
