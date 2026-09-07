@@ -1,6 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed the save process for settings in "One" method
+
 ## [3.3.1] - 25.08.2026
+
+### Fixed
 
 - Fixed release number
 
