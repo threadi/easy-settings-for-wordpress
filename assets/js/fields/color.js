@@ -1,9 +1,8 @@
 import { BaseControl, Button, ColorIndicator, ColorPicker, Dropdown, __experimentalHStack as HStack } from '@wordpress/components';
 
 /**
- * Create the custom button field.
+ * Create the custom color field.
  *
- * @param {Object} config The button configuration.
  * @return {Function} The Edit component.
  */
 export function createColorEdit() {
@@ -43,6 +42,9 @@ export function createColorEdit() {
             <span style={ { fontFamily: 'monospace' } }>{ currentValue }</span>
           ) }
         </HStack>
+        { field.description && (
+          <p className="components-base-control__help">{ field.description }</p>
+        ) }
       </div>
     );
   };
