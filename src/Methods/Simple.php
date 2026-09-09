@@ -281,8 +281,7 @@ class Simple extends Method_Base {
 			// put the schema back, preserving any other show_in_rest keys.
 			$show_in_rest['schema'] = $schema;
 			$args['show_in_rest']   = $show_in_rest;
-		}
-		else {
+		} else {
 			$args['show_in_rest'] = false;
 		}
 
