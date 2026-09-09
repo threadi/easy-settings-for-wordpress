@@ -87,7 +87,11 @@ export const useSettings = ( props ) => {
 
     const settingsToSave = applyFilters(
       'esfw.settingsPage.beforeSave',
-      settings,
+      Object.fromEntries(
+        Object.entries( settings ).filter( ( [ key, value ] ) =>
+          null !== value || null !== initialSettingsRef.current[ key ]
+        )
+      ),
       props.config
     );
 
@@ -106,7 +110,7 @@ export const useSettings = ( props ) => {
         // actually stored. Use it as the new source of truth instead of
         // trusting settingsToSave blindly, so a rejected field snaps back to
         // its real value in the UI rather than keeping the invalid input.
-        const persisted = { ...settingsToSave };
+        const persisted = { ...settings, ...settingsToSave };
         fields.forEach( ( field ) => {
           if ( response && field.id in response ) {
             persisted[ field.id ] = response[ field.id ];

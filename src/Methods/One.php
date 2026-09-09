@@ -307,10 +307,13 @@ class One extends Method_Base {
 			// get the settings name.
 			$setting_name = $setting->get_name();
 
-			// get the raw posted value (arrays included), unslashed recursively; wp_unslash() handles nested arrays too.
+			// Get the raw posted value (arrays included), unslashed recursively; wp_unslash() handles nested arrays too.
+			// Hint: Nonce is verified once at the top of this method (see the "esfw-nonce" check above), covering the
+			// whole loop this line runs in. Sanitizing is deliberately deferred to sanitize_value() below, which
+			// applies each field's own type-aware sanitize_callback (a value here may be a scalar or an array).
 			$value = null;
 			if ( array_key_exists( $setting_name, $_POST ) ) {
-				$value = wp_unslash( $_POST[ $setting_name ] );
+				$value = wp_unslash( $_POST[ $setting_name ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 				// trim only real scalars – arrays/objects are the field's own responsibility to interpret.
 				if ( is_string( $value ) ) {
@@ -352,9 +355,12 @@ class One extends Method_Base {
 		$setting_name = $setting->get_name();
 
 		// get the raw posted value (arrays included), unslashed recursively; wp_unslash() handles nested arrays too.
+		// Hint: This method is only called from save_settings(), which already verifies the "esfw-nonce" nonce before
+		// looping - phpcs cannot see across the method boundary, hence the ignores below. Sanitizing is
+		// deliberately deferred to sanitize_value() below, which applies the field's own type-aware sanitize_callback.
 		$value = null;
-		if ( array_key_exists( $setting_name, $_POST ) ) {
-			$value = wp_unslash( $_POST[ $setting_name ] );
+		if ( array_key_exists( $setting_name, $_POST ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$value = wp_unslash( $_POST[ $setting_name ] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 			// trim only real scalars – arrays/objects are the field's own responsibility to interpret.
 			if ( is_string( $value ) ) {

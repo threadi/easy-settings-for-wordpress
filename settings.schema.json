@@ -102,6 +102,15 @@
       "required": [ "type", "options" ]
     },
 
+    "field_color": {
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":       { "const": "Color" }
+      },
+      "required": [ "type" ]
+    },
+
     "field_radio": {
       "allOf": [ { "$ref": "#/$defs/field_common" } ],
       "type": "object",
@@ -335,6 +344,7 @@
         { "$ref": "#/$defs/field_password" },
         { "$ref": "#/$defs/field_checkbox" },
         { "$ref": "#/$defs/field_checkboxes" },
+        { "$ref": "#/$defs/field_color" },
         { "$ref": "#/$defs/field_radio" },
         { "$ref": "#/$defs/field_select" },
         { "$ref": "#/$defs/field_multiselect" },

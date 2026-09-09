@@ -12,6 +12,7 @@
  */
 import { createButtonEdit } from './button';
 import { createCheckboxListEdit } from './checkbox-list';
+import { createColorEdit } from './color';
 import { createDisplayEdit } from './display';
 import { createFieldTableEdit } from './fieldtable';
 import { createMediaFieldEdit } from './media';
@@ -38,6 +39,8 @@ export function getEditComponent( descriptor ) {
       } );
     case 'esfw-checkboxes':
       return createCheckboxListEdit( descriptor.options );
+    case 'esfw-color':
+      return createColorEdit( descriptor.options );
     case 'media':
       return createMediaFieldEdit( {
         multiple: descriptor.multiple,
