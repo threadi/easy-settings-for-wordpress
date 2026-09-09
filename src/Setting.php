@@ -56,11 +56,14 @@ class Setting extends Base_Object {
 	private mixed $default = null;
 
 	/**
-	 * Show in REST API.
+	 * Whether this setting is shown in the REST API.
 	 *
-	 * @var array<string,mixed>|bool
+	 * Null means "not configured" and defaults to true, as the settings UI relies on it.
+	 * Set it to false explicitly to keep a setting out of the REST API.
+	 *
+	 * @var array<string,mixed>|bool|null
 	 */
-	private array|bool $show_in_rest = false;
+	private array|bool|null $show_in_rest = null;
 
 	/**
 	 * Read callback.
@@ -298,6 +301,11 @@ class Setting extends Base_Object {
 	 * @return array<string,mixed>|bool
 	 */
 	public function get_show_in_rest(): array|bool {
+		// use the default if it has never been configured.
+		if ( is_null( $this->show_in_rest ) ) {
+			return true;
+		}
+
 		return $this->show_in_rest;
 	}
 
@@ -309,10 +317,7 @@ class Setting extends Base_Object {
 	 * @noinspection PhpUnused
 	 */
 	public function is_show_in_rest(): bool {
-		if ( ! is_bool( $this->get_show_in_rest() ) ) {
-			return false;
-		}
-		return $this->get_show_in_rest();
+		return false !== $this->get_show_in_rest();
 	}
 
 	/**
