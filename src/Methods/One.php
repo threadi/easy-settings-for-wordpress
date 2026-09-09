@@ -14,6 +14,7 @@ namespace easySettingsForWordPress\Methods;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
+use easySettingsForWordPress\Fields\FieldTable;
 use easySettingsForWordPress\Method_Base;
 use easySettingsForWordPress\Section;
 use easySettingsForWordPress\Setting;
@@ -227,8 +228,61 @@ class One extends Method_Base {
 			$settings = array();
 		}
 
+		// get the used options page.
+		$option_page = isset( $_POST['option_page'] ) ? sanitize_text_field( wp_unslash( $_POST['option_page'] ) ) : '';
+
+		// Field-table cells have no section of their own (they live inside the
+		// table, not in the section list), so the main loop below would skip
+		// them as misconfigured. Resolve them here via the tab of their owning
+		// table setting instead, and remember their names so the main loop
+		// does not try (and fail) to process them again.
+		$handled_cells = array();
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			// get the field object.
+			$field_obj = $setting->get_field();
+
+			// bail if we do not have a FieldTable field.
+			if ( ! $field_obj instanceof FieldTable ) {
+				continue;
+			}
+
+			// get the section this setting (the table itself) is assigned to.
+			$section = $setting->get_section();
+
+			// bail if no section is given.
+			if ( ! $section instanceof Section ) {
+				continue;
+			}
+
+			// get the tab of this section.
+			$tab = $section->get_tab();
+
+			// bail if no tab is given.
+			if ( ! $tab instanceof Tab ) {
+				continue;
+			}
+
+			// bail if this table is not on the requested option page.
+			if ( $option_page !== $tab->get_name() ) {
+				continue;
+			}
+
+			// save every cell of this table under the table's tab.
+			foreach ( $field_obj->get_cell_settings_flat() as $cell_setting ) {
+				$settings = $this->save_single_setting( $cell_setting, $settings );
+
+				// mark this cell as handled so the main loop below skips it.
+				$handled_cells[ $cell_setting->get_name() ] = true;
+			}
+		}
+
 		// loop through the settings.
 		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			// skip field-table cells already saved above.
+			if ( isset( $handled_cells[ $setting->get_name() ] ) ) {
+				continue;
+			}
+
 			// get the section.
 			$section = $setting->get_section();
 
@@ -246,27 +300,25 @@ class One extends Method_Base {
 			}
 
 			// bail if this setting is not on the requested option page.
-			if ( filter_input( INPUT_POST, 'option_page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) !== $tab->get_name() ) {
+			if ( $option_page !== $tab->get_name() ) {
 				continue;
 			}
 
 			// get the settings name.
 			$setting_name = $setting->get_name();
 
-			// get its value.
-			if ( isset( $_POST[ $setting_name ] ) && is_array( $_POST[ $setting_name ] ) ) {
-				$value = array_map( 'sanitize_text_field', wp_unslash( $_POST[ $setting_name ] ) );
-			} else {
-				$value = filter_input( INPUT_POST, $setting_name, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			// get the raw posted value (arrays included), unslashed recursively; wp_unslash() handles nested arrays too.
+			$value = null;
+			if ( array_key_exists( $setting_name, $_POST ) ) {
+				$value = wp_unslash( $_POST[ $setting_name ] );
+
+				// trim only real scalars – arrays/objects are the field's own responsibility to interpret.
+				if ( is_string( $value ) ) {
+					$value = trim( $value );
+				}
 			}
 
-			// secure the value.
-			if ( ! is_array( $value ) ) {
-				$value = trim( $value );
-			}
-			$value = wp_unslash( $value );
-
-			// sanitize the value.
+			// let the field's own sanitize_callback decide how to interpret this value (array, assoc, scalar, ...).
 			$value = $this->sanitize_value( $value, $setting_name );
 
 			// run the custom callback before updating an option.
@@ -279,6 +331,48 @@ class One extends Method_Base {
 		}
 
 		// return the resulting list of global settings.
+		return $settings;
+	}
+
+	/**
+	 * Read, sanitize and store a single setting's posted value into the given
+	 * list of global settings.
+	 *
+	 * Extracted so both regular (section-bound) settings and FieldTable cells -
+	 * which have no section of their own - go through the exact same reading
+	 * and sanitizing logic.
+	 *
+	 * @param Setting             $setting The setting to save.
+	 * @param array<string,mixed> $settings The list of global settings to update.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function save_single_setting( Setting $setting, array $settings ): array {
+		// get the settings name.
+		$setting_name = $setting->get_name();
+
+		// get the raw posted value (arrays included), unslashed recursively; wp_unslash() handles nested arrays too.
+		$value = null;
+		if ( array_key_exists( $setting_name, $_POST ) ) {
+			$value = wp_unslash( $_POST[ $setting_name ] );
+
+			// trim only real scalars – arrays/objects are the field's own responsibility to interpret.
+			if ( is_string( $value ) ) {
+				$value = trim( $value );
+			}
+		}
+
+		// let the field's own sanitize_callback decide how to interpret this value (array, assoc, scalar, ...).
+		$value = $this->sanitize_value( $value, $setting_name );
+
+		// run the custom callback before updating an option.
+		if ( $setting->has_save_callback() ) {
+			$value = call_user_func( $setting->get_save_callback(), $value );
+		}
+
+		// save the value in the list of settings.
+		$settings[ $setting_name ] = $value;
+
 		return $settings;
 	}
 
