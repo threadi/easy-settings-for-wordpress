@@ -652,6 +652,9 @@ class Setting extends Base_Object {
 					$configuration['options'] = $options;
 				}
 				break;
+			case 'Color':
+				$configuration['type'] = 'esfw-color';
+				break;
 			case 'FieldTable':
 				$configuration['type'] = 'esfw-field-table';
 				if ( $field instanceof FieldTable ) {

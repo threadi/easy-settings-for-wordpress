@@ -28,6 +28,7 @@ class Helper {
 			'easySettingsForWordPress\Fields\Button',
 			'easySettingsForWordPress\Fields\Checkbox',
 			'easySettingsForWordPress\Fields\Checkboxes',
+			'easySettingsForWordPress\Fields\Color',
 			'easySettingsForWordPress\Fields\FieldTable',
 			'easySettingsForWordPress\Fields\File',
 			'easySettingsForWordPress\Fields\Files',

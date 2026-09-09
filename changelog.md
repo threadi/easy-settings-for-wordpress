@@ -2,9 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added Color as new field to select a color for a setting
+
 ### Fixed
 
 - Fixed the save process for settings in "One" method
+- Fixed the save process in DataView if some fields has never been saved in the database
 
 ## [3.3.1] - 25.08.2026
 
