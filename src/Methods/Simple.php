@@ -244,7 +244,7 @@ class Simple extends Method_Base {
 			$args['sanitize_callback'] = $field_obj->get_sanitize_callback();
 		}
 
-		// build the REST schema, starting from the setting type ...
+		// determine the type, refined by the field if it has one.
 		$schema = array( 'type' => $setting->get_type() );
 
 		// ... let the field refine it (e.g. object shape for Checkboxes) ...
@@ -252,25 +252,39 @@ class Simple extends Method_Base {
 			$schema = array_merge( $schema, $field_obj->get_rest_schema() );
 		}
 
-		// ... and let an explicit show_in_rest schema from the developer win.
-		if ( is_array( $args['show_in_rest'] ) && isset( $args['show_in_rest']['schema'] ) ) {
-			$schema = array_merge( $schema, $args['show_in_rest']['schema'] );
-		}
-
 		// keep register_setting's own type in sync with the REST schema type.
 		if ( isset( $schema['type'] ) ) {
 			$args['type'] = $schema['type'];
 		}
 
-		// add the slug marker the DataView JS uses to discover its fields.
-		$schema[ $this->get_settings_obj()->get_slug() ] = $field_obj instanceof Field_Base;
+		// build the REST schema, unless the developer opted out of the REST API.
+		if ( $setting->is_show_in_rest() ) {
+			// ... and let an explicit show_in_rest schema from the developer win.
+			if ( is_array( $args['show_in_rest'] ) && isset( $args['show_in_rest']['schema'] ) ) {
+				$schema = array_merge( $schema, $args['show_in_rest']['schema'] );
+			}
 
-		// preserve a developer-provided show_in_rest array (name, prepare_callback, …).
-		$show_in_rest = is_array( $args['show_in_rest'] ) ? $args['show_in_rest'] : array();
+			// WordPress requires an item schema for arrays and a property schema for objects.
+			if ( isset( $schema['type'] ) && 'array' === $schema['type'] && ! isset( $schema['items'] ) ) {
+				$schema['items'] = array();
+			}
+			if ( isset( $schema['type'] ) && 'object' === $schema['type'] && ! isset( $schema['properties'] ) && ! isset( $schema['additionalProperties'] ) ) {
+				$schema['additionalProperties'] = true;
+			}
 
-		// put the schema back, preserving any other show_in_rest keys.
-		$show_in_rest['schema'] = $schema;
-		$args['show_in_rest']   = $show_in_rest;
+			// add the slug marker the DataView JS uses to discover its fields.
+			$schema[ $this->get_settings_obj()->get_slug() ] = $field_obj instanceof Field_Base;
+
+			// preserve a developer-provided show_in_rest array (name, prepare_callback, …).
+			$show_in_rest = is_array( $args['show_in_rest'] ) ? $args['show_in_rest'] : array();
+
+			// put the schema back, preserving any other show_in_rest keys.
+			$show_in_rest['schema'] = $schema;
+			$args['show_in_rest']   = $show_in_rest;
+		}
+		else {
+			$args['show_in_rest'] = false;
+		}
 
 		// register the setting.
 		register_setting(

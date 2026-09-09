@@ -10,6 +10,7 @@
 
 - Fixed the save process for settings in "One" method
 - Fixed the save process in DataView if some fields has never been saved in the database
+- Fix to not set settings in REST API if explicit false is set
 
 ## [3.3.1] - 25.08.2026
 
