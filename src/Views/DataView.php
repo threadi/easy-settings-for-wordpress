@@ -43,6 +43,7 @@ class DataView extends View_Base {
 
 		// use hooks.
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 	}
 
 	/**
@@ -92,7 +93,7 @@ class DataView extends View_Base {
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function get_configuration(): array {
+	public function get_configuration(): array {
 		// get the translations.
 		$translations = $this->settings_obj->get_translations();
 
@@ -105,6 +106,7 @@ class DataView extends View_Base {
 			'title'                       => $settings_obj->get_title(),
 			'fields'                      => $this->get_fields(),
 			'tabs'                        => $this->get_tabs_config(),
+			'rest_config_path'            => esc_url_raw( rest_url( $settings_obj->get_slug() . '/v1/dataview-config' ) ),
 			'auto_save'                   => $settings_obj->get_auto_save(),
 			'lock_form_on_save'           => $settings_obj->should_lock_form_on_save(),
 			'save_title'                  => $translations['save_title'],
@@ -618,5 +620,50 @@ class DataView extends View_Base {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Register REST route to re-fetch the DataView configuration after save.
+	 *
+	 * @return void
+	 */
+	public function register_rest_routes(): void {
+		$slug = $this->get_settings_obj()->get_slug();
+
+		register_rest_route(
+			$slug . '/v1',
+			'/dataview-config',
+			array(
+				'methods'             => 'GET',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'callback'            => function () {
+					$this->ensure_admin_screen_for_config();
+					return rest_ensure_response( $this->get_configuration() );
+				},
+			)
+		);
+	}
+
+	/**
+	 * WP_List_Table and related callbacks need admin screen helpers.
+	 * Those are not loaded during REST requests by default.
+	 *
+	 * @return void
+	 */
+	private function ensure_admin_screen_for_config(): void {
+		if ( ! function_exists( 'convert_to_screen' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+			require_once ABSPATH . 'wp-admin/includes/screen.php';
+			require_once ABSPATH . 'wp-admin/includes/template.php';
+			require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+		}
+
+		// Match the temporary screen already used in get_field_content().
+		if ( function_exists( 'set_current_screen' ) ) {
+			$screen_id = 'settings_page_' . $this->get_settings_obj()->get_menu_slug();
+			set_current_screen( $screen_id );
+		}
 	}
 }

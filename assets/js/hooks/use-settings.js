@@ -38,10 +38,12 @@ function collectErrorMessages( error ) {
 }
 
 /**
- * Export the settings.
+ * Load, hold and persist settings for the DataView page.
  *
- * @param props
- * @returns {[*,*,saveSettings,*]}
+ * @param {Object}   props
+ * @param {Object}   props.config
+ * @param {Function} [props.onSoftReload]
+ * @return {[Object, Function, Function, boolean, boolean]} settings, setSettings, saveSettings, isSaving, isLoading
  */
 export const useSettings = ( props ) => {
   const [ settings, setSettings ] = useState( {} );
@@ -78,17 +80,28 @@ export const useSettings = ( props ) => {
     } );
   }, [] );
 
-  const saveSettings = () => {
+  /**
+   * Persist settings to the REST API.
+   *
+   * @param {Object}  [options]
+   * @param {Object}  [options.values]      Values to save (defaults to current state).
+   * @param {boolean} [options.softReload]  Force soft-reload after a successful save.
+   * @param {boolean} [options.silent]      Skip the success snackbar.
+   * @return {void}
+   */
+  const saveSettings = ( options = {} ) => {
     if ( isSaving ) {
       return;
     }
 
     setIsSaving( true );
 
+    const source = options.values ?? settings;
+
     const settingsToSave = applyFilters(
       'esfw.settingsPage.beforeSave',
       Object.fromEntries(
-        Object.entries( settings ).filter( ( [ key, value ] ) =>
+        Object.entries( source ).filter( ( [ key, value ] ) =>
           null !== value || null !== initialSettingsRef.current[ key ]
         )
       ),
@@ -100,17 +113,12 @@ export const useSettings = ( props ) => {
       method: 'POST',
       data: settingsToSave,
     } )
-      .then( ( response ) => {
+      .then( async ( response ) => {
         doAction( 'esfw.settingsPage.afterSave', settingsToSave, props.config );
 
         const fields = props.config.fields ?? [];
 
-        // A sanitize_callback can reject/revert part of what we sent (e.g. via
-        // add_settings_error()); the REST response reflects what WordPress
-        // actually stored. Use it as the new source of truth instead of
-        // trusting settingsToSave blindly, so a rejected field snaps back to
-        // its real value in the UI rather than keeping the invalid input.
-        const persisted = { ...settings, ...settingsToSave };
+        const persisted = { ...source, ...settingsToSave };
         fields.forEach( ( field ) => {
           if ( response && field.id in response ) {
             persisted[ field.id ] = response[ field.id ];
@@ -118,9 +126,9 @@ export const useSettings = ( props ) => {
         } );
         setSettings( persisted );
 
-        // Per-setting reload / redirect (only if value actually changed).
         let redirectUrl = null;
         let shouldReload = false;
+        let shouldSoftReload = !! options.softReload;
 
         for ( const field of fields ) {
           const id = field.id;
@@ -141,9 +149,11 @@ export const useSettings = ( props ) => {
           if ( field.reload_on_save ) {
             shouldReload = true;
           }
+          if ( field.soft_reload_on_save ) {
+            shouldSoftReload = true;
+          }
         }
 
-        // Baseline für künftige Saves aktualisieren.
         initialSettingsRef.current = { ...persisted };
 
         if ( redirectUrl ) {
@@ -157,10 +167,19 @@ export const useSettings = ( props ) => {
           return;
         }
 
-        // Surface any add_settings_error() messages raised by a sanitize_callback
-        // while saving (e.g. an invalid entry that got reverted). Without this,
-        // the classic Settings-API notices never reach the DataView and the
-        // reset value looks unexplained.
+        if ( shouldSoftReload && typeof props.onSoftReload === 'function' ) {
+          try {
+            await props.onSoftReload( persisted );
+          } catch ( e ) {
+            // error in config-fetch.
+          }
+          if ( ! options.silent ) {
+            createSuccessNotice( props.config.settings_saved, { type: 'snackbar' } );
+          }
+          setIsSaving( false );
+          return;
+        }
+
         const settingsErrors = Array.isArray( response?.esfw_settings_errors )
           ? response.esfw_settings_errors
           : [];
@@ -169,7 +188,7 @@ export const useSettings = ( props ) => {
           settingsErrors.forEach( ( settingsError ) => {
             createErrorNotice( settingsError.message, { type: 'snackbar' } );
           } );
-        } else {
+        } else if ( ! options.silent ) {
           createSuccessNotice( props.config.settings_saved, { type: 'snackbar' } );
         }
 
@@ -178,9 +197,6 @@ export const useSettings = ( props ) => {
       .catch( ( error ) => {
         doAction( 'esfw.settingsPage.saveError', error, props.config );
 
-        // In developer mode, surface the actual (technical) REST error(s) so
-        // the cause is visible in the UI, not only in the browser console.
-        // Otherwise, keep the generic, user-facing message.
         const technicalMessages = props.config.developer_mode
           ? collectErrorMessages( error )
           : [];
@@ -189,9 +205,8 @@ export const useSettings = ( props ) => {
           const prefix = props.config.settings_save_error_details ?? '';
           technicalMessages.forEach( ( message ) => {
             createErrorNotice(
-              prefix ? `${ prefix } ${ message }` : message, {
-                type: 'snackbar',
-              }
+              prefix ? `${ prefix } ${ message }` : message,
+              { type: 'snackbar' }
             );
           } );
         } else {

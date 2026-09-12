@@ -76,7 +76,6 @@ export function mapFields( config ) {
     ) {
       const fieldId = updatedField.id;
       const elements = updatedField.elements;
-      const fieldLabel = updatedField.label;
       const fieldDescription = updatedField.description;
       const useRadio = updatedField.Edit === 'radio';
 
