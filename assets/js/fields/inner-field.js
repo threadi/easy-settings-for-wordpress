@@ -116,6 +116,7 @@ export function InnerFieldControl( {
           label={ effectiveLabel }
           checked={ !! value }
           onChange={ onChange }
+          disabled={ !! descriptor.readOnly }
           __nextHasNoMarginBottom
         />
       </div>
@@ -132,6 +133,7 @@ export function InnerFieldControl( {
           onChange={ ( newValue ) =>
             onChange( newValue === '' ? 0 : parseInt( newValue, 10 ) )
           }
+          disabled={ !! descriptor.readOnly }
           __next40pxDefaultSize
           __nextHasNoMarginBottom
         />
@@ -146,6 +148,7 @@ export function InnerFieldControl( {
           label={ effectiveLabel }
           value={ value ?? '' }
           onChange={ onChange }
+          disabled={ !! descriptor.readOnly }
           __nextHasNoMarginBottom
         />
       </div>
@@ -163,6 +166,7 @@ export function InnerFieldControl( {
             value: element.value,
           } ) ) }
           onChange={ onChange }
+          disabled={ !! descriptor.readOnly }
           __next40pxDefaultSize
           __nextHasNoMarginBottom
         />
@@ -181,6 +185,7 @@ export function InnerFieldControl( {
             value: element.value,
           } ) ) }
           onChange={ onChange }
+          disabled={ !! descriptor.readOnly }
         />
       </div>
     );
@@ -195,6 +200,7 @@ export function InnerFieldControl( {
         label={ effectiveLabel }
         value={ value ?? '' }
         onChange={ onChange }
+        disabled={ !! descriptor.readOnly }
         __next40pxDefaultSize
         __nextHasNoMarginBottom
       />

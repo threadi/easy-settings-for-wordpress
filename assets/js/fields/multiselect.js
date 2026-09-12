@@ -50,13 +50,14 @@ export function createMultiSelectEdit( options, { sortable = false } = {} ) {
         <FormTokenField
           label={ field.label }
           value={ currentLabels }
-          suggestions={ options.map( ( o ) => o.label ) }
-          onChange={ handleTokensChange }
+          suggestions={ field.readOnly ? [] : options.map( ( o ) => o.label ) }
+          onChange={ field.readOnly ? () => {} : handleTokensChange }
           help={ field?.description }
+          disabled={ !! field.readOnly }
           __experimentalExpandOnFocus
           __next40pxDefaultSize
         />
-        { sortable && currentValues.length > 1 && (
+        { sortable && ! field.readOnly && currentValues.length > 1 && (
           <ul className="esfw-multiselect__order">
             { currentValues.map( ( value, index ) => (
               <li key={ value } className="esfw-multiselect__order-item">

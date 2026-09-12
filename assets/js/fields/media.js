@@ -8,11 +8,14 @@ import { MediaEdit } from '@wordpress/fields';
  */
 export function createMediaFieldEdit( { multiple, allowedTypes } ) {
   return function CustomMediaEdit( props ) {
-    const { onChange } = props;
+    const { onChange, field } = props;
 
     // ensure a cleared selection sends an explicit empty value instead of
     // dropping out of the request (undefined is stripped by JSON.stringify).
     const handleChange = ( edits ) => {
+      if ( field?.readOnly ) {
+        return;
+      }
       const empty = multiple ? [] : 0;
       const next = { ...edits };
       Object.keys( next ).forEach( ( key ) => {
@@ -24,7 +27,10 @@ export function createMediaFieldEdit( { multiple, allowedTypes } ) {
     };
 
     return (
-      <div className="esfw-image-choose">
+      <div
+        className="esfw-image-choose"
+        style={ field?.readOnly ? { pointerEvents: 'none', opacity: 0.7 } : undefined }
+      >
         <MediaEdit
           { ...props }
           onChange={ handleChange }

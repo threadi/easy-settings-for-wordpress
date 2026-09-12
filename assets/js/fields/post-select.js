@@ -64,6 +64,7 @@ export function createPostSelectEdit( { endpoint, limit, placeholder } ) {
         onChange={ ( newValue ) =>
           onChange( { [ field.id ]: newValue ? parseInt( newValue, 10 ) : 0 } )
         }
+        disabled={ !! field.readOnly }
         __next40pxDefaultSize
         __nextHasNoMarginBottom
       />

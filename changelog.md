@@ -5,6 +5,11 @@
 ### Changed
 
 - Show field-specific classes in DataView for each field
+- Support readonly for any fields in DataView
+
+### Fixed
+
+- Fixed missing output of description for PermalinkSlug field in classic view
 
 ## [3.4.0] - 09.09.2026
 

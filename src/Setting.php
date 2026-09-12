@@ -623,6 +623,7 @@ class Setting extends Base_Object {
 			'description' => wp_kses_post( $field->get_description() ),
 			'depend'      => $field->get_depend_as_array(),
 			'type'        => 'text',
+			'readOnly'    => $field->is_readonly(),
 		);
 
 		// add the id only when this field maps to an own option.

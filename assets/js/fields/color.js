@@ -22,6 +22,7 @@ export function createColorEdit() {
                 variant="secondary"
                 onClick={ onToggle }
                 aria-expanded={ isOpen }
+                disabled={ !! field.readOnly }
               >
                 <HStack spacing={ 2 } justify="flex-start">
                   { currentValue && <ColorIndicator colorValue={ currentValue } /> }

@@ -48,6 +48,7 @@ export function createButtonEdit( { buttonTitle, buttonUrl, buttonClasses, butto
             variant="primary"
             href={ buttonUrl }
             className={ ( buttonClasses ?? [] ).join( ' ' ) }
+            disabled={ !! field.readOnly }
             { ...dataProps }
           >
             { buttonTitle }

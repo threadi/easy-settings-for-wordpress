@@ -75,25 +75,37 @@ export function createMultiFieldEdit( innerDescriptor, quantity = 1 ) {
           >
             <div style={ { flex: 1 } }>
               <InnerFieldControl
-                descriptor={ innerDescriptor }
+                descriptor={
+                  field.readOnly
+                    ? { ...innerDescriptor, readOnly: true }
+                    : innerDescriptor
+                }
                 value={ value }
-                onChange={ ( newValue ) => updateEntry( index, newValue ) }
+                onChange={
+                  field.readOnly
+                    ? () => {}
+                    : ( newValue ) => updateEntry( index, newValue )
+                }
                 label={ `${ innerDescriptor.label || field.label } #${ index + 1 }` }
                 hideDescription
               />
             </div>
-            <Button
-              variant="secondary"
-              isDestructive
-              onClick={ () => removeEntry( index ) }
-            >
-              &times;
-            </Button>
+            { ! field.readOnly && (
+              <Button
+                variant="secondary"
+                isDestructive
+                onClick={ () => removeEntry( index ) }
+              >
+                &times;
+              </Button>
+            )}
           </div>
         ) ) }
+        { ! field.readOnly && (
         <Button variant="secondary" onClick={ addEntry }>
           +
         </Button>
+        )}
         { field.description && (
           <p className="components-base-control__help">{ field.description }</p>
         ) }
