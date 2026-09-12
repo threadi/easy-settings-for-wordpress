@@ -72,8 +72,11 @@ export function InnerFieldControl( {
 
   const effectiveLabel = label ?? descriptor.label;
   const EditComponent = getEditComponent( descriptor );
+  const fieldName = descriptor.id || '';
+  const wrapperClassName = fieldName
+    ? `esfw-field esfw-field--${ fieldName }`
+    : 'esfw-field';
 
-  // types with a custom Edit component: reuse it through an adapter.
   if ( EditComponent ) {
     const syntheticId = descriptor.id || '__inner__';
     const syntheticField = {
@@ -99,92 +102,102 @@ export function InnerFieldControl( {
     };
 
     return (
-      <EditComponent
-        field={ syntheticField }
-        data={ syntheticData }
-        onChange={ handleChange }
-      />
+      <div className={ wrapperClassName }>
+        <EditComponent field={ syntheticField } data={ syntheticData } onChange={ handleChange } />
+      </div>
     );
   }
 
   // DataViews-native types: render an equivalent control directly.
   if ( descriptor.type === 'boolean' ) {
     return (
-      <CheckboxControl
-        label={ effectiveLabel }
-        checked={ !! value }
-        onChange={ onChange }
-        __nextHasNoMarginBottom
-      />
+      <div className={ wrapperClassName }>
+        <CheckboxControl
+          label={ effectiveLabel }
+          checked={ !! value }
+          onChange={ onChange }
+          __nextHasNoMarginBottom
+        />
+      </div>
     );
   }
 
   if ( descriptor.type === 'integer' ) {
     return (
-      <TextControl
-        type="number"
-        label={ effectiveLabel }
-        value={ value ?? '' }
-        onChange={ ( newValue ) =>
-          onChange( newValue === '' ? 0 : parseInt( newValue, 10 ) )
-        }
-        __next40pxDefaultSize
-        __nextHasNoMarginBottom
-      />
+      <div className={ wrapperClassName }>
+        <TextControl
+          type="number"
+          label={ effectiveLabel }
+          value={ value ?? '' }
+          onChange={ ( newValue ) =>
+            onChange( newValue === '' ? 0 : parseInt( newValue, 10 ) )
+          }
+          __next40pxDefaultSize
+          __nextHasNoMarginBottom
+        />
+      </div>
     );
   }
 
   if ( descriptor.Edit === 'textarea' ) {
     return (
-      <TextareaControl
-        label={ effectiveLabel }
-        value={ value ?? '' }
-        onChange={ onChange }
-        __nextHasNoMarginBottom
-      />
+      <div className={ wrapperClassName }>
+        <TextareaControl
+          label={ effectiveLabel }
+          value={ value ?? '' }
+          onChange={ onChange }
+          __nextHasNoMarginBottom
+        />
+      </div>
     );
   }
 
   if ( descriptor.Edit === 'select' ) {
     return (
-      <SelectControl
-        label={ effectiveLabel }
-        value={ value ?? '' }
-        options={ ( descriptor.elements ?? [] ).map( ( element ) => ( {
-          label: element.label,
-          value: element.value,
-        } ) ) }
-        onChange={ onChange }
-        __next40pxDefaultSize
-        __nextHasNoMarginBottom
-      />
+      <div className={ wrapperClassName }>
+        <SelectControl
+          label={ effectiveLabel }
+          value={ value ?? '' }
+          options={ ( descriptor.elements ?? [] ).map( ( element ) => ( {
+            label: element.label,
+            value: element.value,
+          } ) ) }
+          onChange={ onChange }
+          __next40pxDefaultSize
+          __nextHasNoMarginBottom
+        />
+      </div>
     );
   }
 
   if ( descriptor.Edit === 'radio' ) {
     return (
-      <RadioControl
-        label={ effectiveLabel }
-        selected={ value ?? '' }
-        options={ ( descriptor.elements ?? [] ).map( ( element ) => ( {
-          label: element.label,
-          value: element.value,
-        } ) ) }
-        onChange={ onChange }
-      />
+      <div className={ wrapperClassName }>
+        <RadioControl
+          label={ effectiveLabel }
+          selected={ value ?? '' }
+          options={ ( descriptor.elements ?? [] ).map( ( element ) => ( {
+            label: element.label,
+            value: element.value,
+          } ) ) }
+          onChange={ onChange }
+        />
+      </div>
     );
   }
 
   const inputType = descriptor.Edit === 'password' ? 'password' : 'text';
 
   return (
-    <TextControl
-      type={ inputType }
-      label={ effectiveLabel }
-      value={ value ?? '' }
-      onChange={ onChange }
-      __next40pxDefaultSize
-      __nextHasNoMarginBottom
-    />
+    <div className={ wrapperClassName }>
+      <TextControl
+        type={ inputType }
+        label={ effectiveLabel }
+        value={ value ?? '' }
+        onChange={ onChange }
+        __next40pxDefaultSize
+        __nextHasNoMarginBottom
+      />
+    </div>
   );
 }

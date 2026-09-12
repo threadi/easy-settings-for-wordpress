@@ -104,13 +104,17 @@ export function SectionCard( { section, fields, settings, onChange } ) {
               />
             ) }
             { getVisibleFieldIds( section.fields, fields, settings ).map( ( fieldId ) => (
-              <DataForm
+              <div
                 key={ fieldId }
-                data={ settings }
-                fields={ fields }
-                form={ { fields: [ fieldId ] } }
-                onChange={ onChange }
-              />
+                className={ `esfw-field esfw-field--${ fieldId }` }
+              >
+                <DataForm
+                  data={ settings }
+                  fields={ fields }
+                  form={ { fields: [ fieldId ] } }
+                  onChange={ onChange }
+                />
+              </div>
             ) ) }
           </VStack>
         </CardBody>

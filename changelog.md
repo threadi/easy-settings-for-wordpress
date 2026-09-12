@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Show field-specific classes in DataView for each field
+
 ## [3.4.0] - 09.09.2026
 
 ### Added
