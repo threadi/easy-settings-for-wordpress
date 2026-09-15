@@ -20,6 +20,7 @@ export function createPermalinkSlugEdit( { options, listTitle } ) {
           label={ field.label }
           value={ currentValue }
           onChange={ ( value ) => onChange( { [ field.id ]: value } ) }
+          disabled={ !! field.readOnly }
           __next40pxDefaultSize
           __nextHasNoMarginBottom
         />
@@ -34,6 +35,7 @@ export function createPermalinkSlugEdit( { options, listTitle } ) {
                   currentValue.includes( option.placeholder ) ? 'active' : ''
                 }
                 onClick={ () => insertPlaceholder( option.placeholder ) }
+                disabled={ !! field.readOnly }
               >
                 { option.label }
               </Button>

@@ -44,7 +44,11 @@ export function createFieldTableEdit( { columns, rows } ) {
                     { ( cell ?? [] ).map( ( cellDescriptor ) => (
                       <InnerFieldControl
                         key={ cellDescriptor.id }
-                        descriptor={ cellDescriptor }
+                        descriptor={
+                          field.readOnly
+                            ? { ...cellDescriptor, readOnly: true }
+                            : cellDescriptor
+                        }
                         value={ data?.[ cellDescriptor.id ] }
                         onChange={ ( newValue ) =>
                           onChange( { [ cellDescriptor.id ]: newValue } )

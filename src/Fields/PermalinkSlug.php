@@ -115,8 +115,8 @@ class PermalinkSlug extends Field_Base {
 
 			<?php
 		}
-		if ( ! empty( $attr['description'] ) ) {
-			echo '<p>' . wp_kses_post( $attr['description'] ) . '</p>';
+		if ( ! empty( $this->get_description() ) ) {
+			echo '<p>' . wp_kses_post( $this->get_description() ) . '</p>';
 		}
 	}
 

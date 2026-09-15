@@ -122,6 +122,14 @@ class Setting extends Base_Object {
 	private bool $reload_on_save = false;
 
 	/**
+	 * Soft-reload the DataView after this setting was saved with a changed value
+	 * (re-fetch config, no full page reload). Also triggers on field change in the UI.
+	 *
+	 * @var bool
+	 */
+	private bool $soft_reload_on_save = false;
+
+	/**
 	 * Optional URL to redirect to after this setting was saved with a changed value.
 	 * Takes precedence over reload_on_save.
 	 *
@@ -593,6 +601,10 @@ class Setting extends Base_Object {
 			$configuration['reload_on_save'] = true;
 		}
 
+		if ( $this->should_soft_reload_on_save() ) {
+			$configuration['soft_reload_on_save'] = true;
+		}
+
 		// set redirect setting.
 		if ( ! empty( $this->get_redirect_on_save() ) ) {
 			$configuration['redirect_on_save'] = $this->get_redirect_on_save();
@@ -623,6 +635,7 @@ class Setting extends Base_Object {
 			'description' => wp_kses_post( $field->get_description() ),
 			'depend'      => $field->get_depend_as_array(),
 			'type'        => 'text',
+			'readOnly'    => $field->is_readonly(),
 		);
 
 		// add the id only when this field maps to an own option.
@@ -885,5 +898,24 @@ class Setting extends Base_Object {
 	 */
 	public function get_redirect_on_save(): string {
 		return $this->redirect_on_save;
+	}
+
+	/**
+	 * Soft-reload the DataView after saving a changed value of this setting.
+	 *
+	 * @param bool $reload Whether to soft-reload.
+	 * @return void
+	 */
+	public function set_soft_reload_on_save( bool $reload ): void {
+		$this->soft_reload_on_save = $reload;
+	}
+
+	/**
+	 * Return whether we should soft-reload on save / change.
+	 *
+	 * @return bool
+	 */
+	public function should_soft_reload_on_save(): bool {
+		return $this->soft_reload_on_save;
 	}
 }

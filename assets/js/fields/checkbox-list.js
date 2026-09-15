@@ -34,6 +34,7 @@ export function createCheckboxListEdit( options ) {
               label={ option.label }
               checked={ selected.includes( option.value ) }
               onChange={ ( isChecked ) => toggleOption( option.value, isChecked ) }
+              disabled={ !! field.readOnly }
             />
           ) ) }
         </VStack>

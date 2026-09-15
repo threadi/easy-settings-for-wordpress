@@ -1,5 +1,21 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added soft-reload for DataView, which just loads the DataView with the actual configuration without page reload
+
+### Changed
+
+- Show field-specific classes in DataView for each field
+- Support readonly for any fields in DataView
+
+### Fixed
+
+- Fixed missing output of description for PermalinkSlug field in classic view
+- Fixed missing output of error messages in developer mode
+
 ## [3.4.0] - 09.09.2026
 
 ### Added

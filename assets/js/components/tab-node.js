@@ -137,7 +137,7 @@ export function TabNode( {
             {
               const url = new URL( window.location.href );
 
-              if ( depth === 0 ) {
+              if ( 0 === depth ) {
                 // Main-Tab: immer tab setzen, subtab entfernen
                 url.searchParams.set( 'tab', tabName );
                 url.searchParams.delete( 'subtab' );
