@@ -120,6 +120,13 @@ class Tab extends Base_Object {
 	private Page|false $page = false;
 
 	/**
+	 * List of sections by name.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private array $sections_by_name = array();
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Settings $settings_obj The settings object.
@@ -343,6 +350,9 @@ class Tab extends Base_Object {
 
 		// add the section to the list of sections of this tab.
 		$this->sections[ $position ] = $section_obj;
+		if ( '' !== $name ) {
+			$this->sections_by_name[ $name ] = $section_obj;
+		}
 
 		// return the tab object.
 		return $section_obj;
@@ -506,6 +516,13 @@ class Tab extends Base_Object {
 
 	/**
 	 * Return a section of this tab by its name.
+	 *
+	 * Deliberately scans the *filtered* get_sections() result (not the
+	 * $sections_by_name index used by has_section_with_name()), because
+	 * the '..._settings_tab_sections' filter is allowed to add, remove or
+	 * reorder sections for callers of this method. Indexing would silently
+	 * drop that filter support. Sections per tab are typically few, so the
+	 * O(n) cost here is not the bottleneck has_setting_with_name() was.
 	 *
 	 * @param string $section_name The name of the searched section.
 	 *
@@ -719,12 +736,7 @@ class Tab extends Base_Object {
 	 * @return bool
 	 */
 	public function has_section_with_name( string $name ): bool {
-		foreach ( $this->sections as $existing_section ) {
-			if ( $existing_section->get_name() === $name ) {
-				return true;
-			}
-		}
-		return false;
+		return isset( $this->sections_by_name[ $name ] );
 	}
 
 	/**

@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Optimized memory usage
+- Extended support for detection of skills via composer.json
+
 ## [3.5.1] - 19.09.2026
 
 ### Added

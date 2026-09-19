@@ -27,11 +27,11 @@ require __DIR__ . '/vendor/autoload.php';
  * Register the settings during plugin activation.
  */
 function my_example_plugin_activation(): void {
-    // load the settings.
-    my_example_plugin_init();
+	// load the settings.
+	my_example_plugin_init();
 
-    // initiate the settings.
-    my_example_plugin_get_settings_object()->activation();
+	// initiate the settings.
+	my_example_plugin_get_settings_object()->activation();
 }
 register_activation_hook( __FILE__, 'my_example_plugin_activation' );
 
@@ -39,33 +39,33 @@ register_activation_hook( __FILE__, 'my_example_plugin_activation' );
  * Initialize the settings.
  */
 function my_example_plugin_init(): void {
-    /**
-     * Configure the basic settings object.
-     */
-    $settings_obj = my_example_plugin_get_settings_object();
-    $settings_obj->set_view( 'dataview' );
+	/**
+	 * Configure the basic settings object.
+	 */
+	$settings_obj = my_example_plugin_get_settings_object();
+	$settings_obj->set_view( 'dataview' );
 
-    // get the settings page.
-    $page = $settings_obj->get_page( $settings_obj->get_menu_slug() );
+	// get the settings page.
+	$page = $settings_obj->get_page( $settings_obj->get_menu_slug() );
 
-    // add our first tab.
-    $tab = $page->add_tab( 'my-example-plugin-settings-tab', 10 );
-    $tab->set_title( __( 'Settings', 'my-example-plugin' ) );
+	// add our first tab.
+	$tab = $page->add_tab( 'my-example-plugin-settings-tab', 10 );
+	$tab->set_title( __( 'Settings', 'my-example-plugin' ) );
 
-    // add our first section.
-    $section = $tab->add_section( 'my-example-plugin-settings-section', 10 );
+	// add our first section.
+	$section = $tab->add_section( 'my-example-plugin-settings-section', 10 );
 
-    // add our first setting.
-    $setting = $settings_obj->add_setting( 'my_example_checkbox' );
-    $setting->set_section( $section );
-    $field = new Checkbox( $settings_obj );
-    $field->set_title( __( 'My example checkbox', 'my-example-plugin' ) );
-    $setting->set_field( $field );
+	// add our first setting.
+	$setting = $settings_obj->add_setting( 'my_example_checkbox' );
+	$setting->set_section( $section );
+	$field = new Checkbox( $settings_obj );
+	$field->set_title( __( 'My example checkbox', 'my-example-plugin' ) );
+	$setting->set_field( $field );
 
-    /**
-     * Initiate the settings object.
-     */
-    $settings_obj->init();
+	/**
+	 * Initiate the settings object.
+	 */
+	$settings_obj->init();
 }
 add_action( 'init', 'my_example_plugin_init' );
 
@@ -75,18 +75,18 @@ add_action( 'init', 'my_example_plugin_init' );
  * @return Settings
  */
 function my_example_plugin_get_settings_object(): Settings {
-    /**
-     * Variable for the object.
-     */
-    static $settings = null;
+	/**
+	 * Variable for the object.
+	 */
+	static $settings = null;
 
-    /**
-     * Get the object one time.
-     */
-    if ( null === $settings ) {
-        $settings = new Settings( __FILE__ );
-    }
+	/**
+	 * Get the object one time.
+	 */
+	if ( null === $settings ) {
+		$settings = new Settings( __FILE__ );
+	}
 
-    // return it.
-    return $settings;
+	// return it.
+	return $settings;
 }
