@@ -5,6 +5,7 @@
 ### Added
 
 - Add the method to use in DataView
+- Added skills for developers of these package and for plugin-developer who will be using this package with their AI
 
 ### Changed
 

@@ -100,3 +100,53 @@ Enhancement suggestions are tracked as [GitHub issues](https://github.com/thread
 - **Describe the current behavior** and **explain which behavior you expected to see instead** and why. At this point you can also tell which alternatives do not work for you.
 - You may want to **include screenshots or screen recordings** which help you demonstrate the steps or point out the part which the suggestion is related to. You can use [LICEcap](https://www.cockos.com/licecap/) to record GIFs on macOS and Windows, and the built-in [screen recorder in GNOME](https://help.gnome.org/users/gnome-help/stable/screen-shot-record.html.en) or [SimpleScreenRecorder](https://github.com/MaartenBaert/ssr) on Linux. <!-- this should only be included if the project has a GUI -->
 - **Explain why this enhancement would be useful** to most Easy Settings for WordPress users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
+
+### Development Setup
+
+Requirements: PHP ^8.2, Composer, a local WordPress test environment.
+
+```bash
+composer install
+composer test-install   # sets up the WP test environment, see bin/install-wp-tests.sh
+```
+
+#### Running tests
+
+```bash
+composer test   # runs phpunit
+```
+
+#### Coding standards
+
+Coding standards are enforced via `phpcs.xml.dist` (WordPress-Extra + VIP
+coding standards) and `phpstan.neon` (PHPStan with the WordPress extension).
+Run both before opening a PR:
+
+```bash
+vendor/bin/phpcs
+vendor/bin/phpstan analyse
+```
+
+CI enforces both, so a PR won't be merged without passing.
+
+#### Project structure
+
+```
+src/
+  Settings.php         entry point: one instance per settings page
+  Page.php, Tab.php, Section.php, Setting.php, Field_Base.php
+  Methods.php           resolves which storage method is active
+  Method_Base.php        shared behaviour for storage methods
+  Methods/Simple.php    one wp_options row per setting
+  Methods/One.php       all settings in one wp_options row
+  Views.php, View_Base.php    classic / dataview renderers
+  Import.php, Export.php
+tests/                  PHPUnit tests (WP test scaffolding via bin/install-wp-tests.sh)
+docs/                   human-facing usage docs (fields.md, setting.md, tabs.md, pages.md, ...)
+.claude/skills/         Agent Skill (agentskills.io format) describing consumer-side usage
+```
+
+See the root `AGENTS.md` for the settings API's usage model and the
+invariants around the "one" storage method's read/write filters — anything
+touching `Method_Base.php`, `src/Methods/One.php`, or
+`Settings::add_setting()` should be read against that section first.

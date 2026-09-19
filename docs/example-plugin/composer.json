@@ -1,0 +1,7 @@
+{
+    "name": "threadi/my-example-plugin",
+    "version": "1.0.0",
+    "require": {
+      "threadi/easy-settings-for-wordpress": "^3.5.0"
+    }
+}
