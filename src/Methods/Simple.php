@@ -8,6 +8,8 @@
  * @package easy-settings-for-wordpress
  */
 
+declare(strict_types=1);
+
 namespace easySettingsForWordPress\Methods;
 
 // prevent direct access.

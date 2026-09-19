@@ -28,6 +28,9 @@
     "prepend-autoloader": false,
     "platform-check": false
   },
+  "extra": {
+      "ai-agent-skill": "skills/easy-settings-for-wordpress/SKILL.md"
+  },
   "autoload": {
     "psr-4": {
       "easySettingsForWordPress\\": "src/"

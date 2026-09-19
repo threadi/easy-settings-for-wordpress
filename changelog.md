@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Optimized memory usage
+- Extended support for detection of skills via composer.json
+- Now using PHP strict for each file
+
 ## [3.5.1] - 19.09.2026
 
 ### Added

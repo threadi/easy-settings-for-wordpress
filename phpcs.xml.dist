@@ -21,10 +21,13 @@
     <rule ref="WordPress-Docs"/>
     <rule ref="WordPress-Extra"/>
     <rule ref="WordPress">
-        <!-- Excluded in favour to match PSR-4-namings of classes. -->
+        <!-- Excluded in favor to match PSR-4-namings of classes. -->
         <exclude name="WordPress.Files.FileName"/>
 
         <!-- Exclude override of globals -->
         <exclude name="WordPress.WP.GlobalVariablesOverride"/>
     </rule>
+
+    <!-- Require declare(strict_types=1) in every file. -->
+    <rule ref="Generic.PHP.RequireStrictTypes"/>
 </ruleset>

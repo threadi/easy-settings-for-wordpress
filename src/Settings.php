@@ -5,6 +5,8 @@
  * @package easy-settings-for-wordpress
  */
 
+declare(strict_types=1);
+
 namespace easySettingsForWordPress;
 
 // prevent direct access.
@@ -198,6 +200,13 @@ class Settings {
 	 * @var bool
 	 */
 	private bool $persist_section_collapse = false;
+
+	/**
+	 * List of settings by name.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private array $settings_by_name = array();
 
 	/**
 	 * List of errors.
@@ -958,18 +967,7 @@ class Settings {
 	 * @return false|Setting
 	 */
 	public function get_setting( string $option ): false|Setting {
-		foreach ( $this->get_settings() as $setting ) {
-			// bail if setting has not the searched name.
-			if ( $option !== $setting->get_name() ) {
-				continue;
-			}
-
-			// return the object.
-			return $setting;
-		}
-
-		// return false if no setting with the given name could be found.
-		return false;
+		return ! empty( $this->settings_by_name[ $option ] ) ? $this->settings_by_name[ $option ] : false;
 	}
 
 	/**
@@ -1060,6 +1058,9 @@ class Settings {
 
 		// add the setting to the list of settings of this tab.
 		$this->settings[] = $setting_obj;
+		if ( '' !== $name ) {
+			$this->settings_by_name[ $name ] = $setting_obj;
+		}
 
 		// If this setting is added AFTER the init() loop (e.g., by
 		// an add-on that submits its own settings via a later hook), we wire
@@ -1084,12 +1085,7 @@ class Settings {
 	 * @return bool
 	 */
 	private function has_setting_with_name( string $name ): bool {
-		foreach ( $this->settings as $existing_setting ) {
-			if ( $existing_setting->get_name() === $name ) {
-				return true;
-			}
-		}
-		return false;
+		return isset( $this->settings_by_name[ $name ] );
 	}
 
 	/**
@@ -1439,6 +1435,15 @@ class Settings {
 	 */
 	public function set_settings( array $settings ): void {
 		$this->settings = $settings;
+
+		$this->settings_by_name = array();
+		foreach ( $settings as $setting ) {
+			$name = $setting->get_name();
+			if ( '' === $name ) {
+				continue;
+			}
+			$this->settings_by_name[ $name ] = $setting;
+		}
 	}
 
 	/**
