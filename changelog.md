@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.5.1] - 19.09.2026
+
+### Added
+
+- Add the method to use in DataView
+
+### Changed
+
+- Optimization of style for MultiField in DataView
+
+### Fixed
+
+- Fixed missing loading and saving of values from method "one"
+
 ## [3.5.0] - 15.09.2026
 
 ### Added

@@ -453,6 +453,7 @@
     "view":              { "type": "string", "enum": [ "classic", "dataview" ], "default": "classic" },
     "styling":           { "type": "string", "enum": [ "horizontal_tabs", "vertical_tabs" ], "default": "horizontal_tabs" },
     "default_tab":       { "type": "string", "description": "Name of one of the tabs defined above." },
+    "method":         { "type": "string", "default": "simple" },
     "tabs": {
       "type": "array",
       "items": { "$ref": "#/$defs/tab" }
