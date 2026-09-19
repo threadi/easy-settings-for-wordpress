@@ -5,6 +5,8 @@
  * @package easy-settings-for-wordpress
  */
 
+declare(strict_types=1);
+
 namespace easySettingsForWordPress;
 
 // prevent direct access.

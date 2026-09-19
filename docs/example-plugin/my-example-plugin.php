@@ -14,6 +14,8 @@
  * @package my-example-plugin
  */
 
+declare(strict_types=1);
+
 // prevent direct access.
 defined( 'ABSPATH' ) || exit;
 
