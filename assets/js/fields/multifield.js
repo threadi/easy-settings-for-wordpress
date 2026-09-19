@@ -69,7 +69,7 @@ export function createMultiFieldEdit( innerDescriptor, quantity = 1 ) {
             style={ {
               display: 'flex',
               gap: '8px',
-              alignItems: 'flex-start',
+              alignItems: 'flex-end',
               marginBottom: '8px',
             } }
           >

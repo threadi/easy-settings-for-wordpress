@@ -91,6 +91,9 @@ class Parser extends Base_Object {
 		// basic settings-object properties.
 		$this->get_settings_obj()->set_slug( (string) $config['slug'] );
 
+		if ( isset( $config['method'] ) && is_string( $config['method'] ) ) {
+			$this->get_settings_obj()->set_method( $config['method'] );
+		}
 		if ( isset( $config['plugin_slug'] ) ) {
 			$this->get_settings_obj()->set_plugin_slug( (string) $config['plugin_slug'] );
 		}

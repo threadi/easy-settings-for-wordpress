@@ -235,6 +235,13 @@ class Settings {
 	private Views $views;
 
 	/**
+	 * Marker for initialized settings.
+	 *
+	 * @var bool
+	 */
+	private bool $initialized = false;
+
+	/**
 	 * Constructor, not used as this a Singleton object.
 	 *
 	 * @param string $plugin_path The plugin path (use __FILE__ for it).
@@ -299,6 +306,7 @@ class Settings {
 
 		// run the initialization tasks on the method we use.
 		$base_method->init();
+		$this->initialized = true;
 
 		// initiate import and export.
 		$this->get_import_obj()->init();
@@ -1052,6 +1060,17 @@ class Settings {
 
 		// add the setting to the list of settings of this tab.
 		$this->settings[] = $setting_obj;
+
+		// If this setting is added AFTER the init() loop (e.g., by
+		// an add-on that submits its own settings via a later hook), we wire
+		// it ourselves immediately—instead of waiting for another global sweep, which
+		// might not even run in this request anymore due to the WP_Hook iteration.
+		if ( $this->initialized ) {
+			$method = $this->get_methods()->get_method();
+			if ( $method instanceof Method_Base ) {
+				$method->register_setting_value_filters( $setting_obj );
+			}
+		}
 
 		// return the settings object.
 		return $setting_obj;

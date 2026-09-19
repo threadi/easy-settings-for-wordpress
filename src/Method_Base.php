@@ -316,4 +316,13 @@ class Method_Base {
 	 * @return void
 	 */
 	public function update_settings(): void {}
+
+	/**
+	 * Register the filters for a setting.
+	 *
+	 * @param Setting $setting The setting.
+	 *
+	 * @return void
+	 */
+	public function register_setting_value_filters( Setting $setting ): void {}
 }

@@ -47,6 +47,9 @@ class One extends Method_Base {
 	 * @return void
 	 */
 	public function init(): void {
+		// register the settings.
+		$this->register_settings();
+
 		// use hooks.
 		add_filter( 'pre_update_option_' . $this->get_option_name(), array( $this, 'save_settings' ), 10, 0 );
 		add_filter( 'allowed_options', array( $this, 'filter_allowed_options' ) );
@@ -122,21 +125,75 @@ class One extends Method_Base {
 			return;
 		}
 
-		// loop through the settings.
+		// Field-table cells first (no section of their own).
+		$handled_cells = array();
 		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
-			// bail if setting should not be registered.
+			$field_obj = $setting->get_field();
+			if ( ! $field_obj instanceof FieldTable ) {
+				continue;
+			}
+			$section = $setting->get_section();
+			if ( ! $section instanceof Section ) {
+				continue;
+			}
+			$tab = $section->get_tab();
+			if ( ! $tab instanceof Tab ) {
+				continue;
+			}
+			foreach ( $field_obj->get_cell_settings_flat() as $cell_setting ) {
+				if ( $cell_setting->should_not_be_registered() ) {
+					continue;
+				}
+				$this->register_single_setting( $cell_setting, $tab );
+				$handled_cells[ $cell_setting->get_name() ] = true;
+			}
+		}
+
+		// then regular settings.
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
 			if ( $setting->should_not_be_registered() ) {
 				continue;
 			}
+			if ( isset( $handled_cells[ $setting->get_name() ] ) ) {
+				continue;
+			}
+			$section = $setting->get_section();
+			if ( ! $section instanceof Section ) {
+				// a field-table cell without a resolvable tab: skip silently,
+				// it was already attempted above.
+				if ( true === $setting->get_custom_var( 'esfw_field_table_cell' ) ) {
+					continue;
+				}
 
-			// get the option before any output.
-			add_filter( 'pre_option_' . $setting->get_name(), array( $this, 'get_option' ), 10, 2 );
+				// log this as error.
+				$this->get_settings_obj()->add_error(
+					'setting_missing_section',
+					'A section is missing for a setting.',
+					array(
+						'setting' => $setting->get_name(),
+					)
+				);
 
-			// save the option in the main settings field.
-			add_filter( 'pre_update_option_' . $setting->get_name(), array( $this, 'save_option' ), 10, 3 );
+				// log this as error.
+				continue;
+			}
+			$tab = $section->get_tab();
+			if ( ! $tab instanceof Tab ) {
+				// log this as error.
+				$this->get_settings_obj()->add_error(
+					'setting_missing_tab',
+					'A tab is missing for a setting.',
+					array(
+						'setting' => $setting->get_name(),
+					)
+				);
+
+				// do nothing more.
+				continue;
+			}
+			$this->register_single_setting( $setting, $tab );
 		}
 
-		// check for any updates to the settings.
 		$this->get_settings_obj()->maybe_update();
 	}
 
@@ -199,8 +256,17 @@ class One extends Method_Base {
 		// add the setting.
 		$settings[ $setting_name ] = $value;
 
+		// get the option name.
+		$global_option = $this->get_option_name();
+
+		// remove our own filter.
+		remove_filter( 'pre_update_option_' . $global_option, array( $this, 'save_settings' ) );
+
 		// save the global settings.
 		update_option( $this->get_option_name(), $settings );
+
+		// re-add our own filter.
+		add_filter( 'pre_update_option_' . $global_option, array( $this, 'save_settings' ), 10, 0 );
 
 		// prevent the save process.
 		return $old_value;
@@ -542,5 +608,94 @@ class One extends Method_Base {
 
 		// run the field's own sanitize_callback.
 		return call_user_func( $field_obj->get_sanitize_callback(), $value );
+	}
+
+	/**
+	 * Register the filters for a setting.
+	 *
+	 * @param Setting $setting The setting.
+	 *
+	 * @return void
+	 */
+	public function register_setting_value_filters( Setting $setting ): void {
+		// bail if this should not be registered.
+		if ( $setting->should_not_be_registered() ) {
+			return;
+		}
+
+		// register in REST API.
+		$section = $setting->get_section();
+		if ( $section instanceof Section ) {
+			$tab = $section->get_tab();
+			if ( $tab instanceof Tab ) {
+				$this->register_single_setting( $setting, $tab );
+				return;
+			}
+		}
+
+		// use hooks.
+		add_filter( 'pre_option_' . $setting->get_name(), array( $this, 'get_option' ), 10, 2 );
+		add_filter( 'pre_update_option_' . $setting->get_name(), array( $this, 'save_option' ), 10, 3 );
+	}
+
+	/**
+	 * Register a single setting.
+	 *
+	 * @param Setting $setting The setting.
+	 * @param Tab     $tab The tab.
+	 *
+	 * @return void
+	 */
+	private function register_single_setting( Setting $setting, Tab $tab ): void {
+		$args = array(
+			'type'         => $setting->get_type(),
+			'default'      => $setting->get_default(),
+			'show_in_rest' => $setting->get_show_in_rest(),
+		);
+
+		$field_obj = $setting->get_field();
+		if ( $field_obj instanceof Field_Base ) {
+			$args['sanitize_callback'] = $field_obj->get_sanitize_callback();
+		}
+
+		$schema = array( 'type' => $setting->get_type() );
+		if ( $field_obj instanceof Field_Base ) {
+			$schema = array_merge( $schema, $field_obj->get_rest_schema() );
+		}
+		if ( isset( $schema['type'] ) ) {
+			$args['type'] = $schema['type'];
+		}
+
+		if ( $setting->is_show_in_rest() ) {
+			if ( is_array( $args['show_in_rest'] ) && isset( $args['show_in_rest']['schema'] ) ) {
+				$schema = array_merge( $schema, $args['show_in_rest']['schema'] );
+			}
+			if ( isset( $schema['type'] ) && 'array' === $schema['type'] && ! isset( $schema['items'] ) ) {
+				$schema['items'] = array();
+			}
+			if ( isset( $schema['type'] ) && 'object' === $schema['type'] && ! isset( $schema['properties'] ) && ! isset( $schema['additionalProperties'] ) ) {
+				$schema['additionalProperties'] = true;
+			}
+
+			// set marker.
+			$schema[ $this->get_settings_obj()->get_slug() ] = $field_obj instanceof Field_Base;
+
+			$show_in_rest           = is_array( $args['show_in_rest'] ) ? $args['show_in_rest'] : array();
+			$show_in_rest['schema'] = $schema;
+			$args['show_in_rest']   = $show_in_rest;
+		} else {
+			$args['show_in_rest'] = false;
+		}
+
+		// helper to view this setting in REST API.
+		register_setting(
+			$tab->get_name(),
+			$setting->get_name(),
+			$args
+		);
+
+		// extract the values from the "one" field.
+		add_filter( 'pre_option_' . $setting->get_name(), array( $this, 'get_option' ), 10, 2 );
+		add_filter( 'pre_update_option_' . $setting->get_name(), array( $this, 'save_option' ), 10, 3 );
 	}
 }
