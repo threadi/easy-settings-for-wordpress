@@ -8,8 +8,9 @@ The package supports saving settings in various ways, which are referred to here
 
 Example to migrate from "Simple" to "One":
 
-`$settings_obj->migrate_method( 'simple', 'one' );`
-
-Hint: you should have already been set the new method as active method by using the following code:
-
-`$settings_obj->set_method( 'one' );`
+```
+$settings->set_method( 'simple' );
+// define your settings here.
+$settings->migrate_method( 'one' );
+$settings->init();
+```
