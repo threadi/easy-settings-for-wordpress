@@ -172,8 +172,24 @@ class Method_Base {
 	 * @return mixed
 	 */
 	public function get_setting_value( string $setting_name ): mixed {
-		// default: each setting has its own option entry.
-		return get_option( $setting_name );
+		// Read directly from wp_options so migration still works when another
+		// method (one / own_table) has already attached pre_option_* filters.
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Migration must bypass option filters.
+		$row = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
+				$setting_name
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( null === $row ) {
+			return false;
+		}
+
+		return maybe_unserialize( $row );
 	}
 
 	/**

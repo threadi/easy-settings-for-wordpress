@@ -315,12 +315,10 @@ class Simple extends Method_Base {
 	 */
 	public function has_data(): bool {
 		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
-			// bail if at least one setting has an own option entry.
-			if ( false !== get_option( $setting->get_name(), false ) ) {
+			if ( false !== $this->get_setting_value( $setting->get_name() ) ) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 

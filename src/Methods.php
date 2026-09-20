@@ -59,6 +59,7 @@ class Methods extends Base_Object {
 		$list = array(
 			'\easySettingsForWordPress\Methods\Simple',
 			'\easySettingsForWordPress\Methods\One',
+			'\easySettingsForWordPress\Methods\OwnTable',
 		);
 
 		/**

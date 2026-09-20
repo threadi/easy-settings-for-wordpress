@@ -2,11 +2,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added new method "Own Table" to save all settings in a database table separated from WordPress
+
 ### Changed
 
 - Optimized memory usage
-- Extended support for detection of skills via composer.json
+- Optimized migration ways for method switches
+- Extended support for detection of skills via "composer.json"
 - Now using PHP strict for each file
+- Extended the skills support
+- Updated the documentation for migration from one method to another
 
 ## [3.5.1] - 19.09.2026
 
