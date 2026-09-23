@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.6.1] - 23.09.2026
+
+### Changed
+
+- Do not use superglobal in DataView requests
+
+### Fixed
+
+- Fixed that soft reload makes invisible tabs visible in DataView
+
 ## [3.6.0] - 22.09.2026
 
 ### Added
