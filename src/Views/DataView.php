@@ -23,6 +23,7 @@ use easySettingsForWordPress\Settings;
 use easySettingsForWordPress\Tab;
 use easySettingsForWordPress\View_Base;
 use Throwable;
+use WP_REST_Request;
 
 /**
  * Objects to handle the DataView to show settings in the backend.
@@ -93,9 +94,16 @@ class DataView extends View_Base {
 	/**
 	 * Return the configuration used for the DataView.
 	 *
+	 * @param string $page_slug The slug of the requested settings page.
+	 *
 	 * @return array<string,mixed>
 	 */
-	public function get_configuration(): array {
+	public function get_configuration( string $page_slug = '' ): array {
+		// fall back to the requested page when the caller does not know it.
+		if ( '' === $page_slug ) {
+			$page_slug = (string) filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		}
+
 		// get the translations.
 		$translations = $this->settings_obj->get_translations();
 
@@ -107,8 +115,13 @@ class DataView extends View_Base {
 			'slug'                        => $settings_obj->get_slug(),
 			'title'                       => $settings_obj->get_title(),
 			'fields'                      => $this->get_fields(),
-			'tabs'                        => $this->get_tabs_config(),
-			'rest_config_path'            => esc_url_raw( rest_url( $settings_obj->get_slug() . '/v1/dataview-config' ) ),
+			'tabs'                        => $this->get_tabs_config( $page_slug ),
+			'rest_config_path'            => esc_url_raw(
+				add_query_arg(
+					array( 'page' => $page_slug ),
+					rest_url( $settings_obj->get_slug() . '/v1/dataview-config' )
+				)
+			),
 			'auto_save'                   => $settings_obj->get_auto_save(),
 			'lock_form_on_save'           => $settings_obj->should_lock_form_on_save(),
 			'save_title'                  => $translations['save_title'],
@@ -168,9 +181,11 @@ class DataView extends View_Base {
 	/**
 	 * Return the (possibly nested) tab tree for the dataview.
 	 *
+	 * @param string $page_slug The slug of the requested page.
+	 *
 	 * @return array<int,array<string,mixed>>
 	 */
-	private function get_tabs_config(): array {
+	private function get_tabs_config( string $page_slug = '' ): array {
 		// field ids per section.
 		$fields_by_section = array();
 		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
@@ -203,8 +218,7 @@ class DataView extends View_Base {
 		}
 
 		// get the requested page, the same way the classic view does it.
-		$page     = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$page_obj = is_null( $page ) ? false : $this->get_settings_obj()->get_page( $page );
+		$page_obj = '' === $page_slug ? false : $this->get_settings_obj()->get_page( $page_slug );
 
 		if ( $page_obj instanceof Page ) {
 			// limit the tabs to the ones assigned to the requested page, respecting their position.
@@ -595,6 +609,10 @@ class DataView extends View_Base {
 			$screen_was_set = true;
 		}
 
+		// remember the cache level.
+		$ob_level = ob_get_level();
+
+		// prepare the content.
 		$content = '';
 		try {
 			// capture the callback output, mirroring the $attr argument WordPress
@@ -605,18 +623,21 @@ class DataView extends View_Base {
 			if ( is_string( $captured ) && '' !== $captured ) {
 				$content = $captured;
 			}
-		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		} catch ( Throwable $e ) {
 			// Never let a single field break the whole DataView config. Surface
 			// the error in the field so it is visible in the UI / data-config.
-			if ( ob_get_level() > 0 ) {
-				ob_end_clean();
-			}
 			$content = '<!-- esfw-table render error: ' . esc_html( $e->getMessage() ) . ' -->';
 		} finally {
-			$_GET                   = $original_get; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// On exception ob_get_clean() never ran, so our buffer is still open.
+			// Close only buffers we opened above $ob_level; never touch WP's.
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
+
+			$_GET                   = $original_get;
 			$_SERVER['REQUEST_URI'] = $original_request_uri;
+
 			if ( $screen_was_set && function_exists( 'set_current_screen' ) ) {
-				// Restore previous state (null screen).
 				$GLOBALS['current_screen'] = $original_screen;
 			}
 		}
@@ -640,9 +661,9 @@ class DataView extends View_Base {
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
-				'callback'            => function () {
+				'callback'            => function ( WP_REST_Request $request ) {
 					$this->ensure_admin_screen_for_config();
-					return rest_ensure_response( $this->get_configuration() );
+					return rest_ensure_response( $this->get_configuration( (string) $request->get_param( 'page' ) ) );
 				},
 			)
 		);

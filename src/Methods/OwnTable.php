@@ -441,8 +441,8 @@ class OwnTable extends Method_Base {
 	/**
 	 * Write the raw value of a single setting to our own table and refresh the cache.
 	 *
-	 * @param string       $setting_name The internal name of the setting.
-	 * @param mixed        $value The value to store (already sanitized).
+	 * @param string        $setting_name The internal name of the setting.
+	 * @param mixed         $value The value to store (already sanitized).
 	 * @param Setting|false $setting The setting object, if available (used for the autoload-flag).
 	 *
 	 * @return void
