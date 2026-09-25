@@ -76,23 +76,37 @@ class File extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
+		// resolve the configured file types into MIME types (for the library) and extensions (for the upload).
+		$resolved_file_types = Helper::resolve_file_types( $this->get_file_types() );
+		$library_types       = ! empty( $resolved_file_types['mime_types'] ) ? $resolved_file_types['mime_types'] : $this->get_file_types();
+		$file_extensions     = implode( ',', $resolved_file_types['extensions'] );
+
 		// output.
 		$image_id = absint( get_option( $setting->get_name(), 0 ) );
 		if ( $image_id > 0 ) {
-			// get image source.
-			$image = wp_get_attachment_image_src( $image_id );
+			// get image source (or the MIME type icon for non-images).
+			$image = wp_get_attachment_image_src( $image_id, 'thumbnail', true );
 			if ( ! is_array( $image ) ) {
 				$image = array();
 			}
+			$is_image = wp_attachment_is_image( $image_id );
 			?>
-			<a href="#" class="esfw-settings-image-choose" data-file-types="<?php echo esc_attr( Helper::get_json( $this->get_file_types() ) ); ?>"><img src="<?php echo esc_url( isset( $image[0] ) ? $image[0] : '' ); ?>" alt="" /></a>
-			<a href="#" class="esfw-settings-image-remove"><?php echo esc_html( $this->get_remove_file_title() ); ?></a>
+			<a href="#" class="esfw-settings-file-choose" data-file-types="<?php echo esc_attr( Helper::get_json( $library_types ) ); ?>" data-file-extensions="<?php echo esc_attr( $file_extensions ); ?>"><img src="<?php echo esc_url( isset( $image[0] ) ? $image[0] : '' ); ?>" alt=""<?php echo $is_image ? '' : ' class="esfw-file-icon"'; ?> />
+			<?php
+			if ( ! $is_image ) {
+				?>
+				<span class="esfw-file-name"><?php echo esc_html( wp_basename( (string) get_attached_file( $image_id ) ) ); ?></span>
+				<?php
+			}
+			?>
+			</a>
+			<a href="#" class="esfw-settings-file-remove button"><?php echo esc_html( $this->get_remove_file_title() ); ?></a>
 			<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo absint( $image_id ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 			<?php
 		} else {
 			?>
-			<a href="#" class="esfw-settings-image-choose" data-file-types="<?php echo esc_attr( Helper::get_json( $this->get_file_types() ) ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
-			<a href="#" class="esfw-settings-image-remove" style="display:none"><?php echo esc_html( $this->get_remove_file_title() ); ?></a>
+			<a href="#" class="esfw-settings-file-choose button" data-file-types="<?php echo esc_attr( Helper::get_json( $library_types ) ); ?>" data-file-extensions="<?php echo esc_attr( $file_extensions ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
+			<a href="#" class="esfw-settings-file-remove button" style="display:none"><?php echo esc_html( $this->get_remove_file_title() ); ?></a>
 			<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 			<?php
 		}
@@ -156,6 +170,10 @@ class File extends Field_Base {
 
 	/**
 	 * Set allowed file types.
+	 *
+	 * Each entry may be a MIME type ("text/csv"), a MIME type with wildcard ("image/*"),
+	 * a MIME group ("image") or a file extension ("csv"). The list is used to filter the
+	 * media library and to restrict uploads in the media modal.
 	 *
 	 * @param array<int,string> $file_types List of allowed file types.
 	 *

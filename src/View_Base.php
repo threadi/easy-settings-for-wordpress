@@ -17,6 +17,15 @@ defined( 'ABSPATH' ) || exit;
  */
 class View_Base extends Base_Object {
 	/**
+	 * Initialize this view (e.g. register its hooks).
+	 *
+	 * Only called for the view which is actually used.
+	 *
+	 * @return void
+	 */
+	public function init(): void {}
+
+	/**
 	 * Output this view.
 	 *
 	 * @return void

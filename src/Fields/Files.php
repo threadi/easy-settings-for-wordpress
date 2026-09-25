@@ -108,7 +108,7 @@ class Files extends Field_Base {
 
 		// output.
 		?>
-		<a href="#" class="esfw-settings-files-choose" data-file-types="<?php echo esc_attr( Helper::get_json( $this->get_file_types() ) ); ?>" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
+		<a href="#" class="esfw-settings-files-choose button" data-file-types="<?php echo esc_attr( Helper::get_json( Helper::get_media_library_types( $this->get_file_types() ) ) ); ?>" data-file-extensions="<?php echo esc_attr( Helper::get_media_file_extensions( $this->get_file_types() ) ); ?>" data-setting="<?php echo esc_attr( $setting->get_name() ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
 		<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( ! empty( $files ) ? implode( ',', $files ) : '' ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 		<?php
 
@@ -149,6 +149,10 @@ class Files extends Field_Base {
 
 	/**
 	 * Set allowed file types.
+	 *
+	 * Each entry may be a MIME type ("text/csv"), a MIME type with wildcard ("image/*"),
+	 * a MIME group ("image") or a file extension ("csv"). The list is used to filter the
+	 * media library and to restrict uploads in the media modal.
 	 *
 	 * @param array<int,string> $file_types List of allowed file types.
 	 *

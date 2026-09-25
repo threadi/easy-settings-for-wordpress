@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Optimized handling of files via File field in Classic and DataView
+- Do not load Classic view scripts for DataView and DataView scripts for Classic view
+
+### Fixed
+
+- Fixed a deprecation warning using method One without any settings
+
 ## [3.6.1] - 23.09.2026
 
 ### Changed
