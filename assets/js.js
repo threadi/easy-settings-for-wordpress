@@ -110,35 +110,89 @@ jQuery(document).ready(function($) {
   });
 
   /**
-   * Image handling: on upload button click.
+   * File handling: on upload button click.
    */
-  $('.esfw-settings-image-choose').on( 'click', function(e){
+  $('.esfw-settings-file-choose').on('click', function (e) {
     e.preventDefault();
-    let button = $(this),
-        custom_uploader = wp.media({
-          title: esfwJsVars.title_add_image,
-          library : {
-            type : button.data('file-types')
-          },
-          button: {
-            text: esfwJsVars.button_add_image
-          },
-          multiple: false
-        }).on('select', function() { // it also has "open" and "close" events
-          let attachment = custom_uploader.state().get('selection').first().toJSON();
-          button.html('<img alt="" src="' + attachment.url + '">').next().show().next().val(attachment.id);
-        }).open();
 
+    let button = $(this),
+      custom_uploader = wp.media({
+        title: esfwJsVars.title_add_image,
+        library: {
+          type: button.data('file-types')
+        },
+        button: {
+          text: esfwJsVars.button_add_image
+        },
+        multiple: false
+      });
+
+    custom_uploader.on('select', function () {
+      let attachment = custom_uploader.state().get('selection').first().toJSON(),
+        preview = $('<img alt="">');
+
+      // show the chosen file instead of the button label.
+      button.removeClass('button');
+
+      if ( 'image' === attachment.type ) {
+        preview.attr('src', attachment.sizes && attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url);
+        button.empty().append(preview);
+      }
+      else {
+        preview.attr('src', attachment.icon).addClass('esfw-file-icon');
+        button.empty().append(preview, $('<span class="esfw-file-name">').text(attachment.filename));
+      }
+
+      button.next().show().next().val(attachment.id);
+    });
+
+    esfw_open_media_frame( custom_uploader, button.data('file-extensions') );
   });
 
   /**
-   * Image handling: on remove button click.
+   * Open a media frame and restrict its uploader to the given file extensions.
+   *
+   * The plupload instance of a media frame is created on its first open() and
+   * copies wp.Uploader.defaults at this moment. So we set the extensions there
+   * only for the time of the open() call and restore the defaults afterward.
+   * This way the browser file dialog, drag & drop and the upload queue only
+   * accept these extensions - and other media frames on the page stay untouched.
+   *
+   * @param {Object} frame      The wp.media frame.
+   * @param {string} extensions Comma-separated list of extensions, e.g. "csv" or "jpg,jpeg,png".
    */
-  $('.esfw-settings-image-remove').on('click', function(e){
+  function esfw_open_media_frame( frame, extensions ) {
+    extensions = String( extensions || '' );
+
+    // open without restriction if no extensions are set or the uploader is not available.
+    if ( '' === extensions || typeof wp.Uploader === 'undefined' || ! wp.Uploader.defaults ) {
+      frame.open();
+      return;
+    }
+
+    let defaults = wp.Uploader.defaults,
+      original_filters = defaults.filters;
+
+    defaults.filters = $.extend( {}, original_filters, {
+      mime_types: [ { title: '', extensions: extensions } ]
+    } );
+
+    try {
+      frame.open();
+    }
+    finally {
+      defaults.filters = original_filters;
+    }
+  }
+
+  /**
+   * File handling: on remove button click.
+   */
+  $('.esfw-settings-file-remove').on('click', function(e){
     e.preventDefault();
     let button = $(this);
     button.next().val('');
-    button.hide().prev().html(esfwJsVars.lbl_upload_image);
+    button.hide().prev().html(esfwJsVars.lbl_upload_image).addClass('button');
   });
 
   /**
@@ -156,7 +210,9 @@ jQuery(document).ready(function($) {
             text: esfwJsVars.button_add_files
           },
           multiple: true
-        }).on('select', function (){
+        });
+
+    custom_uploader.on('select', function (){
           let file_ids = custom_uploader.state().get('selection').map( function( attachment ) {
             attachment = attachment.toJSON();
             return attachment.id;
@@ -184,7 +240,9 @@ jQuery(document).ready(function($) {
                     }
                 }
             );
-        }).open();
+        });
+
+    esfw_open_media_frame( custom_uploader, button.data('file-extensions') );
   });
 
   /**

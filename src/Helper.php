@@ -295,4 +295,111 @@ class Helper {
 	public static function is_development_mode(): bool {
 		return function_exists( 'wp_is_development_mode' ) && wp_is_development_mode( 'plugin' );
 	}
+
+	/**
+	 * Resolve a list of file types into MIME types and file extensions.
+	 *
+	 * Each entry of the list may be:
+	 * - a complete MIME type, e.g. "text/csv" or "application/pdf"
+	 * - a MIME type with wildcard, e.g. "image/*"
+	 * - a MIME group, e.g. "image", "video" or "audio"
+	 * - a file extension, e.g. "csv" or "pdf"
+	 *
+	 * Only types the current user is allowed to upload are returned
+	 * (see get_allowed_mime_types()).
+	 *
+	 * @param array<int,string> $file_types List of file types.
+	 *
+	 * @return array{mime_types: array<int,string>, extensions: array<int,string>}
+	 */
+	public static function resolve_file_types( array $file_types ): array {
+		$mime_types = array();
+		$extensions = array();
+
+		// get the allowed MIME types, e.g. 'jpg|jpeg|jpe' => 'image/jpeg'.
+		$allowed_mime_types = get_allowed_mime_types();
+
+		foreach ( $file_types as $file_type ) {
+			$file_type = strtolower( trim( $file_type ) );
+
+			// skip empty entries.
+			if ( '' === $file_type ) {
+				continue;
+			}
+
+			foreach ( $allowed_mime_types as $extension_pattern => $mime_type ) {
+				$extension_list = explode( '|', $extension_pattern );
+
+				// bail if this MIME type does not match.
+				if ( ! self::is_file_type_matching( $file_type, $mime_type, $extension_list ) ) {
+					continue;
+				}
+
+				$mime_types[] = $mime_type;
+				$extensions   = array_merge( $extensions, $extension_list );
+			}
+		}
+
+		// return the resulting lists.
+		return array(
+			'mime_types' => array_values( array_unique( $mime_types ) ),
+			'extensions' => array_values( array_unique( $extensions ) ),
+		);
+	}
+
+	/**
+	 * Return the MIME types to filter the media library with.
+	 *
+	 * Falls back to the given file types if none of them could be resolved.
+	 *
+	 * @param array<int,string> $file_types List of file types.
+	 *
+	 * @return array<int,string>
+	 */
+	public static function get_media_library_types( array $file_types ): array {
+		$resolved = self::resolve_file_types( $file_types );
+		return ! empty( $resolved['mime_types'] ) ? $resolved['mime_types'] : $file_types;
+	}
+
+	/**
+	 * Return the file extensions allowed for uploads as comma-separated list (e.g. "jpg,jpeg,png").
+	 *
+	 * An empty string means: no additional restriction.
+	 *
+	 * @param array<int,string> $file_types List of file types.
+	 *
+	 * @return string
+	 */
+	public static function get_media_file_extensions( array $file_types ): string {
+		return implode( ',', self::resolve_file_types( $file_types )['extensions'] );
+	}
+
+	/**
+	 * Return whether a single file type entry matches the given MIME type and its extensions.
+	 *
+	 * @param string            $file_type  The file type entry (MIME type, wildcard, group or extension).
+	 * @param string            $mime_type  The MIME type to check.
+	 * @param array<int,string> $extensions The extensions of this MIME type.
+	 *
+	 * @return bool
+	 */
+	private static function is_file_type_matching( string $file_type, string $mime_type, array $extensions ): bool {
+		// MIME type with wildcard, e.g. "image/*".
+		if ( str_ends_with( $file_type, '/*' ) ) {
+			return str_starts_with( $mime_type, substr( $file_type, 0, -1 ) );
+		}
+
+		// complete MIME type, e.g. "text/csv".
+		if ( str_contains( $file_type, '/' ) ) {
+			return $mime_type === $file_type;
+		}
+
+		// file extension, e.g. "csv".
+		if ( in_array( $file_type, $extensions, true ) ) {
+			return true;
+		}
+
+		// MIME group, e.g. "image".
+		return str_starts_with( $mime_type, $file_type . '/' );
+	}
 }

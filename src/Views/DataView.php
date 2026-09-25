@@ -43,7 +43,14 @@ class DataView extends View_Base {
 	 */
 	public function __construct( Settings $settings_obj ) {
 		$this->settings_obj = $settings_obj;
+	}
 
+	/**
+	 * Initialize this view.
+	 *
+	 * @return void
+	 */
+	public function init(): void {
 		// use hooks.
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
@@ -89,6 +96,17 @@ class DataView extends View_Base {
 				'in_footer' => true,
 			)
 		);
+
+		// add backend CSS (also contains the styles for the DataView fields).
+		wp_enqueue_style(
+			$this->get_settings_obj()->get_slug() . '-settings',
+			$this->get_settings_obj()->get_url() . 'assets/style.css',
+			array(),
+			Helper::get_file_version( $this->get_settings_obj()->get_path() . 'assets/style.css', $this->get_settings_obj() ),
+		);
+
+		// add media library (used by the File and Files fields).
+		wp_enqueue_media();
 	}
 
 	/**

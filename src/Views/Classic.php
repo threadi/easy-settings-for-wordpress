@@ -43,7 +43,14 @@ class Classic extends View_Base {
 	 */
 	public function __construct( Settings $settings_obj ) {
 		$this->settings_obj = $settings_obj;
+	}
 
+	/**
+	 * Initialize this view.
+	 *
+	 * @return void
+	 */
+	public function init(): void {
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_js_and_css' ) );
 	}
 
@@ -106,7 +113,7 @@ class Classic extends View_Base {
 				'rest_nonce'                => wp_create_nonce( 'wp_rest' ),
 				'title_add_image'           => $translations['file_add_file'],
 				'button_add_image'          => $translations['file_choose_file'],
-				'lbl_upload_image'          => $translations['file_choose_image'],
+				'lbl_upload_image'          => $translations['file_choose_file'],
 				'label_sortable_title'      => $translations['drag_n_drop'],
 				'auto_save'                 => $settings_obj->get_auto_save(),
 				'lock_form_on_save'         => $settings_obj->should_lock_form_on_save(),

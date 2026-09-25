@@ -45,6 +45,7 @@ export function getEditComponent( descriptor ) {
       return createMediaFieldEdit( {
         multiple: descriptor.multiple,
         allowedTypes: descriptor.allowed_types,
+        allowedExtensions: descriptor.allowed_extensions,
       } );
     case 'esfw-multiselect':
       return createMultiSelectEdit( descriptor.options, {

@@ -712,14 +712,16 @@ class Setting extends Base_Object {
 				$configuration['type']     = 'media';
 				$configuration['multiple'] = false;
 				if ( $field instanceof File ) {
-					$configuration['allowed_types'] = $field->get_file_types();
+					$configuration['allowed_types']      = Helper::get_media_library_types( $field->get_file_types() );
+					$configuration['allowed_extensions'] = Helper::get_media_file_extensions( $field->get_file_types() );
 				}
 				break;
 			case 'Files':
 				$configuration['type']     = 'media';
 				$configuration['multiple'] = true;
 				if ( $field instanceof Files ) {
-					$configuration['allowed_types'] = $field->get_file_types();
+					$configuration['allowed_types']      = Helper::get_media_library_types( $field->get_file_types() );
+					$configuration['allowed_extensions'] = Helper::get_media_file_extensions( $field->get_file_types() );
 				}
 				break;
 			case 'MultiField':

@@ -82,6 +82,9 @@ class Views extends Base_Object {
 		// get the method.
 		$this->view = $this->get_view_by_name( $this->view_name );
 
+		// initialize only the view which is used.
+		$this->view->init();
+
 		// return the object.
 		return $this->view;
 	}

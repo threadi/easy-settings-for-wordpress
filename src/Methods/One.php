@@ -255,6 +255,11 @@ class One extends Method_Base {
 			$value = call_user_func( $setting->get_save_callback(), $value );
 		}
 
+		// define settings as array.
+		if ( ! is_array( $settings ) ) {
+			$settings = array();
+		}
+
 		// add the setting.
 		$settings[ $setting_name ] = $value;
 
