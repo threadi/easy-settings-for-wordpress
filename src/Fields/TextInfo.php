@@ -34,6 +34,20 @@ class TextInfo extends Field_Base {
 	protected bool $do_not_register = true;
 
 	/**
+	 * Callback for the tab.
+	 *
+	 * @var callable
+	 */
+	private $callback;
+
+	/**
+	 * The generated description, as the field reads it more than once.
+	 *
+	 * @var string|null
+	 */
+	private ?string $generated = null;
+
+	/**
 	 * Return the HTML-code to display this field.
 	 *
 	 * @param array<string,mixed> $attr Attributes for this field.
@@ -54,6 +68,15 @@ class TextInfo extends Field_Base {
 		// bail if field is not a Setting object.
 		if ( ! $attr['setting'] instanceof Setting ) {
 			return;
+		}
+
+		// use the callback, if set.
+		if ( null !== $this->callback ) {
+			if ( \is_null( $this->generated ) ) {
+				$description     = \call_user_func( $this->callback );
+				$this->generated = \is_string( $description ) ? $description : '';
+			}
+			echo wp_kses_post( $this->generated );
 		}
 
 		// check if paragraphs should be added.
@@ -77,5 +100,16 @@ class TextInfo extends Field_Base {
 			$value = '';
 		}
 		return sanitize_text_field( $value );
+	}
+
+	/**
+	 * Set the callback.
+	 *
+	 * @param callable $callback The callback.
+	 *
+	 * @return void
+	 */
+	public function set_callback( callable $callback ): void {
+		$this->callback = $callback;
 	}
 }
