@@ -6,6 +6,7 @@
 
 - Fixed missing sorting of tabs in classic view
 - Fixed wrong return value for Tab::has_tabs()
+- Fixed duplicate form on subtabs in classic view
 
 ## [3.6.2] - 25.09.2026
 
