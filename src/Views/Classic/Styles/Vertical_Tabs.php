@@ -15,7 +15,6 @@ defined( 'ABSPATH' ) || exit;
 use easySettingsForWordPress\Helper;
 use easySettingsForWordPress\Page;
 use easySettingsForWordPress\Settings;
-use easySettingsForWordPress\Tab;
 use easySettingsForWordPress\Views\Classic\Styling_Base;
 
 /**
@@ -91,9 +90,6 @@ class Vertical_Tabs extends Styling_Base {
 
 		// get sub tab from request.
 		$current_sub_tab = filter_input( INPUT_GET, 'subtab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-
-		// sort the tabs.
-		add_filter( $this->get_settings_obj()->get_slug() . '_settings_tabs', array( $this->get_settings_obj(), 'sort' ), PHP_INT_MAX );
 
 		?>
 		<div class="wrap easy-settings-for-wordpress">
@@ -205,14 +201,7 @@ class Vertical_Tabs extends Styling_Base {
 				</nav>
 
 				<div class="tab-content">
-					<?php
-					if ( $main_active_tab instanceof Tab ) {
-						call_user_func( $main_active_tab->get_callback() );
-					}
-					if ( $sub_active_tab instanceof Tab ) {
-						call_user_func( $sub_active_tab->get_callback() );
-					}
-					?>
+					<?php $this->show_tab_contents( $main_active_tab, $sub_active_tab ); ?>
 				</div>
 			</div>
 		</div>

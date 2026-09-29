@@ -4,6 +4,18 @@
 
 ### Changed
 
+- TextInfo now has a callback to use instead of description to output any text
+
+### Fixed
+
+- Fixed missing sorting of tabs in classic view
+- Fixed wrong return value for Tab::has_tabs()
+- Fixed duplicate form on subtabs in classic view
+
+## [3.6.2] - 25.09.2026
+
+### Changed
+
 - Optimized handling of files via File field in Classic and DataView
 - Do not load Classic view scripts for DataView and DataView scripts for Classic view
 
@@ -128,7 +140,7 @@
 
 ### Fixed
 
-- Fixed a wrong used schema for File and SelectPostTypeObject which prevents the save of their values in DataView
+- Fixed a wrong used schema for File and SelectPostTypeObject, which prevents the save of their values in DataView
 
 ## [3.1.2] - 15.08.2026
 
@@ -186,7 +198,7 @@
 - Added handling for different methods the settings can be saved in WordPress
 - Added the simple method to save all configured settings in one single option-entry
 - Added autosave-mode (every change, tab change or off), default is "off".
-- Added method get_errors() to get any errors which have occurred during using the settings
+- Added method get_errors() to get any errors, which have occurred during using the settings
 - Added demo settings if the object is not configured
 - Added new hooks
 
@@ -410,7 +422,7 @@
 
 ### Removed
 
-- Removed the package version from composer.json as suggested here: https://blog.packagist.com/tagged-a-new-release-for-composer-and-it-wont-show-up-on-packagist/
+- Removed the package version from "composer.json" as suggested here: https://blog.packagist.com/tagged-a-new-release-for-composer-and-it-wont-show-up-on-packagist/
 
 ## [1.15.2] - 29.10.2025
 
@@ -460,7 +472,7 @@
 
 ### Changed
 
-- Changed attributes for save callback from 2 to 3
+- Changed attributes for save the callback from 2 to 3
 
 ## [1.12.4] - 12.08.2025
 
@@ -552,7 +564,7 @@
 
 ## Fixed
 
-- Revert the change for support for easy dialog for WordPress
+- Revert the change for support for "Easy Dialog for WordPress"
 
 ## [1.10.1] - 23.06.2025
 
@@ -567,7 +579,7 @@
 ### Fixed
 
 - Fixed missing import of setting tab in File field
-- Fixed support for easy dialog for WordPress
+- Fixed support for "Easy Dialog for WordPress"
 
 ## [1.10.0] - 19.06.2025
 
@@ -588,7 +600,7 @@
 
 - Added new fields File and Files to select single or multiple files
 - Added new field MultiField to show one field type multiple times for one setting
-- Added new field SelectPostTypeObject which allows to search for any post type and let choose them for a setting
+- Added new field SelectPostTypeObject, which allows to search for any post type and let choose them for a setting
 - Added function `is_settings_page()` to check if a settings page is called
 - Added option to prevent registering of a setting, it will only be used as field
 
@@ -668,7 +680,7 @@
 
 ### Changed
 
-- Placeholder now also in Field_Base
+- Placeholder now also in "Field_Base"
 
 ## [1.3.2] - 10.06.2025
 
@@ -699,7 +711,7 @@
 - Added support for cpt-own menu entries
 - Added new fields: Radio and Checkboxes (plural)
 - Added read callback for settings
-- Added option to depend the fields from each other in settings form
+- Added option to depend on the fields from each other in settings form
 
 ### Changed
 

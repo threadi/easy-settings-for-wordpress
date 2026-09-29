@@ -96,6 +96,9 @@ class Page extends Base_Object {
 			$position = Helper::get_next_free_index_in_array( $this->tabs, $position );
 		}
 
+		// save the effective position on the tab object.
+		$tab_obj->set_position( $position );
+
 		// add the tab to the list of tabs of these settings.
 		$this->tabs[ $position ] = $tab_obj; // @phpstan-ignore assign.propertyType
 
@@ -140,7 +143,13 @@ class Page extends Base_Object {
 		 * @param array<int,Tab> $tabs List of tabs.
 		 * @param Page $instance The settings-object.
 		 */
-		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_tabs', $tabs, $instance );
+		$tabs = apply_filters( $this->get_settings_obj()->get_slug() . '_settings_tabs', $tabs, $instance );
+
+		// sort by position (= array key).
+		ksort( $tabs );
+
+		// return the resulting tabs.
+		return $tabs;
 	}
 
 	/**

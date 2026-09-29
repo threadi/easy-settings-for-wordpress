@@ -230,7 +230,6 @@ class DataView extends View_Base {
 
 		// tabs attached directly to the settings object.
 		$settings_tabs = $this->get_settings_obj()->get_tabs();
-		ksort( $settings_tabs );
 		foreach ( $settings_tabs as $tab ) {
 			$add_root( $tab );
 		}
@@ -241,7 +240,6 @@ class DataView extends View_Base {
 		if ( $page_obj instanceof Page ) {
 			// limit the tabs to the ones assigned to the requested page, respecting their position.
 			$page_tabs = $page_obj->get_tabs();
-			ksort( $page_tabs );
 			foreach ( $page_tabs as $tab ) {
 				$add_root( $tab );
 			}
@@ -249,7 +247,6 @@ class DataView extends View_Base {
 			// no (valid) page requested -> fall back to tabs of every page.
 			foreach ( $this->get_settings_obj()->get_pages() as $page_object ) {
 				$page_tabs = $page_object->get_tabs();
-				ksort( $page_tabs );
 				foreach ( $page_tabs as $tab ) {
 					$add_root( $tab );
 				}
@@ -305,7 +302,6 @@ class DataView extends View_Base {
 		// has sub-tabs -> nest and stop here.
 		$sub_tabs = $tab->get_tabs();
 		if ( ! empty( $sub_tabs ) ) {
-			ksort( $sub_tabs );
 			$node['tabs'] = array();
 			foreach ( $sub_tabs as $sub_tab ) {
 				$node['tabs'][] = $this->build_tab_node( $sub_tab, $fields_by_section, $tab->get_name() );

@@ -464,7 +464,13 @@ class Settings {
 		 * @param array<int,Tab> $tabs List of tabs.
 		 * @param Settings $instance The settings-object.
 		 */
-		return apply_filters( $this->get_slug() . '_settings_tabs', $tabs, $instance );
+		$tabs = apply_filters( $this->get_slug() . '_settings_tabs', $tabs, $instance );
+
+		// sort by position (= array key).
+		ksort( $tabs );
+
+		// return the resulting tabs.
+		return $tabs;
 	}
 
 	/**
