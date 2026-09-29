@@ -64,7 +64,7 @@ class Textarea extends Field_Base {
 				name="<?php echo esc_attr( $setting->get_name() ); ?>"
 				placeholder="<?php echo esc_attr( $this->get_placeholder() ); ?>"
 			<?php
-			echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
+			echo ( $this->is_readonly() ? ' readonly="readonly"' : '' );
 			?>
 				class="widefat <?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width"
 				title="<?php echo esc_attr( $this->get_title() ); ?>"

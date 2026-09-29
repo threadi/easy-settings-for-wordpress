@@ -224,6 +224,9 @@ class Setting extends Base_Object {
 			$this->do_not_register( true );
 		}
 
+		// assign this setting to the field.
+		$field_obj->set_setting( $this );
+
 		// add the field to this setting.
 		$this->field = $field_obj;
 

@@ -5,6 +5,8 @@
 ### Changed
 
 - TextInfo now has a callback to use instead of description to output any text
+- Optimized check for values of readonly fields against manipulation
+- Some new PHP Unit Tests
 
 ### Fixed
 

@@ -55,7 +55,7 @@ class Field_Base {
 	/**
 	 * The sanitize callback.
 	 *
-	 * @var callable
+	 * @var callable|null
 	 */
 	private $sanitize_callback;
 
@@ -186,16 +186,80 @@ class Field_Base {
 	/**
 	 * Return the sanitize callback.
 	 *
+	 * The callback is wrapped: while this field is readonly and the value comes from
+	 * a settings form or the REST settings endpoint, the stored value is kept.
+	 *
 	 * @return callable
 	 */
 	public function get_sanitize_callback(): callable {
-		// if setting is empty, use our default callback.
-		if ( null === $this->sanitize_callback ) {
-			return array( $this, 'default_sanitize_callback' );
+		// get the configured callback or our default callback.
+		$callback = ! \is_null( $this->sanitize_callback ) ? $this->sanitize_callback : array( $this, 'default_sanitize_callback' );
+
+		return function ( mixed $value ) use ( $callback ): mixed {
+			// keep the stored value for readonly fields.
+			if ( $this->should_keep_stored_value() ) {
+				return $this->get_stored_value();
+			}
+
+			// otherwise run the real sanitize callback.
+			return call_user_func( $callback, $value );
+		};
+	}
+
+	/**
+	 * Return whether the stored value must be kept instead of the submitted one.
+	 *
+	 * Only applies to requests that save settings (settings form or REST settings
+	 * endpoint), so programmatic update_option() calls and the import still work.
+	 *
+	 * @return bool
+	 */
+	protected function should_keep_stored_value(): bool {
+		// bail if field is not readonly.
+		if ( ! $this->is_readonly() ) {
+			return false;
 		}
 
-		// return the sanitize callback.
-		return $this->sanitize_callback;
+		// bail if no setting is assigned (e.g. inner fields of a MultiField).
+		if ( ! $this->get_setting() instanceof Setting ) {
+			return false;
+		}
+
+		// check for a save of a settings form (options.php or method "One").
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- only a check, the nonce is verified by the save handler.
+		$keep = isset( $_POST['option_page'] );
+
+		// check for a save via the REST settings endpoint (DataView).
+		if ( ! $keep && defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			$route = isset( $GLOBALS['wp']->query_vars['rest_route'] ) ? (string) $GLOBALS['wp']->query_vars['rest_route'] : '';
+			$keep  = str_starts_with( $route, '/wp/v2/settings' );
+		}
+
+		$instance = $this;
+		/**
+		 * Filter whether a readonly field keeps its stored value on save.
+		 *
+		 * @since 3.6.3 Available since 3.6.3.
+		 * @param bool       $keep     True to keep the stored value.
+		 * @param Field_Base $instance The field object.
+		 */
+		return (bool) apply_filters( $this->get_settings_obj()->get_slug() . '_setting_readonly_keep_value', $keep, $instance );
+	}
+
+	/**
+	 * Return the actual stored value of the setting this field belongs to.
+	 *
+	 * @return mixed
+	 */
+	protected function get_stored_value(): mixed {
+		$setting = $this->get_setting();
+
+		// bail if no setting is assigned.
+		if ( ! $setting instanceof Setting ) {
+			return null;
+		}
+
+		return get_option( $setting->get_name(), $setting->get_default() );
 	}
 
 	/**
