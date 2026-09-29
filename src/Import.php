@@ -233,9 +233,20 @@ class Import extends Base_Object {
 		do_action( $this->get_settings_obj()->get_slug() . '_settings_import', $settings_array );
 
 		foreach ( $settings_array as $field_name => $field_value ) {
-			if ( ! $this->get_settings_obj()->get_setting( $field_name ) ) {
+			// get the setting as object.
+			$setting_obj = $this->get_settings_obj()->get_setting( $field_name );
+
+			// bail if setting does not exist.
+			if ( ! $setting_obj instanceof Setting ) {
 				continue;
 			}
+
+			// bail if setting is prevent from export (should not be imported too).
+			if ( $setting_obj->is_export_prevented() ) {
+				continue;
+			}
+
+			// save the value on this settings field.
 			update_option( $field_name, $field_value );
 		}
 	}
