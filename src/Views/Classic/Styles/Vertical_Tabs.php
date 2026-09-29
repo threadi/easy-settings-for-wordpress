@@ -92,9 +92,6 @@ class Vertical_Tabs extends Styling_Base {
 		// get sub tab from request.
 		$current_sub_tab = filter_input( INPUT_GET, 'subtab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		// sort the tabs.
-		add_filter( $this->get_settings_obj()->get_slug() . '_settings_tabs', array( $this->get_settings_obj(), 'sort' ), PHP_INT_MAX );
-
 		?>
 		<div class="wrap easy-settings-for-wordpress">
 			<h1 class="wp-heading-inline"><?php echo esc_html( $this->get_settings_obj()->get_title() ); ?></h1>

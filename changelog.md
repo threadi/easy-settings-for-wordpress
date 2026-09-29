@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed missing sorting of tabs in classic view
+- Fixed wrong return value for Tab::has_tabs()
+
+## [3.6.2] - 25.09.2026
+
 ### Changed
 
 - Optimized handling of files via File field in Classic and DataView

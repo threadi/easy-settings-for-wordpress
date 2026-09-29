@@ -201,6 +201,11 @@ class Parser extends Base_Object {
 	 * @return void
 	 */
 	private function build_tab( Page|Tab $parent_object, array $tab_config, int $position ): void {
+		// use the explicit position from the config, if set.
+		if ( isset( $tab_config['position'] ) ) {
+			$position = (int) $tab_config['position'];
+		}
+
 		// add the tab.
 		$tab = $parent_object->add_tab( isset( $tab_config['name'] ) ? (string) $tab_config['name'] : '', $position );
 
@@ -212,11 +217,6 @@ class Parser extends Base_Object {
 		// set description.
 		if ( isset( $tab_config['description'] ) ) {
 			$tab->set_description( (string) $tab_config['description'] );
-		}
-
-		// set position.
-		if ( isset( $tab_config['position'] ) ) {
-			$tab->set_position( (int) $tab_config['position'] );
 		}
 
 		// set to show it in menu.
