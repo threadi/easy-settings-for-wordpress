@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.6.4] - 03.10.2026
+
+### Fixed
+
+- Fixed visibility of the callback for TextInfo fields in DataView
+
 ## [3.6.3] - 03.10.2026
 
 ### Changed

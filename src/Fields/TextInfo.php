@@ -72,11 +72,7 @@ class TextInfo extends Field_Base {
 
 		// use the callback, if set.
 		if ( null !== $this->callback ) {
-			if ( \is_null( $this->generated ) ) {
-				$description     = \call_user_func( $this->callback );
-				$this->generated = \is_string( $description ) ? $description : '';
-			}
-			echo wp_kses_post( $this->generated );
+			echo wp_kses_post( $this->get_callback_output() );
 		}
 
 		// check if paragraphs should be added.
@@ -111,5 +107,18 @@ class TextInfo extends Field_Base {
 	 */
 	public function set_callback( callable $callback ): void {
 		$this->callback = $callback;
+	}
+
+	/**
+	 * Return the callback output.
+	 *
+	 * @return string
+	 */
+	public function get_callback_output(): string {
+		if ( null !== $this->callback && null === $this->generated ) {
+			$output          = \call_user_func( $this->callback );
+			$this->generated = \is_string( $output ) ? $output : '';
+		}
+		return (string) $this->generated;
 	}
 }
