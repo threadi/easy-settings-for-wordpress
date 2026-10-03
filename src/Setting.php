@@ -23,6 +23,7 @@ use easySettingsForWordPress\Fields\PermalinkSlug;
 use easySettingsForWordPress\Fields\Radio;
 use easySettingsForWordPress\Fields\Select;
 use easySettingsForWordPress\Fields\SelectPostTypeObject;
+use easySettingsForWordPress\Fields\TextInfo;
 use easySettingsForWordPress\Fields\Value;
 
 /**
@@ -819,7 +820,11 @@ class Setting extends Base_Object {
 			case 'TextInfo':
 				$configuration['type']      = 'esfw-display';
 				$configuration['is_static'] = true;
-				$configuration['text']      = wp_kses_post( $field->get_description() );
+				$text                       = $field->get_description();
+				if ( $field instanceof TextInfo ) {
+					$text = $field->get_callback_output() . $text;
+				}
+				$configuration['text'] = wp_kses_post( $text );
 				break;
 			case 'Value':
 				$configuration['type']      = 'esfw-display';
