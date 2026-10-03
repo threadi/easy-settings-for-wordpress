@@ -1,16 +1,19 @@
 # Changelog
 
-## [Unreleased]
+## [3.6.3] - 03.10.2026
 
 ### Changed
 
 - TextInfo now has a callback to use instead of description to output any text
+- Optimized check for values of readonly fields against manipulation
+- Some new PHP Unit Tests
 
 ### Fixed
 
 - Fixed missing sorting of tabs in classic view
 - Fixed wrong return value for Tab::has_tabs()
 - Fixed duplicate form on subtabs in classic view
+- Fixed to not import excluded settings
 
 ## [3.6.2] - 25.09.2026
 

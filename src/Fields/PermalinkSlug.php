@@ -77,7 +77,7 @@ class PermalinkSlug extends Field_Base {
 		<input type="text" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( $value ); ?>"
 				<?php
 				echo ! empty( $attr['placeholder'] ) ? ' placeholder="' . esc_attr( $this->get_placeholder() ) . '"' : '';
-				echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
+				echo ( $this->is_readonly() ? ' readonly="readonly"' : '' );
 				?>
 				class="widefat" title="<?php echo esc_attr( $this->get_title() ); ?>"
 				data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"
@@ -104,7 +104,7 @@ class PermalinkSlug extends Field_Base {
 							// output button to add or remove the taxonomy from slug.
 							?>
 							<li>
-								<button type="button" class="button button-secondary<?php echo esc_attr( $css_class ); ?>" aria-label="<?php echo esc_attr( $label ); ?>" data-target="<?php echo esc_attr( $setting->get_name() ); ?>" data-placeholder="<?php echo esc_attr( $placeholder ); ?>">
+								<button type="button" class="button button-secondary<?php echo esc_attr( $css_class ); ?>" aria-label="<?php echo esc_attr( $label ); ?>" data-target="<?php echo esc_attr( $setting->get_name() ); ?>" data-placeholder="<?php echo esc_attr( $placeholder ); ?>"<?php echo ( $this->is_readonly() ? ' disabled="disabled"' : '' ); ?>>
 									<?php echo esc_html( $label ); ?>
 								</button>
 							</li>

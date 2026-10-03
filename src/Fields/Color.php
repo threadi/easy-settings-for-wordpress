@@ -64,7 +64,7 @@ class Color extends Field_Base {
 
 		// show hidden field if this is set to readonly.
 		if ( $this->is_readonly() ) {
-			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? 1 : 0 ); ?>">
+			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( $value ); ?>">
 			<?php
 		}
 

@@ -71,10 +71,12 @@ class MultiSelect extends Field_Base {
 		// get values.
 		$values = (array) get_option( $setting->get_name(), array() );
 
-		// show hidden field if this is set to readonly.
+		// show hidden fields if this is set to readonly (disabled fields are not submitted).
 		if ( $this->is_readonly() ) {
-			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( Helper::get_json( $values ) ); ?>">
-			<?php
+			foreach ( $values as $value ) {
+				?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>[]" value="<?php echo esc_attr( (string) $value ); ?>">
+				<?php
+			}
 		}
 
 		?>
