@@ -31,6 +31,8 @@ class Helper {
 			'easySettingsForWordPress\Fields\Checkbox',
 			'easySettingsForWordPress\Fields\Checkboxes',
 			'easySettingsForWordPress\Fields\Color',
+			'easySettingsForWordPress\Fields\Date',
+			'easySettingsForWordPress\Fields\DateTime',
 			'easySettingsForWordPress\Fields\FieldTable',
 			'easySettingsForWordPress\Fields\File',
 			'easySettingsForWordPress\Fields\Files',
@@ -46,6 +48,7 @@ class Helper {
 			'easySettingsForWordPress\Fields\Text',
 			'easySettingsForWordPress\Fields\Textarea',
 			'easySettingsForWordPress\Fields\TextInfo',
+			'easySettingsForWordPress\Fields\Time',
 			'easySettingsForWordPress\Fields\Value',
 		);
 	}

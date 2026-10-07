@@ -92,6 +92,12 @@
               "type": "integer",
               "default": 3,
               "field": { "type": "Number", "title": "Retries", "min": 0, "max": 10, "step": 1 }
+            },
+            {
+              "name": "start_time",
+              "type": "string",
+              "default": "12:00",
+              "field": { "type": "Time", "title": "Start time", "step": 900 }
             }
           ]
         },

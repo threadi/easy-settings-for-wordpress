@@ -521,41 +521,82 @@ class Setting extends Base_Object {
 	}
 
 	/**
-	 * Move a setting before another one.
+	 * Move this setting directly before another one.
 	 *
-	 * @param Setting $target_setting The setting before the actual object could be moved.
+	 * @param Setting $target_setting The setting this setting should be placed before.
 	 *
 	 * @return void
 	 * @noinspection PhpUnused
 	 */
 	public function move_before_setting( Setting $target_setting ): void {
-		// get all settings.
-		$settings = $this->get_settings_obj()->get_settings();
+		$this->move_to_setting( $target_setting, false );
+	}
 
-		// get position of target setting.
-		$target_position = 0;
-		$actual_position = 0;
-		foreach ( $settings as $index => $setting ) {
-			// get the position for the search target setting.
-			if ( $setting->get_name() === $target_setting->get_name() ) {
-				// get the index as position.
-				$target_position = $index;
+	/**
+	 * Move this setting directly after another one.
+	 *
+	 * @param Setting $target_setting The setting this setting should be placed after.
+	 *
+	 * @return void
+	 * @noinspection PhpUnused
+	 */
+	public function move_after_setting( Setting $target_setting ): void {
+		$this->move_to_setting( $target_setting, true );
+	}
+
+	/**
+	 * Move this setting directly before or after another one.
+	 *
+	 * Both settings must have been added to the settings object. If one of
+	 * them is missing (e.g. an object returned by add_setting() for a name
+	 * which was already in use), the order of the settings is not changed.
+	 *
+	 * @param Setting $target_setting The setting this setting should be placed next to.
+	 * @param bool    $after True to place it after the target, false to place it before.
+	 *
+	 * @return void
+	 */
+	private function move_to_setting( Setting $target_setting, bool $after ): void {
+		// bail if the setting should be moved next to itself.
+		if ( $target_setting === $this ) {
+			return;
+		}
+
+		// get all settings without the actual one.
+		$settings = array();
+		$found    = false;
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			if ( $setting === $this ) {
+				$found = true;
+				continue;
 			}
+			$settings[] = $setting;
+		}
 
-			// get the position of the actual setting.
-			if ( $setting->get_name() === $this->get_name() ) {
-				$actual_position = $index;
+		// bail if the actual setting is not part of the settings.
+		if ( ! $found ) {
+			return;
+		}
+
+		// get the position of the target setting.
+		$target_position = false;
+		foreach ( $settings as $index => $setting ) {
+			if ( $setting === $target_setting ) {
+				$target_position = $index;
+				break;
 			}
 		}
 
-		// remove the setting from its original position.
-		unset( $settings[ $actual_position ] );
+		// bail if the target setting is not part of the settings.
+		if ( false === $target_position ) {
+			return;
+		}
 
 		// add the setting on the new position.
-		$settings = Helper::add_array_in_array_on_position( $settings, $target_position, array( $target_position => $this ) );
+		array_splice( $settings, $after ? $target_position + 1 : $target_position, 0, array( $this ) );
 
 		// save the new settings.
-		$this->get_settings_obj()->set_settings( $settings ); // @phpstan-ignore argument.type
+		$this->get_settings_obj()->set_settings( $settings );
 	}
 
 	/**
@@ -678,6 +719,17 @@ class Setting extends Base_Object {
 				break;
 			case 'Color':
 				$configuration['type'] = 'esfw-color';
+				break;
+			case 'Date':
+			case 'DateTime':
+			case 'Time':
+				$configuration['type'] = 'esfw-datetime';
+				if ( $field instanceof Date_Time_Field_Base ) {
+					$configuration['input_type'] = $field->get_input_type();
+					$configuration['min']        = $field->get_min();
+					$configuration['max']        = $field->get_max();
+					$configuration['step']       = $field->get_step();
+				}
 				break;
 			case 'FieldTable':
 				$configuration['type'] = 'esfw-field-table';
@@ -861,6 +913,9 @@ class Setting extends Base_Object {
 				'Select',
 				'Radio',
 				'Checkbox',
+				'Date',
+				'DateTime',
+				'Time',
 				'MultiSelect',
 				'File',
 				'Files',

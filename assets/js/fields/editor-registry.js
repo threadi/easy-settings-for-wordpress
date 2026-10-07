@@ -13,6 +13,7 @@
 import { createButtonEdit } from './button';
 import { createCheckboxListEdit } from './checkbox-list';
 import { createColorEdit } from './color';
+import { createDateTimeEdit } from './datetime';
 import { createDisplayEdit } from './display';
 import { createFieldTableEdit } from './fieldtable';
 import { createMediaFieldEdit } from './media';
@@ -41,6 +42,13 @@ export function getEditComponent( descriptor ) {
       return createCheckboxListEdit( descriptor.options );
     case 'esfw-color':
       return createColorEdit( descriptor.options );
+    case 'esfw-datetime':
+      return createDateTimeEdit( {
+        inputType: descriptor.input_type,
+        min: descriptor.min,
+        max: descriptor.max,
+        step: descriptor.step,
+      } );
     case 'media':
       return createMediaFieldEdit( {
         multiple: descriptor.multiple,

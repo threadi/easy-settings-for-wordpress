@@ -87,6 +87,12 @@ Exception: Some fields already provide their own configurations for the REST API
 
 ## Move a setting
 
-If you want to move the position of your setting to a specific location in the output, use this feature here. `$setting` must be the other setting as Setting object.
+If you want to move the position of your setting to a specific location in the output, use this feature here. `$other_setting` must be the other setting as Setting object. Both settings must already be added to the settings object.
 
-`$setting->move_before_setting( $setting );`
+Place the setting directly before the other one:
+
+`$setting->move_before_setting( $other_setting );`
+
+Place the setting directly after the other one:
+
+`$setting->move_after_setting( $other_setting );`

@@ -13,6 +13,7 @@ namespace easySettingsForWordPress\Json;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Base_Object;
+use easySettingsForWordPress\Date_Time_Field_Base;
 use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Fields\Button;
 use easySettingsForWordPress\Fields\FieldTable;
@@ -478,6 +479,25 @@ class Parser extends Base_Object {
 				}
 				if ( isset( $field_config['step'] ) && method_exists( $field_obj, 'set_step' ) ) {
 					$field_obj->set_step( (int) $field_config['step'] );
+				}
+				break;
+
+			case 'Date':
+			case 'DateTime':
+			case 'Time':
+				if ( $field_obj instanceof Date_Time_Field_Base ) {
+					if ( isset( $field_config['min'] ) ) {
+						$field_obj->set_min( (string) $field_config['min'] );
+					}
+					if ( isset( $field_config['max'] ) ) {
+						$field_obj->set_max( (string) $field_config['max'] );
+					}
+					if ( isset( $field_config['step'] ) ) {
+						$field_obj->set_step( (int) $field_config['step'] );
+					}
+					if ( isset( $field_config['with_label'] ) ) {
+						$field_obj->set_with_label( (bool) $field_config['with_label'] );
+					}
 				}
 				break;
 

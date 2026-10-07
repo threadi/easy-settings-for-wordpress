@@ -111,6 +111,48 @@
       "required": [ "type" ]
     },
 
+    "field_date": {
+      "description": "The value is stored as string in the format \"Y-m-d\" in the timezone of the website.",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":       { "const": "Date" },
+        "min":        { "type": "string", "description": "Lowest allowed value in the format \"Y-m-d\"." },
+        "max":        { "type": "string", "description": "Highest allowed value in the format \"Y-m-d\"." },
+        "step":       { "type": "integer", "minimum": 0, "default": 0, "description": "Step in days. 0 uses the default of the browser." },
+        "with_label": { "type": "boolean", "default": false }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_datetime": {
+      "description": "The value is stored as string in the format \"Y-m-d H:i\" in the timezone of the website.",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":       { "const": "DateTime" },
+        "min":        { "type": "string", "description": "Lowest allowed value in the format \"Y-m-d H:i\"." },
+        "max":        { "type": "string", "description": "Highest allowed value in the format \"Y-m-d H:i\"." },
+        "step":       { "type": "integer", "minimum": 0, "default": 0, "description": "Step in seconds, e.g. 900 for steps of 15 minutes. 0 uses the default of the browser. Seconds are only stored if the step is not a multiple of 60." },
+        "with_label": { "type": "boolean", "default": false }
+      },
+      "required": [ "type" ]
+    },
+
+    "field_time": {
+      "description": "The value is stored as string in the format \"H:i\" in the timezone of the website.",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":       { "const": "Time" },
+        "min":        { "type": "string", "description": "Lowest allowed value in the format \"H:i\"." },
+        "max":        { "type": "string", "description": "Highest allowed value in the format \"H:i\"." },
+        "step":       { "type": "integer", "minimum": 0, "default": 0, "description": "Step in seconds, e.g. 900 for steps of 15 minutes. 0 uses the default of the browser. Seconds are only stored if the step is not a multiple of 60." },
+        "with_label": { "type": "boolean", "default": false }
+      },
+      "required": [ "type" ]
+    },
+
     "field_radio": {
       "allOf": [ { "$ref": "#/$defs/field_common" } ],
       "type": "object",
@@ -345,6 +387,9 @@
         { "$ref": "#/$defs/field_checkbox" },
         { "$ref": "#/$defs/field_checkboxes" },
         { "$ref": "#/$defs/field_color" },
+        { "$ref": "#/$defs/field_date" },
+        { "$ref": "#/$defs/field_datetime" },
+        { "$ref": "#/$defs/field_time" },
         { "$ref": "#/$defs/field_radio" },
         { "$ref": "#/$defs/field_select" },
         { "$ref": "#/$defs/field_multiselect" },
