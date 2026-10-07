@@ -62,4 +62,4 @@ add_action( 'admin_init', 'your_custom_init_for_settings', 20 );
 * Tabs are sorted by its given position
 * Sections are sorted by its given position
 * Settings are sorted in the order they are added
-  -> use Setting->`move_before_setting()` to move a setting on a specific position
+  -> use Setting->`move_before_setting()` or Setting->`move_after_setting()` to move a setting on a specific position

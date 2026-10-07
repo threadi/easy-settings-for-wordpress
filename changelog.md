@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.7.0] - 07.10.2026
+
+### Added
+
+- Added new fields Date, DateTime and Time for Classic and DataView
+- Added Setting::move_after_setting() to place a setting directly after another one
+
+### Fixed
+
+- Fixed Setting::move_before_setting(), which placed the setting after instead of before the target
+- Fixed that moving a setting which is not part of the settings removed the first setting
+
 ## [3.6.4] - 03.10.2026
 
 ### Fixed

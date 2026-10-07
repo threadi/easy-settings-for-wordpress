@@ -272,6 +272,12 @@
 	font-weight: 600;
 }
 
+.esfw-datetime .components-text-control__input {
+	width: auto;
+	min-width: 12em;
+	max-width: 100%;
+}
+
 .esfw_demo_fieldtable td td {
 	padding-left: 0;
 	vertical-align: top;
