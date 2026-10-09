@@ -17,6 +17,7 @@ use easySettingsForWordPress\Json\Parser;
 use easySettingsForWordPress\Json\Serializer;
 use Exception;
 use WP_Error;
+use function Automattic\Jetpack\Creative_Mail\install_and_activate;
 
 /**
  * Initialize the settings object.
@@ -637,8 +638,10 @@ class Settings {
 	public function set_menu_slug( string $menu_slug ): void {
 		$this->menu_slug = $menu_slug;
 
-		// add this as page.
-		$this->add_page( $menu_slug );
+		// add this as page, if it does not exist yet.
+		if ( ! $this->has_page_with_name( $menu_slug ) ) {
+			$this->add_page( $menu_slug );
+		}
 	}
 
 	/**
@@ -1345,6 +1348,34 @@ class Settings {
 	 * @return Page
 	 */
 	public function add_page( string|Page $page ): Page {
+		// get the name of the requested page.
+		$name = $page instanceof Page ? $page->get_name() : $page;
+
+		// return the existing page, if a page with this name has already been added.
+		if ( '' !== $name ) {
+			foreach ( $this->pages as $existing_page ) {
+				// bail if the name does not match.
+				if ( $existing_page->get_name() !== $name ) {
+					continue;
+				}
+
+				// log an error only if a different page object with the same name should be added.
+				if ( $page instanceof Page && $page !== $existing_page ) {
+					$this->add_error( 'double_page_name', sprintf( 'A page with the name "%s" has already been added.', $name ), array( 'name' => $name ) );
+				}
+
+				// return the existing page.
+				return $existing_page;
+			}
+		}
+
+		// create the object, if it is a string.
+		$page_obj = $page;
+		if ( ! $page_obj instanceof Page ) {
+			$page_obj = new Page( $this );
+			$page_obj->set_name( $page );
+		}
+
 		// get the object.
 		$page_obj = $page;
 
