@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Only add a new page if it does not exist
+
 ## [3.7.0] - 07.10.2026
 
 ### Added
