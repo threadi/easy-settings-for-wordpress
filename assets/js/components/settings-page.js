@@ -73,8 +73,27 @@ export const SettingsPage = ( props ) => {
 
   const [ hideSave, setHideSave ] = useState( false );
 
+  // true while there are user edits which have not been handed to a save yet.
   const hasUserEditedRef = useRef( false );
   const autoSaveTimeoutRef = useRef( null );
+
+  /**
+   * Save the settings and mark the current edits as handled.
+   *
+   * Without resetting the marker, every finished save (which updates `settings` and
+   * `isSaving`) re-triggered the auto-save effect, resulting in an endless save loop.
+   *
+   * @param {Object} [options] Options for saveSettings().
+   * @return {void}
+   */
+  const saveUserEdits = ( options ) => {
+    // a running save ignores new calls - keep the marker, so the edits are saved afterwards.
+    if ( isSaving ) {
+      return;
+    }
+    hasUserEditedRef.current = false;
+    saveSettings( options );
+  };
 
   const tabs = config.tabs ?? [];
   const lockFormOnSave = config.lock_form_on_save !== false;
@@ -142,7 +161,7 @@ export const SettingsPage = ( props ) => {
 
     if ( needsSoftReload ) {
       // Persist right away and refresh field descriptors (readOnly, visibility, …).
-      saveSettings( {
+      saveUserEdits( {
         values: next,
         softReload: true,
         silent: true,
@@ -157,7 +176,7 @@ export const SettingsPage = ( props ) => {
     }
     clearTimeout( autoSaveTimeoutRef.current );
     autoSaveTimeoutRef.current = setTimeout( () => {
-      saveSettings();
+      saveUserEdits();
     }, 1000 );
     return () => clearTimeout( autoSaveTimeoutRef.current );
   }, [ settings, config.auto_save, isSaving ] );
@@ -165,7 +184,7 @@ export const SettingsPage = ( props ) => {
   // Auto-save on tab change.
   const handleTabChange = () => {
     if ( config.auto_save === 'tab_change' && hasUserEditedRef.current ) {
-      saveSettings();
+      saveUserEdits();
     }
   };
 
@@ -238,7 +257,7 @@ export const SettingsPage = ( props ) => {
       { ! hideSave && ! isLoading && (
         <SaveButton
           title={ config.save_title }
-          onClick={ () => saveSettings() }
+          onClick={ () => saveUserEdits() }
           isBusy={ isSaving }
           disabled={ isSaving }
         />

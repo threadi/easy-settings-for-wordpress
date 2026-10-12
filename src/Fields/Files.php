@@ -71,7 +71,7 @@ class Files extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get value from the config.
-		$files = get_option( $setting->get_name() );
+		$files = $this->normalize_ids( get_option( $setting->get_name() ) );
 
 		if ( ! empty( $files ) ) {
 			?><ul>
@@ -170,19 +170,44 @@ class Files extends Field_Base {
 	 * @return array<int,int>
 	 */
 	public function default_sanitize_callback( mixed $value ): array {
+		return $this->normalize_ids( $value );
+	}
+
+	/**
+	 * Normalize a stored or submitted value to a list of attachment IDs.
+	 *
+	 * The classic form submits the value as a comma-separated string ("12,34") via the
+	 * hidden input, REST and imports submit an array. Both are accepted here, so saving
+	 * the classic form no longer erases the selected files.
+	 *
+	 * @param mixed $value The value to normalize.
+	 *
+	 * @return array<int,int>
+	 */
+	private function normalize_ids( mixed $value ): array {
+		// convert a comma-separated string (classic form) into a list.
+		if ( is_string( $value ) || is_int( $value ) ) {
+			$value = explode( ',', (string) $value );
+		}
+
 		// bail if value is not an array.
 		if ( ! is_array( $value ) ) {
 			return array();
 		}
 
-		// keep only scalar entries, sanitized as plain text.
+		// keep only scalar entries, sanitized as positive integers, without duplicates.
 		$sanitized = array();
 		foreach ( $value as $entry ) {
 			if ( ! is_scalar( $entry ) ) {
 				continue;
 			}
 
-			$sanitized[] = absint( $entry );
+			$id = absint( $entry );
+			if ( 0 === $id || in_array( $id, $sanitized, true ) ) {
+				continue;
+			}
+
+			$sanitized[] = $id;
 		}
 
 		// return the list.

@@ -1,10 +1,26 @@
 # Changelog
 
-## [Unreleased]
+## [3.8.0] - 12.10.2026
+
+### Changed
+
+- Password fields no longer output the stored value and keep it on empty submit
+- Password fields can show an optional checkbox to delete the stored value (set_delete_option() / "delete_option")
+- DataView: own control for Password fields with masked placeholder, hint for a stored value, "show value" only for a newly entered value and the optional delete checkbox
+- Password fields are hidden in GET /wp/v2/settings and are not exported by default (use prevent_export( false ) to export them)
+- Dependency threadi/easy-dialog-for-wordpress is now constrained to ^2.0
 
 ### Fixed
 
 - Only add a new page if it does not exist
+- Files field: saving the classic settings form no longer deletes all selected files
+- Password field: sanitizing no longer changes passwords with special characters like % or <
+- Method OwnTable: table could not be created for slugs with characters like "-", values were silently lost
+- Method OwnTable: failed table creation and failed writes are now reported and not cached as saved
+- DataView: auto_save "change" no longer saves endlessly after the first edit
+- Example tab was shown as first tab if init() is called before the settings are added (regression of "Only add a new page if it does not exist")
+- Page::delete_tab() now also resets the default tab, if it has been deleted
+- Removed unused import of a Jetpack function in Settings.php
 
 ## [3.7.0] - 07.10.2026
 

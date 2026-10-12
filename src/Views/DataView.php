@@ -673,7 +673,7 @@ class DataView extends View_Base {
 			array(
 				'methods'             => 'GET',
 				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
+					return current_user_can( $this->get_settings_obj()->get_capability() );
 				},
 				'callback'            => function ( WP_REST_Request $request ) {
 					$this->ensure_admin_screen_for_config();

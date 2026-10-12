@@ -6,7 +6,7 @@
  * editor wherever it appears.
  *
  * Types that rely on the DataViews-native edit control (plain text, textarea,
- * select, radio, number, password, boolean) return null here: at the top level
+ * select, radio, number, boolean, nested password) return null here: at the top level
  * the DataForm renders them itself; nested, InnerFieldControl renders an
  * equivalent control.
  */
@@ -19,6 +19,7 @@ import { createFieldTableEdit } from './fieldtable';
 import { createMediaFieldEdit } from './media';
 import { createMultiFieldEdit } from './multifield';
 import { createMultiSelectEdit } from './multiselect';
+import { createPasswordEdit } from './password';
 import { createPermalinkSlugEdit } from './permalink-slug';
 import { createPostSelectEdit } from './post-select';
 import { createTableEdit } from './table';
@@ -77,6 +78,18 @@ export function getEditComponent( descriptor ) {
       return createFieldTableEdit( {
         columns: descriptor.columns,
         rows: descriptor.rows,
+      } );
+    case 'esfw-password':
+      return createPasswordEdit( {
+        hasValue: !! descriptor.has_value,
+        placeholder: descriptor.placeholder,
+        storedHint: descriptor.stored_hint,
+        deleteOption: !! descriptor.delete_option,
+        deleteLabel: descriptor.delete_label,
+        deleteHint: descriptor.delete_hint,
+        deleteToken: descriptor.delete_token,
+        showLabel: descriptor.show_label,
+        hideLabel: descriptor.hide_label,
       } );
     case 'esfw-post-select':
       return createPostSelectEdit( {

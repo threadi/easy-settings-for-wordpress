@@ -17,7 +17,6 @@ use easySettingsForWordPress\Json\Parser;
 use easySettingsForWordPress\Json\Serializer;
 use Exception;
 use WP_Error;
-use function Automattic\Jetpack\Creative_Mail\install_and_activate;
 
 /**
  * Initialize the settings object.
@@ -252,6 +251,27 @@ class Settings {
 	private bool $initialized = false;
 
 	/**
+	 * The page which holds the example tab, if the example has been added.
+	 *
+	 * @var Page|null
+	 */
+	private ?Page $example_page = null;
+
+	/**
+	 * The example tab, if it has been added.
+	 *
+	 * @var Tab|null
+	 */
+	private ?Tab $example_tab = null;
+
+	/**
+	 * The default tab of the page before the example tab has been set as default.
+	 *
+	 * @var Tab|null
+	 */
+	private ?Tab $example_previous_default_tab = null;
+
+	/**
 	 * Constructor, not used as this a Singleton object.
 	 *
 	 * @param string $plugin_path The plugin path (use __FILE__ for it).
@@ -288,8 +308,13 @@ class Settings {
 		register_activation_hook( $this->get_plugin_path(), array( $this, 'activation' ) );
 
 		// if we have no settings, create demo settings.
+		// They are removed again as soon as a real setting is added (e.g. by a later hook), see remove_example().
 		if ( ! $this->has_settings() ) {
 			$page = $this->add_page( $this->get_menu_slug() );
+
+			// remember the actual default tab of this page (it could be an existing page of the plugin).
+			$this->example_previous_default_tab = $page->get_default_tab();
+
 			$tab  = $page->add_tab( 'easy-settings-for-wordpress_example_tab', 10 );
 			$tab->set_title( 'Easy Settings for WordPress Example Tab' );
 			$tab->set_description( '<p>This is just an example for a tab. Configure your own settings to remove this.</p>' );
@@ -304,6 +329,10 @@ class Settings {
 			$field->set_title( 'Example Field' );
 			$field->set_description( 'This is just an example for a setting. Configure your own settings to remove this.' );
 			$setting->set_field( $field );
+
+			// remember the example to remove it later.
+			$this->example_page = $page;
+			$this->example_tab  = $tab;
 		}
 
 		// get the method to use and run their initialization tasks.
@@ -335,6 +364,42 @@ class Settings {
 
 		// show settings link in plugin list.
 		add_filter( 'plugin_action_links_' . plugin_basename( $this->get_plugin_path() ), array( $this, 'add_setting_link' ) );
+	}
+
+	/**
+	 * Remove the example tab and setting, which init() adds if no settings exist at this time.
+	 *
+	 * This happens if init() is called before the settings are added (e.g. settings are added
+	 * by a later hook). Without it, the example tab would be shown as first tab on the page.
+	 *
+	 * @return void
+	 */
+	private function remove_example(): void {
+		// bail if no example has been added.
+		if ( ! $this->example_tab instanceof Tab || ! $this->example_page instanceof Page ) {
+			return;
+		}
+
+		// remove the example tab and restore the previous default tab.
+		$this->example_page->delete_tab( $this->example_tab );
+		if ( $this->example_previous_default_tab instanceof Tab ) {
+			$this->example_page->set_default_tab( $this->example_previous_default_tab );
+		}
+
+		// remove the example setting.
+		$example_setting_name = 'easy_settings_for_wordpress_example_setting';
+		foreach ( $this->settings as $index => $setting ) {
+			if ( $setting->get_name() === $example_setting_name ) {
+				unset( $this->settings[ $index ] );
+			}
+		}
+		$this->settings = array_values( $this->settings );
+		unset( $this->settings_by_name[ $example_setting_name ] );
+
+		// mark as removed.
+		$this->example_page                 = null;
+		$this->example_tab                  = null;
+		$this->example_previous_default_tab = null;
 	}
 
 	/**
@@ -1071,6 +1136,11 @@ class Settings {
 			$this->settings_by_name[ $name ] = $setting_obj;
 		}
 
+		// remove the example, if a real setting is added after init().
+		if ( 'easy_settings_for_wordpress_example_setting' !== $name ) {
+			$this->remove_example();
+		}
+
 		// If this setting is added AFTER the init() loop (e.g., by
 		// an add-on that submits its own settings via a later hook), we wire
 		// it ourselves immediately—instead of waiting for another global sweep, which
@@ -1544,6 +1614,11 @@ class Settings {
 			'save_title'                         => 'Save',
 			'dataview_config_failure'            => 'DataView configuration error:',
 			'dataview_config_error'              => 'DataView configuration error: JSON encoding failed.',
+			'password_stored_hint'               => 'A value is stored. Leave the field empty to keep it.',
+			'password_delete_option'             => 'Delete stored value',
+			'password_delete_on_save'            => 'The stored value will be deleted when saving.',
+			'password_show'                      => 'Show value',
+			'password_hide'                      => 'Hide value',
 		);
 
 		// return combined list of translations.

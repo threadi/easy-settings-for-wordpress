@@ -50,6 +50,27 @@ ignored in the DataView.
 Hint: `FieldTable` in the DataView requires the `simple` storage method (the
 default), because its cells are registered as individual REST options.
 
+## Password field
+
+The Password field is meant for secrets like passwords, API keys or API tokens:
+
+* The stored value is never output in the settings page or in `GET /wp/v2/settings`.
+* An empty field keeps the stored value when the settings are saved.
+* The setting is not exported, unless you call `$setting->prevent_export( false )`.
+
+To allow users to remove the stored value, enable the optional checkbox (disabled by default):
+
+```php
+$field = new \easySettingsForWordPress\Fields\Password( $settings_obj );
+$field->set_delete_option( true );
+$field->set_delete_option_label( 'Remove API key' ); // optional, default: "Delete stored value".
+```
+
+In JSON: `"delete_option": true` and `"delete_option_label": "Remove API key"`.
+
+The classic view and the DataView behave the same. In the DataView, the button to show the value is only
+available for a newly entered value, as the stored value is never sent to the browser.
+
 ## Date and time fields (Date, DateTime and Time)
 
 These fields use the native date and time picker of the browser in the classic

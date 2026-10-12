@@ -440,6 +440,12 @@ class Parser extends Base_Object {
 				if ( isset( $field_config['with_label'] ) && method_exists( $field_obj, 'set_with_label' ) ) {
 					$field_obj->set_with_label( (bool) $field_config['with_label'] );
 				}
+				if ( isset( $field_config['delete_option'] ) && method_exists( $field_obj, 'set_delete_option' ) ) {
+					$field_obj->set_delete_option( (bool) $field_config['delete_option'] );
+				}
+				if ( isset( $field_config['delete_option_label'] ) && method_exists( $field_obj, 'set_delete_option_label' ) ) {
+					$field_obj->set_delete_option_label( (string) $field_config['delete_option_label'] );
+				}
 				break;
 
 			case 'Textarea':

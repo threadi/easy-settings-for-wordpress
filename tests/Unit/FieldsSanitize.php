@@ -48,6 +48,11 @@ class FieldsSanitize extends easySettingsForWordPressTest {
 				continue;
 			}
 
+			// passwords must be stored unchanged, they are never output unescaped (see test_password_*).
+			if ( str_ends_with( $classname, '\\Password' ) ) {
+				continue;
+			}
+
 			/**
 			 * The field object to test.
 			 *
@@ -120,6 +125,64 @@ class FieldsSanitize extends easySettingsForWordPressTest {
 		$this->assertSame( 0, call_user_func( $callback, self::$unsafe_string ) );
 		$this->assertSame( 5, call_user_func( $callback, '5' ) );
 		$this->assertIsInt( call_user_func( $callback, null ) );
+	}
+
+	/**
+	 * The password field must not change passwords with special characters.
+	 *
+	 * @return void
+	 */
+	public function test_password_keeps_special_chars(): void {
+		$settings_obj = new Settings( self::$plugin_handle );
+		$settings_obj->set_slug( self::$slug );
+		$obj      = new \easySettingsForWordPress\Fields\Password( $settings_obj );
+		$callback = $obj->get_sanitize_callback();
+
+		$this->assertSame( 'ab%41cd p<ss>', call_user_func( $callback, 'ab%41cd p<ss>' ) );
+		$this->assertSame( 'abc', call_user_func( $callback, "a\nb\x00c" ) );
+		$this->assertSame( '', call_user_func( $callback, array( 'x' ) ) );
+		$this->assertSame( '', call_user_func( $callback, null ) );
+	}
+
+	/**
+	 * The password field must never output the stored password.
+	 *
+	 * @return void
+	 */
+	public function test_password_is_not_output(): void {
+		$settings_obj = new Settings( self::$plugin_handle );
+		$settings_obj->set_slug( self::$slug );
+		$setting = new \easySettingsForWordPress\Setting( $settings_obj );
+		$setting->set_name( 'esfw_test_password' );
+		$obj = new \easySettingsForWordPress\Fields\Password( $settings_obj );
+		$setting->set_field( $obj );
+		update_option( 'esfw_test_password', 'my-secret-value' );
+
+		ob_start();
+		$obj->display( array( 'setting' => $setting ) );
+		$html = (string) ob_get_clean();
+
+		$this->assertStringNotContainsString( 'my-secret-value', $html );
+		$this->assertStringNotContainsString( '_esfw_clear', $html, 'The delete checkbox must be disabled by default.' );
+		$this->assertTrue( $setting->is_export_prevented() );
+
+		delete_option( 'esfw_test_password' );
+	}
+
+	/**
+	 * The files field must accept the comma-separated value of the classic settings form.
+	 *
+	 * @return void
+	 */
+	public function test_files_accepts_comma_separated_string(): void {
+		$settings_obj = new Settings( self::$plugin_handle );
+		$settings_obj->set_slug( self::$slug );
+		$obj      = new \easySettingsForWordPress\Fields\Files( $settings_obj );
+		$callback = $obj->get_sanitize_callback();
+
+		$this->assertSame( array( 12, 34 ), call_user_func( $callback, '12,34' ) );
+		$this->assertSame( array( 12, 34 ), call_user_func( $callback, array( '12', 34, 0 ) ) );
+		$this->assertSame( array(), call_user_func( $callback, '' ) );
 	}
 
 	/**

@@ -225,15 +225,8 @@ class Field_Base {
 			return false;
 		}
 
-		// check for a save of a settings form (options.php or method "One").
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- only a check, the nonce is verified by the save handler.
-		$keep = isset( $_POST['option_page'] );
-
-		// check for a save via the REST settings endpoint (DataView).
-		if ( ! $keep && defined( 'REST_REQUEST' ) && REST_REQUEST ) {
-			$route = isset( $GLOBALS['wp']->query_vars['rest_route'] ) ? (string) $GLOBALS['wp']->query_vars['rest_route'] : '';
-			$keep  = str_starts_with( $route, '/wp/v2/settings' );
-		}
+		// keep the value only while settings are saved via form or REST.
+		$keep = $this->is_settings_save_request();
 
 		$instance = $this;
 		/**
@@ -244,6 +237,29 @@ class Field_Base {
 		 * @param Field_Base $instance The field object.
 		 */
 		return (bool) apply_filters( $this->get_settings_obj()->get_slug() . '_setting_readonly_keep_value', $keep, $instance );
+	}
+
+	/**
+	 * Return whether the current request saves settings via a settings form or the REST settings endpoint.
+	 *
+	 * Programmatic update_option() calls, the import or WP-CLI are not such requests.
+	 *
+	 * @return bool
+	 */
+	protected function is_settings_save_request(): bool {
+		// check for a save of a settings form (options.php or method "One").
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- only a check, the nonce is verified by the save handler.
+		if ( isset( $_POST['option_page'] ) ) {
+			return true;
+		}
+
+		// check for a save via the REST settings endpoint (DataView).
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			$route = isset( $GLOBALS['wp']->query_vars['rest_route'] ) ? (string) $GLOBALS['wp']->query_vars['rest_route'] : '';
+			return str_starts_with( $route, '/wp/v2/settings' );
+		}
+
+		return false;
 	}
 
 	/**

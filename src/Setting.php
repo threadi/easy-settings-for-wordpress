@@ -19,6 +19,7 @@ use easySettingsForWordPress\Fields\File;
 use easySettingsForWordPress\Fields\Files;
 use easySettingsForWordPress\Fields\MultiField;
 use easySettingsForWordPress\Fields\MultiSelect;
+use easySettingsForWordPress\Fields\Password;
 use easySettingsForWordPress\Fields\PermalinkSlug;
 use easySettingsForWordPress\Fields\Radio;
 use easySettingsForWordPress\Fields\Select;
@@ -85,9 +86,11 @@ class Setting extends Base_Object {
 	/**
 	 * Export prevent marker.
 	 *
-	 * @var bool
+	 * Null means "not set explicitly": then settings with a Password field are not exported.
+	 *
+	 * @var bool|null
 	 */
-	private bool $prevent_export = false;
+	private ?bool $prevent_export = null;
 
 	/**
 	 * Autoload.
@@ -427,7 +430,13 @@ class Setting extends Base_Object {
 	 * @return bool
 	 */
 	public function is_export_prevented(): bool {
-		return $this->prevent_export;
+		// use the explicit configuration, if set.
+		if ( ! is_null( $this->prevent_export ) ) {
+			return $this->prevent_export;
+		}
+
+		// do not export secrets by default.
+		return $this->get_field() instanceof Password;
 	}
 
 	/**
@@ -809,8 +818,27 @@ class Setting extends Base_Object {
 				$configuration['type'] = 'integer';
 				break;
 			case 'Password':
-				$configuration['type'] = 'text';
-				$configuration['Edit'] = 'password';
+				// nested inside MultiField / FieldTable: the value is part of the parent setting and visible, use the native control.
+				if ( '' === $id || ! $field instanceof Password ) {
+					$configuration['type'] = 'text';
+					$configuration['Edit'] = 'password';
+					break;
+				}
+
+				// own control: the stored value is not sent via REST (see Password::mask_rest_value()).
+				$stored       = get_option( $id, '' );
+				$translations = $this->get_settings_obj()->get_translations();
+
+				$configuration['type']          = 'esfw-password';
+				$configuration['has_value']     = is_string( $stored ) && '' !== $stored;
+				$configuration['placeholder']   = '' !== $field->get_placeholder() ? $field->get_placeholder() : '••••••••';
+				$configuration['stored_hint']   = $translations['password_stored_hint'];
+				$configuration['delete_option'] = $field->has_delete_option() && ! $field->is_readonly();
+				$configuration['delete_label']  = $field->get_delete_option_label();
+				$configuration['delete_hint']   = $translations['password_delete_on_save'];
+				$configuration['delete_token']  = Password::DELETE_TOKEN;
+				$configuration['show_label']    = $translations['password_show'];
+				$configuration['hide_label']    = $translations['password_hide'];
 				break;
 			case 'PermalinkSlug':
 				$configuration['type'] = 'esfw-permalink-slug';
