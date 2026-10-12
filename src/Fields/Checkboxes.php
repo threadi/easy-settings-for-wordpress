@@ -60,7 +60,7 @@ class Checkboxes extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get the values.
-		$values = get_option( $setting->get_name(), array() );
+		$values = $this->get_display_value( $setting, array() );
 
 		?><div data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 		<?php

@@ -88,7 +88,8 @@ class OwnTable extends Method_Base {
 	 * @return string
 	 */
 	private function get_table_name(): string {
-		$table_name = $this->get_wpdb()->prefix . 'esfw_' . $this->get_settings_obj()->get_slug() . '_settings';
+		// use only characters which are valid in an unquoted MySQL identifier (e.g. "my-plugin" => "my_plugin").
+		$table_name = $this->get_wpdb()->prefix . 'esfw_' . $this->get_table_slug() . '_settings';
 
 		/**
 		 * Filter the name of the database table to use for this method.
@@ -96,7 +97,29 @@ class OwnTable extends Method_Base {
 		 * @since 3.6.0 Available since 3.6.0.
 		 * @param string $table_name The name of the table.
 		 */
-		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_table_name', $table_name );
+		$table_name = (string) apply_filters( $this->get_settings_obj()->get_slug() . '_settings_table_name', $table_name );
+
+		// sanitize the (filtered) name again, as it is used in SQL statements.
+		$table_name = (string) preg_replace( '/[^A-Za-z0-9_]/', '_', $table_name );
+
+		// MySQL identifiers are limited to 64 characters.
+		if ( strlen( $table_name ) > 64 ) {
+			$table_name = substr( $table_name, 0, 55 ) . '_' . substr( md5( $table_name ), 0, 8 );
+		}
+
+		return $table_name;
+	}
+
+	/**
+	 * Return whether our own table exists in the database.
+	 *
+	 * @return bool
+	 */
+	private function table_exists(): bool {
+		$wpdb       = $this->get_wpdb();
+		$table_name = $this->get_table_name();
+
+		return $table_name === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table_name ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	}
 
 	/**
@@ -105,7 +128,20 @@ class OwnTable extends Method_Base {
 	 * @return string
 	 */
 	private function get_db_version_option_name(): string {
-		return 'esfw_' . $this->get_settings_obj()->get_slug() . '_settings_table_version';
+		// uses the sanitized slug: for slugs with invalid characters (e.g. "my-plugin") this results in a
+		// new option name, so the table creation which failed in earlier versions is run again.
+		return 'esfw_' . $this->get_table_slug() . '_settings_table_version';
+	}
+
+	/**
+	 * Return the slug with only characters which are valid in an unquoted MySQL identifier.
+	 *
+	 * Example: "my-plugin" => "my_plugin". Slugs which are already valid are not changed.
+	 *
+	 * @return string
+	 */
+	private function get_table_slug(): string {
+		return (string) preg_replace( '/[^a-z0-9_]/', '_', strtolower( $this->get_settings_obj()->get_slug() ) );
 	}
 
 	/**
@@ -127,7 +163,7 @@ class OwnTable extends Method_Base {
 		$table_name      = $this->get_table_name();
 		$charset_collate = $this->get_wpdb()->get_charset_collate();
 
-		return "CREATE TABLE $table_name (
+		return "CREATE TABLE `$table_name` (
 			setting_name varchar(191) NOT NULL,
 			setting_value longtext NOT NULL,
 			autoload varchar(20) NOT NULL DEFAULT 'yes',
@@ -155,6 +191,15 @@ class OwnTable extends Method_Base {
 
 		// create resp. update the table.
 		dbDelta( $this->get_schema() );
+
+		// do not remember the schema version if the table could not be created, so it is tried again.
+		if ( ! $this->table_exists() ) {
+			$this->get_settings_obj()->add_error(
+				'own_table_not_created',
+				sprintf( 'The database table "%s" for the settings could not be created: %s', $this->get_table_name(), $this->get_wpdb()->last_error )
+			);
+			return;
+		}
 
 		// remember the installed schema version.
 		update_option( $this->get_db_version_option_name(), $this->db_version, true );
@@ -448,7 +493,7 @@ class OwnTable extends Method_Base {
 	 * @return void
 	 */
 	private function write_raw_value( string $setting_name, mixed $value, Setting|false $setting ): void {
-		$this->get_wpdb()->replace(
+		$result = $this->get_wpdb()->replace(
 			$this->get_table_name(),
 			array(
 				'setting_name'  => $setting_name,
@@ -458,6 +503,16 @@ class OwnTable extends Method_Base {
 			),
 			array( '%s', '%s', '%s', '%s' )
 		);
+
+		// on error: do not pretend a successful save, reload the real state from the database next time.
+		if ( false === $result ) {
+			$this->get_settings_obj()->add_error(
+				'own_table_write_failed',
+				sprintf( 'The setting "%s" could not be saved in the table "%s": %s', $setting_name, $this->get_table_name(), $this->get_wpdb()->last_error )
+			);
+			$this->reset_cache();
+			return;
+		}
 
 		if ( ! is_array( $this->settings_cache ) ) {
 			$this->load_settings_cache();
@@ -486,7 +541,7 @@ class OwnTable extends Method_Base {
 		}
 
 		$table_name = $this->get_table_name();
-		$rows       = $this->get_wpdb()->get_results( "SELECT setting_name, setting_value FROM $table_name", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$rows       = $this->get_wpdb()->get_results( "SELECT setting_name, setting_value FROM `$table_name`", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		$settings = array();
 		if ( is_array( $rows ) ) {
@@ -496,6 +551,12 @@ class OwnTable extends Method_Base {
 		}
 
 		$this->settings_cache = $settings;
+
+		// do not store the result in the object cache if the query failed (e.g. missing table).
+		if ( ! is_array( $rows ) || '' !== $this->get_wpdb()->last_error ) {
+			return;
+		}
+
 		wp_cache_set( $cache_key, $settings, 'esfw_settings' );
 	}
 
@@ -520,7 +581,7 @@ class OwnTable extends Method_Base {
 	public function delete_settings(): void {
 		$table_name = $this->get_table_name();
 
-		$this->get_wpdb()->query( "TRUNCATE TABLE $table_name" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$this->get_wpdb()->query( "TRUNCATE TABLE `$table_name`" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		delete_option( $this->get_db_version_option_name() );
 

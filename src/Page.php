@@ -189,5 +189,10 @@ class Page extends Base_Object {
 			// remove tab from list.
 			unset( $this->tabs[ $index ] );
 		}
+
+		// reset the default tab, if it has been deleted.
+		if ( $this->default_tab instanceof Tab && $this->default_tab->get_name() === $tab_to_delete->get_name() ) {
+			$this->default_tab = null;
+		}
 	}
 }

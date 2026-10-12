@@ -60,7 +60,7 @@ class Color extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get the value.
-		$value = get_option( $setting->get_name(), '' );
+		$value = $this->get_display_value( $setting, '' );
 
 		// show hidden field if this is set to readonly.
 		if ( $this->is_readonly() ) {

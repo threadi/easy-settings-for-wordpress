@@ -122,7 +122,7 @@ class SelectPostTypeObject extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get value.
-		$value = absint( get_option( $setting->get_name(), 0 ) );
+		$value = absint( $this->get_display_value( $setting, 0 ) );
 
 		?><input type="hidden" id="<?php echo esc_attr( $setting->get_name() ); ?>" name="<?php echo esc_attr( $setting->get_name() ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>" value="<?php echo absint( $value ); ?>">
 		<input type="button" class="button button-primary esfw-settings-open-popup" popovertarget="esfw-settings-popover-<?php echo esc_attr( $setting->get_name() ); ?>" popovertargetaction="toggle" value="<?php echo esc_attr( $this->get_button_title() ); ?>">

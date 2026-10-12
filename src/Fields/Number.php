@@ -73,22 +73,26 @@ class Number extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
+		// get the value as integer, keeping the sign (absint() would turn -5 into 5).
+		$value = $this->get_display_value( $setting, $setting->get_default() );
+		$value = is_numeric( $value ) ? (int) $value : 0;
+
 		// show hidden field if this is set to readonly.
 		if ( $this->is_readonly() ) {
-			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo absint( get_option( $setting->get_name(), $setting->get_default() ) ); ?>">
+			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( (string) $value ); ?>">
 			<?php
 		}
 
 		?>
 		<input type="number" id="<?php echo esc_attr( $setting->get_name() ); ?>"
 				name="<?php echo esc_attr( $setting->get_name() ); ?>"
-				value="<?php echo absint( get_option( $setting->get_name(), $setting->get_default() ) ); ?>"
+				value="<?php echo esc_attr( (string) $value ); ?>"
 				<?php
 				echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
 				?>
-				min="<?php echo absint( $this->get_min() ); ?>"
-				max="<?php echo absint( $this->get_max() ); ?>"
-				step="<?php echo absint( $this->get_step() ); ?>"
+				min="<?php echo esc_attr( (string) $this->get_min() ); ?>"
+				max="<?php echo esc_attr( (string) $this->get_max() ); ?>"
+				step="<?php echo esc_attr( $this->get_step() > 0 ? (string) $this->get_step() : 'any' ); ?>"
 				class="<?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width"
 				title="<?php echo esc_attr( $this->get_title() ); ?>"
 				data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"

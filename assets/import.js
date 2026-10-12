@@ -26,7 +26,7 @@ function esefw_settings_import_file() {
   // get the form data.
   let request = new FormData();
   request.append( 'file', file);
-  request.append( 'action', 'esfw_import_file' );
+  request.append( 'action', settingsImportJsVars.action );
   request.append( 'nonce', settingsImportJsVars.settings_import_file_nonce );
 
   // submit the request.

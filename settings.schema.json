@@ -77,7 +77,9 @@
         "type":        { "const": "Password" },
         "placeholder": { "type": "string" },
         "value":       { "type": "string" },
-        "with_label":  { "type": "boolean", "default": false }
+        "with_label":  { "type": "boolean", "default": false },
+        "delete_option":       { "type": "boolean", "default": false },
+        "delete_option_label": { "type": "string" }
       },
       "required": [ "type" ]
     },
