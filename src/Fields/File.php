@@ -82,7 +82,7 @@ class File extends Field_Base {
 		$file_extensions     = implode( ',', $resolved_file_types['extensions'] );
 
 		// output.
-		$image_id = absint( get_option( $setting->get_name(), 0 ) );
+		$image_id = absint( $this->get_display_value( $setting, 0 ) );
 		if ( $image_id > 0 ) {
 			// get image source (or the MIME type icon for non-images).
 			$image = wp_get_attachment_image_src( $image_id, 'thumbnail', true );

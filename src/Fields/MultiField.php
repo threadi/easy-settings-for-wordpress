@@ -78,6 +78,7 @@ class MultiField extends Field_Base {
 			$field_setting = new Setting( $this->get_settings_obj() );
 			$field_setting->set_name( $setting->get_name() . '[' . $q . ']' );
 			$field_setting->add_custom_var( 'value', isset( $values[ $q ] ) ? $values[ $q ] : '' );
+			$field_setting->add_custom_var( Field_Base::PARENT_VALUE_VAR, isset( $values[ $q ] ) ? $values[ $q ] : '' );
 
 			// get the field object.
 			$obj = $this->get_field();
@@ -171,10 +172,15 @@ class MultiField extends Field_Base {
 		}
 
 		// delegate each entry to the inner field's sanitize callback.
-		$callback  = $inner->get_sanitize_callback();
-		$sanitized = array();
-		foreach ( $value as $entry ) {
-			$sanitized[] = $callback( $entry );
+		// Keep the positions: the classic form does not submit unchecked checkboxes or radios, so
+		// e.g. array( 1 => '1' ) must stay at position 1 instead of moving to position 0.
+		$numeric_keys = array_filter( array_keys( $value ), 'is_int' );
+		$count        = empty( $numeric_keys ) ? 0 : max( $numeric_keys ) + 1;
+		$count        = max( $count, $this->get_quantity(), count( $value ) );
+		$callback     = $inner->get_sanitize_callback();
+		$sanitized    = array();
+		for ( $q = 0; $q < $count; $q++ ) {
+			$sanitized[] = $callback( $value[ $q ] ?? null );
 		}
 
 		// return the resulting list.

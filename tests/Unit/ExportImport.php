@@ -54,8 +54,22 @@ class ExportImport extends easySettingsForWordPressTest {
 	public function test_get_download_url_contains_action_and_nonce(): void {
 		$url = ( new Export( $this->settings_obj ) )->get_download_url();
 
-		$this->assertStringContainsString( 'action=settings_export', $url );
+		$this->assertStringContainsString( 'action=esfw_settings_export_' . self::$slug, $url );
 		$this->assertStringContainsString( 'nonce=', $url );
+	}
+
+	/**
+	 * Two settings objects with different slugs use different actions and nonces for import and export.
+	 *
+	 * @return void
+	 */
+	public function test_actions_are_unique_per_slug(): void {
+		$other = new Settings( self::$plugin_handle );
+		$other->set_slug( 'another-plugin' );
+
+		$this->assertNotSame( ( new Export( $this->settings_obj ) )->get_action_name(), ( new Export( $other ) )->get_action_name() );
+		$this->assertNotSame( ( new Import( $this->settings_obj ) )->get_action_name(), ( new Import( $other ) )->get_action_name() );
+		$this->assertNotSame( ( new Export( $this->settings_obj ) )->get_download_url(), ( new Export( $other ) )->get_download_url() );
 	}
 
 	/**

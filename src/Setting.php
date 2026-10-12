@@ -530,6 +530,17 @@ class Setting extends Base_Object {
 	}
 
 	/**
+	 * Return whether a custom var with the given key has been set (also if its value is null or false).
+	 *
+	 * @param string $key The key.
+	 *
+	 * @return bool
+	 */
+	public function has_custom_var( string $key ): bool {
+		return array_key_exists( $key, $this->vars );
+	}
+
+	/**
 	 * Move this setting directly before another one.
 	 *
 	 * @param Setting $target_setting The setting this setting should be placed before.
@@ -860,9 +871,10 @@ class Setting extends Base_Object {
 				$options               = array();
 				if ( $field instanceof Radio ) {
 					foreach ( $field->get_options() as $key => $label ) {
+						// values are stored as string (see validate_against_options()), so compare them as string.
 						$options[] = array(
-							'value' => $key,
-							'label' => $label,
+							'value' => (string) $key,
+							'label' => is_array( $label ) ? (string) ( $label['label'] ?? '' ) : $label,
 						);
 					}
 				}
@@ -874,8 +886,9 @@ class Setting extends Base_Object {
 				$options               = array();
 				if ( $field instanceof Select ) {
 					foreach ( $field->get_options() as $key => $label ) {
+						// values are stored as string (see validate_against_options()), so compare them as string.
 						$options[] = array(
-							'value' => $key,
+							'value' => (string) $key,
 							'label' => $label,
 						);
 					}

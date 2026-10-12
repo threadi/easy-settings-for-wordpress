@@ -67,7 +67,7 @@ class PermalinkSlug extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get value.
-		$value = (string) get_option( $setting->get_name(), '' );
+		$value = (string) $this->get_display_value( $setting, '' );
 
 		// get the options.
 		$options = $this->get_options();

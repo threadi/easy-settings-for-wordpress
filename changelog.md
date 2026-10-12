@@ -9,6 +9,8 @@
 - DataView: own control for Password fields with masked placeholder, hint for a stored value, "show value" only for a newly entered value and the optional delete checkbox
 - Password fields are hidden in GET /wp/v2/settings and are not exported by default (use prevent_export( false ) to export them)
 - Dependency threadi/easy-dialog-for-wordpress is now constrained to ^2.0
+- Import and export use actions and nonces containing the slug (esfw_import_file_{slug}, esfw_settings_export_{slug}), so multiple plugins using this package no longer handle the import or export of each other
+- Export shows an error instead of an empty page if the user is not allowed to export
 
 ### Fixed
 
@@ -21,6 +23,11 @@
 - Example tab was shown as first tab if init() is called before the settings are added (regression of "Only add a new page if it does not exist")
 - Page::delete_tab() now also resets the default tab, if it has been deleted
 - Removed unused import of a Jetpack function in Settings.php
+- Radio: options with numeric keys were never shown as selected and the value was lost on save
+- Radio and Select: values in the DataView are compared as strings, labels of Radio options with description are shown correctly
+- Number: negative values and limits were shown without sign; the read filter for the types integer and number no longer removes the sign or decimals
+- MultiField: inner fields of all types (Number, Select, MultiSelect, Checkbox, Textarea, Color, File and others) now show the stored entries
+- MultiField: unchecked checkboxes no longer move the following entries to another position
 
 ## [3.7.0] - 07.10.2026
 

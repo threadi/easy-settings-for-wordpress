@@ -144,9 +144,14 @@ class Method_Base {
 			return (array) $value;
 		}
 
-		// if type is int, secure value for an integer.
-		if ( 'integer' === $field_settings->get_type() || 'number' === $field_settings->get_type() ) {
-			return absint( $value );
+		// if type is int, secure value for an integer (keep the sign, absint() would turn -5 into 5).
+		if ( 'integer' === $field_settings->get_type() ) {
+			return is_numeric( $value ) ? (int) $value : 0;
+		}
+
+		// if type is number, secure value for a number (keep the sign and decimals).
+		if ( 'number' === $field_settings->get_type() ) {
+			return is_numeric( $value ) ? $value + 0 : 0;
 		}
 
 		// return the value.

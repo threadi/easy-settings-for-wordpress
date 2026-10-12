@@ -59,9 +59,14 @@ class Radio extends Field_Base {
 		// get the setting object.
 		$setting = $attr['setting'];
 
+		// get the actual value as string: PHP converts numeric option keys like "1" to int 1,
+		// the value is stored as string, so a strict comparison of both would never match.
+		$value = $this->get_display_value( $setting, '' );
+		$value = is_scalar( $value ) ? (string) $value : '';
+
 		// show hidden field if this is set to readonly.
 		if ( $this->is_readonly() ) {
-			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( get_option( $setting->get_name(), '' ) ); ?>">
+			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo esc_attr( $value ); ?>">
 			<?php
 		}
 
@@ -74,7 +79,7 @@ class Radio extends Field_Base {
 				$title = $settings;
 			} elseif ( is_array( $settings ) ) {
 				// otherwise it is an array, and the title is the label.
-				$title = $settings['label'];
+				$title = isset( $settings['label'] ) ? (string) $settings['label'] : '';
 
 				// get the description.
 				$description = isset( $settings['description'] ) ? $settings['description'] : '';
@@ -87,7 +92,7 @@ class Radio extends Field_Base {
 						value="<?php echo esc_attr( $key ); ?>"
 						<?php
 						echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
-						echo ( get_option( $setting->get_name(), '' ) === $key ? ' checked="checked"' : '' );
+						echo ( (string) $key === $value ? ' checked="checked"' : '' );
 						?>
 						class="<?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width"
 						title="<?php echo esc_attr( $this->get_title() ); ?>"

@@ -61,7 +61,7 @@ class Checkbox extends Field_Base {
 
 		// show hidden field if this is set to readonly.
 		if ( $this->is_readonly() ) {
-			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? 1 : 0 ); ?>">
+			?><input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo ( 1 === absint( $this->get_display_value( $setting, 0 ) ) ? 1 : 0 ); ?>">
 			<?php
 		}
 
@@ -71,7 +71,7 @@ class Checkbox extends Field_Base {
 				value="1"
 				<?php
 				echo ( $this->is_readonly() ? ' disabled="disabled"' : '' );
-				echo ( 1 === absint( get_option( $setting->get_name(), 0 ) ) ? ' checked="checked"' : '' );
+				echo ( 1 === absint( $this->get_display_value( $setting, 0 ) ) ? ' checked="checked"' : '' );
 				?>
 				class="<?php echo esc_attr( $this->get_settings_obj()->get_slug() ); ?>-field-width"
 				title="<?php echo esc_attr( $this->get_title() ); ?>"

@@ -60,7 +60,7 @@ class Select extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get value.
-		$value = (string) get_option( $setting->get_name(), '' );
+		$value = (string) $this->get_display_value( $setting, '' );
 
 		// show hidden field if this is set to readonly.
 		if ( $this->is_readonly() ) {

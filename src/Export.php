@@ -33,7 +33,27 @@ class Export extends Base_Object {
 	 */
 	public function init(): void {
 		// use hooks.
-		add_action( 'admin_action_settings_export', array( $this, 'run' ) );
+		add_action( 'admin_action_' . $this->get_action_name(), array( $this, 'run' ) );
+	}
+
+	/**
+	 * Return the name of the admin action for the export of these settings.
+	 *
+	 * Contains the slug, so multiple plugins using this package do not run the export of each other.
+	 *
+	 * @return string
+	 */
+	public function get_action_name(): string {
+		return 'esfw_settings_export_' . sanitize_key( $this->get_settings_obj()->get_slug() );
+	}
+
+	/**
+	 * Return the nonce action for the export of these settings.
+	 *
+	 * @return string
+	 */
+	private function get_nonce_action(): string {
+		return 'esfw-settings-export-' . sanitize_key( $this->get_settings_obj()->get_slug() );
 	}
 
 	/**
@@ -43,11 +63,11 @@ class Export extends Base_Object {
 	 */
 	public function run(): void {
 		// check referer.
-		check_admin_referer( 'settings-export', 'nonce' );
+		check_admin_referer( $this->get_nonce_action(), 'nonce' );
 
 		// bail if capability is not given.
 		if ( ! current_user_can( $this->get_settings_obj()->get_capability() ) ) {
-			return;
+			wp_die( esc_html__( 'Sorry, you are not allowed to access this page.' ), 403 ); // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- uses the WordPress core translation.
 		}
 
 		// get the settings as array.
@@ -88,8 +108,8 @@ class Export extends Base_Object {
 	public function get_download_url(): string {
 		return add_query_arg(
 			array(
-				'action' => 'settings_export',
-				'nonce'  => wp_create_nonce( 'settings-export' ),
+				'action' => $this->get_action_name(),
+				'nonce'  => wp_create_nonce( $this->get_nonce_action() ),
 			),
 			get_admin_url() . 'admin.php'
 		);

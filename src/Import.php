@@ -34,7 +34,27 @@ class Import extends Base_Object {
 	public function init(): void {
 		// use hooks.
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_script' ) );
-		add_action( 'wp_ajax_esfw_import_file', array( $this, 'import_via_ajax' ) );
+		add_action( 'wp_ajax_' . $this->get_action_name(), array( $this, 'import_via_ajax' ) );
+	}
+
+	/**
+	 * Return the name of the AJAX action for the import of these settings.
+	 *
+	 * Contains the slug, so multiple plugins using this package do not handle the import of each other.
+	 *
+	 * @return string
+	 */
+	public function get_action_name(): string {
+		return 'esfw_import_file_' . sanitize_key( $this->get_settings_obj()->get_slug() );
+	}
+
+	/**
+	 * Return the nonce action for the import of these settings.
+	 *
+	 * @return string
+	 */
+	private function get_nonce_action(): string {
+		return 'esfw-settings-import-' . sanitize_key( $this->get_settings_obj()->get_slug() );
 	}
 
 	/**
@@ -68,7 +88,8 @@ class Import extends Base_Object {
 			'settingsImportJsVars',
 			array(
 				'ajax_url'                           => admin_url( 'admin-ajax.php' ),
-				'settings_import_file_nonce'         => wp_create_nonce( 'settings-import' ),
+				'action'                             => $this->get_action_name(),
+				'settings_import_file_nonce'         => wp_create_nonce( $this->get_nonce_action() ),
 				'title_settings_import_file_missing' => $translations['title_settings_import_file_missing'],
 				'text_settings_import_file_missing'  => $translations['text_settings_import_file_missing'],
 				'lbl_ok'                             => $translations['lbl_ok'],
@@ -83,7 +104,7 @@ class Import extends Base_Object {
 	 */
 	public function import_via_ajax(): void {
 		// check nonce.
-		check_ajax_referer( 'settings-import', 'nonce' );
+		check_ajax_referer( $this->get_nonce_action(), 'nonce' );
 
 		// bail if user has not the capability to change settings.
 		if ( ! current_user_can( $this->get_settings_obj()->get_capability() ) ) {

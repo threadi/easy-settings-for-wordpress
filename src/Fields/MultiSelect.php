@@ -69,7 +69,7 @@ class MultiSelect extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get values.
-		$values = (array) get_option( $setting->get_name(), array() );
+		$values = (array) $this->get_display_value( $setting, array() );
 
 		// show hidden fields if this is set to readonly (disabled fields are not submitted).
 		if ( $this->is_readonly() ) {

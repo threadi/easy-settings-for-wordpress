@@ -71,7 +71,7 @@ class Files extends Field_Base {
 		$setting = $attr['setting'];
 
 		// get value from the config.
-		$files = $this->normalize_ids( get_option( $setting->get_name() ) );
+		$files = $this->normalize_ids( $this->get_display_value( $setting ) );
 
 		if ( ! empty( $files ) ) {
 			?><ul>
