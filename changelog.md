@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Optimized styling for tabs with custom content
+
+### Fixed
+
+- Show readonly Text and Textarea fields in DataView
+
 ## [3.8.0] - 12.10.2026
 
 ### Changed

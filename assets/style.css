@@ -163,11 +163,17 @@
 	outline: none;
 	border-radius: calc(7px);
 	> * {
-		padding: calc(16px) calc(24px) !important
+		padding: 0 calc(24px) calc(18px) !important
 	}
 	h2 {
 		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-		margin-bottom: 0;
+		padding: calc(16px) calc(24px) !important;
+		line-height: 1.4;
+		margin: 0;
+		color: var(--wp-components-color-foreground, var(--wpds-color-foreground-content-neutral, #1e1e1e));
+		font-size: calc(25.35px);
+		font-weight: 600;
+		display: block;
 	}
 	p:last-child { margin-bottom: 0 }
 }
@@ -308,4 +314,21 @@
 
 .esfw-file-choose .components-text {
 	display: block;
+}
+
+.components-text-control__input[readonly],
+.components-textarea-control__input[readonly] {
+	background-color: var(--wp-components-color-gray-100, #f0f0f1);
+	color: #50575e;
+	border-color: #dcdcde;
+	box-shadow: none;
+	cursor: not-allowed;
+	pointer-events: none; /* no click, no focus ring, no text cursor */
+}
+
+.components-text-control__input[readonly]:focus,
+.components-textarea-control__input[readonly]:focus {
+	outline: none;
+	box-shadow: none;
+	border-color: #dcdcde;
 }
