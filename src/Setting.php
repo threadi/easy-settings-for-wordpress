@@ -739,6 +739,7 @@ class Setting extends Base_Object {
 				break;
 			case 'Color':
 				$configuration['type'] = 'esfw-color';
+				$configuration['choose_label'] = $this->get_settings_obj()->get_translations()['color_choose'];
 				break;
 			case 'Date':
 			case 'DateTime':
@@ -787,6 +788,7 @@ class Setting extends Base_Object {
 			case 'File':
 				$configuration['type']     = 'media';
 				$configuration['multiple'] = false;
+				$configuration['placeholder'] = $this->get_settings_obj()->get_translations()['file_choose_file'];
 				if ( $field instanceof File ) {
 					$configuration['allowed_types']      = Helper::get_media_library_types( $field->get_file_types() );
 					$configuration['allowed_extensions'] = Helper::get_media_file_extensions( $field->get_file_types() );
@@ -795,6 +797,7 @@ class Setting extends Base_Object {
 			case 'Files':
 				$configuration['type']     = 'media';
 				$configuration['multiple'] = true;
+				$configuration['placeholder'] = $this->get_settings_obj()->get_translations()['file_choose_file'];
 				if ( $field instanceof Files ) {
 					$configuration['allowed_types']      = Helper::get_media_library_types( $field->get_file_types() );
 					$configuration['allowed_extensions'] = Helper::get_media_file_extensions( $field->get_file_types() );

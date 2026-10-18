@@ -5,6 +5,8 @@
 ### Changed
 
 - Optimized styling for tabs with custom content
+- Optimized a11y usage
+- Extend the translations
 
 ### Fixed
 

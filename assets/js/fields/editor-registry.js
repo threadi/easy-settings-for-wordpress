@@ -42,7 +42,7 @@ export function getEditComponent( descriptor ) {
     case 'esfw-checkboxes':
       return createCheckboxListEdit( descriptor.options );
     case 'esfw-color':
-      return createColorEdit( descriptor.options );
+      return createColorEdit( { chooseLabel: descriptor.choose_label } );
     case 'esfw-datetime':
       return createDateTimeEdit( {
         inputType: descriptor.input_type,

@@ -5,7 +5,7 @@ import { BaseControl, Button, ColorIndicator, ColorPicker, Dropdown, __experimen
  *
  * @return {Function} The Edit component.
  */
-export function createColorEdit() {
+export function createColorEdit( { chooseLabel = 'Choose color' } = {} ) {
   return function ColorEdit( { field, data, onChange } ) {
     const currentValue = field.getValue( { item: data } ) ?? '';
 
@@ -22,11 +22,12 @@ export function createColorEdit() {
                 variant="secondary"
                 onClick={ onToggle }
                 aria-expanded={ isOpen }
+                aria-label={ field.label ? `${ chooseLabel }: ${ field.label }` : undefined }
                 disabled={ !! field.readOnly }
               >
                 <HStack spacing={ 2 } justify="flex-start">
                   { currentValue && <ColorIndicator colorValue={ currentValue } /> }
-                  <span>Choose color</span>
+                  <span>{ chooseLabel }</span>
                 </HStack>
               </Button>
             ) }

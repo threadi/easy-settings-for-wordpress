@@ -1619,6 +1619,10 @@ class Settings {
 			'password_delete_on_save'            => 'The stored value will be deleted when saving.',
 			'password_show'                      => 'Show value',
 			'password_hide'                      => 'Hide value',
+			'color_choose' => 'Choose color',
+			'file_remove'  => 'Remove file',
+			'move_up'      => 'Move up',
+			'move_down'    => 'Move down',
 		);
 
 		// return combined list of translations.
