@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed a high memory limit usage in REST API for endpoints we do no use
+
 ## [3.8.0] - 12.10.2026
 
 ### Changed

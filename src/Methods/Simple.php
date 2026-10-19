@@ -294,6 +294,44 @@ class Simple extends Method_Base {
 			$args
 		);
 
+		// add the callbacks for reading and saving.
+		$this->register_single_callbacks( $setting );
+	}
+
+	/**
+	 * Register only the callbacks of all settings for reading and saving them, without the Settings API and the REST schema.
+	 *
+	 * @return void
+	 */
+	public function register_callbacks(): void {
+		// bail if no settings are set.
+		if ( ! $this->get_settings_obj()->has_settings() ) {
+			return;
+		}
+
+		// loop through the settings, field-table cells are part of this list, too.
+		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
+			// bail if setting should not be registered.
+			if ( $setting->should_not_be_registered() ) {
+				continue;
+			}
+
+			// add its callbacks.
+			$this->register_single_callbacks( $setting );
+		}
+
+		// check for any updates to the settings.
+		$this->get_settings_obj()->maybe_update();
+	}
+
+	/**
+	 * Register the callbacks of a single setting for reading and saving it.
+	 *
+	 * @param Setting $setting The setting.
+	 *
+	 * @return void
+	 */
+	private function register_single_callbacks( Setting $setting ): void {
 		// sanitize the option before any output.
 		add_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ), 10, 2 );
 
