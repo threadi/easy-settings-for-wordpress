@@ -81,6 +81,11 @@ class File extends Field_Base {
 		$library_types       = ! empty( $resolved_file_types['mime_types'] ) ? $resolved_file_types['mime_types'] : $this->get_file_types();
 		$file_extensions     = implode( ',', $resolved_file_types['extensions'] );
 
+		// get the translations.
+		$translations = $this->get_settings_obj()->get_translations();
+		$add_title    = '' !== $this->get_add_file_title() ? $this->get_add_file_title() : $translations['file_choose_file'];
+		$remove_title = '' !== $this->get_remove_file_title() ? $this->get_remove_file_title() : $translations['file_remove'];
+
 		// output.
 		$image_id = absint( $this->get_display_value( $setting, 0 ) );
 		if ( $image_id > 0 ) {
@@ -91,7 +96,7 @@ class File extends Field_Base {
 			}
 			$is_image = wp_attachment_is_image( $image_id );
 			?>
-			<a href="#" class="esfw-settings-file-choose" data-file-types="<?php echo esc_attr( Helper::get_json( $library_types ) ); ?>" data-file-extensions="<?php echo esc_attr( $file_extensions ); ?>"><img src="<?php echo esc_url( isset( $image[0] ) ? $image[0] : '' ); ?>" alt=""<?php echo $is_image ? '' : ' class="esfw-file-icon"'; ?> />
+			<button type="button" class="esfw-settings-file-choose" data-file-types="<?php echo esc_attr( Helper::get_json( $library_types ) ); ?>" data-file-extensions="<?php echo esc_attr( $file_extensions ); ?>"><img src="<?php echo esc_url( isset( $image[0] ) ? $image[0] : '' ); ?>" alt="<?php echo $is_image ? esc_attr( wp_basename( (string) get_attached_file( $image_id ) ) ) : ''; ?>"<?php echo $is_image ? '' : ' class="esfw-file-icon"'; ?> />
 			<?php
 			if ( ! $is_image ) {
 				?>
@@ -99,14 +104,14 @@ class File extends Field_Base {
 				<?php
 			}
 			?>
-			</a>
-			<a href="#" class="esfw-settings-file-remove button"><?php echo esc_html( $this->get_remove_file_title() ); ?></a>
+			</button>
+			<button type="button" class="esfw-settings-file-remove button"><?php echo esc_html( $remove_title ); ?></button>
 			<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="<?php echo absint( $image_id ); ?>" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 			<?php
 		} else {
 			?>
-			<a href="#" class="esfw-settings-file-choose button" data-file-types="<?php echo esc_attr( Helper::get_json( $library_types ) ); ?>" data-file-extensions="<?php echo esc_attr( $file_extensions ); ?>"><?php echo esc_html( $this->get_add_file_title() ); ?></a>
-			<a href="#" class="esfw-settings-file-remove button" style="display:none"><?php echo esc_html( $this->get_remove_file_title() ); ?></a>
+			<button type="button" class="esfw-settings-file-choose button" data-file-types="<?php echo esc_attr( Helper::get_json( $library_types ) ); ?>" data-file-extensions="<?php echo esc_attr( $file_extensions ); ?>"><?php echo esc_html( $add_title ); ?></button>
+			<button type="button" class="esfw-settings-file-remove button" style="display:none"><?php echo esc_html( $remove_title ); ?></button>
 			<input type="hidden" name="<?php echo esc_attr( $setting->get_name() ); ?>" value="" data-depends="<?php echo esc_attr( $this->get_depend() ); ?>">
 			<?php
 		}

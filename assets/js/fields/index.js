@@ -3,7 +3,13 @@
  */
 import { createElement } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
-import { CheckboxControl, SelectControl, RadioControl } from '@wordpress/components';
+import {
+  CheckboxControl,
+  SelectControl,
+  RadioControl,
+  TextControl,
+  TextareaControl,
+} from '@wordpress/components';
 
 import { createIsVisible } from '../utils/visibility';
 import { getEditComponent } from './editor-registry';
@@ -101,6 +107,35 @@ export function mapFields( config ) {
           options,
           onChange: () => {},
           disabled: true,
+          __next40pxDefaultSize: true,
+          __nextHasNoMarginBottom: true,
+        } );
+      };
+    } else if (
+      updatedField.readOnly &&
+      ( updatedField.type === 'text' || updatedField.type === 'integer' )
+    ) {
+      const { id, description, Edit: editType, type } = updatedField;
+
+      updatedField.render = ( { item } ) => {
+        const value = item?.[ id ] ?? '';
+
+        if ( editType === 'textarea' ) {
+          return createElement( TextareaControl, {
+            help: description,
+            value,
+            readOnly: true,
+            onChange: () => {},
+            __nextHasNoMarginBottom: true,
+          } );
+        }
+
+        return createElement( TextControl, {
+          help: description,
+          value: String( value ),
+          type: type === 'integer' ? 'number' : 'text',
+          readOnly: true,
+          onChange: () => {},
           __next40pxDefaultSize: true,
           __nextHasNoMarginBottom: true,
         } );

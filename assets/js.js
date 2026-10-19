@@ -135,7 +135,7 @@ jQuery(document).ready(function($) {
       button.removeClass('button');
 
       if ( 'image' === attachment.type ) {
-        preview.attr('src', attachment.sizes && attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url);
+        preview.attr('src', attachment.sizes && attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url).attr('alt', attachment.filename);
         button.empty().append(preview);
       }
       else {
