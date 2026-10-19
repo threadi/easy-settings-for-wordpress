@@ -84,13 +84,13 @@ export function SectionCard( { section, fields, settings, onChange } ) {
               aria-expanded={ isOpen }
               variant="tertiary"
             >
-              <Heading level={ 3 }>{ section.label }</Heading>
+              <Heading level={ 2 }>{ section.label }</Heading>
               <span className="esfw-settings-section__chevron" aria-hidden="true">
                 { isOpen ? '▾' : '▸' }
               </span>
             </Button>
           ) : (
-            <Heading level={ 3 }>{ section.label }</Heading>
+            <Heading level={ 2 }>{ section.label }</Heading>
           ) }
         </CardHeader>
       ) }

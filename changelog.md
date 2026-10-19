@@ -2,8 +2,15 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Optimized styling for tabs with custom content
+- Optimized a11y usage
+- Extend the translations
+
 ### Fixed
 
+- Show readonly Text and Textarea fields in DataView
 - Fixed a high memory limit usage in REST API for endpoints we do no use
 
 ## [3.8.0] - 12.10.2026
