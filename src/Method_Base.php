@@ -52,7 +52,7 @@ class Method_Base {
 	public function init(): void {
 		// register settings.
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'rest_api_init', array( $this, 'register_settings' ) );
+		add_action( 'rest_api_init', array( $this, 'register_settings_for_rest' ) );
 
 		// support the classic error handler.
 		add_filter( 'rest_pre_dispatch', array( $this, 'load_settings_api_helpers' ), 10, 3 );
@@ -63,9 +63,10 @@ class Method_Base {
 			add_action( 'init', array( $this, 'register_settings' ), 200 );
 		}
 
-		// register the settings during WP Cron run.
+		// register only the callbacks of the settings during WP Cron run.
+		// The Settings API and the REST schema are not used there, but the read and save callbacks (e.g. to decrypt values) are.
 		if ( wp_doing_cron() ) {
-			add_action( 'init', array( $this, 'register_settings' ), 200 );
+			add_action( 'init', array( $this, 'register_callbacks' ), 200 );
 		}
 	}
 
@@ -90,6 +91,55 @@ class Method_Base {
 	 * @return void
 	 */
 	public function register_settings(): void {}
+
+	/**
+	 * Register only the callbacks of the settings for reading and saving them, without the Settings API and the REST schema.
+	 *
+	 * Used in requests which do not show or save the settings, e.g. WP Cron or REST requests to other endpoints.
+	 * Registering every setting with its schema there costs a lot of memory on websites with many settings.
+	 *
+	 * Methods which do not support this register the settings completely.
+	 *
+	 * @return void
+	 */
+	public function register_callbacks(): void {
+		$this->register_settings();
+	}
+
+	/**
+	 * Register the settings during a REST request.
+	 *
+	 * The settings are registered completely only for the settings endpoint (and batch requests, which could contain it),
+	 * as only there they are shown and saved. Other endpoints get only the callbacks.
+	 *
+	 * @return void
+	 */
+	public function register_settings_for_rest(): void {
+		if ( $this->is_settings_rest_request() ) {
+			$this->register_settings();
+			return;
+		}
+
+		$this->register_callbacks();
+	}
+
+	/**
+	 * Return whether the actual REST request could use the settings endpoint.
+	 *
+	 * @return bool
+	 */
+	protected function is_settings_rest_request(): bool {
+		// get the requested route.
+		$route = isset( $GLOBALS['wp']->query_vars['rest_route'] ) ? (string) $GLOBALS['wp']->query_vars['rest_route'] : '';
+
+		// register everything if the route is unknown, e.g. for internal REST requests outside a REST request.
+		if ( '' === $route ) {
+			return true;
+		}
+
+		// return whether this is the settings endpoint or a batch request.
+		return str_starts_with( $route, '/wp/v2/settings' ) || str_starts_with( $route, '/batch/v1' );
+	}
 
 	/**
 	 * Sanitize our own option values before output.
