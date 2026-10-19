@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.8.2] - 19.10.2026
+
+### Fixed
+
+- Fixed missing dependencies
+
 ## [3.8.1] - 19.10.2026
 
 ### Changed
