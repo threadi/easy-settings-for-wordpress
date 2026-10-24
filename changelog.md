@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.8.4] - 24.10.2026
+
+### Fixed
+
+- Fixed the style for custom DataView tabs
+
 ## [3.8.3] - 24.10.2026
 
 ### Changed
