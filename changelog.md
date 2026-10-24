@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.8.3] - 24.10.2026
+
+### Changed
+
+- Updated dependencies for DataView to be compatible with WordPress 7.2
+
 ## [3.8.2] - 19.10.2026
 
 ### Fixed
