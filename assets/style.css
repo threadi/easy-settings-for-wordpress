@@ -339,3 +339,7 @@ button.esfw-settings-file-choose:not(.button) {
 	padding: 0;
 	cursor: pointer;
 }
+
+.esfw-settings-tabs .components-tab-panel__tabs-item-label:has(> .esfw-tab-title) {
+	display: contents;
+}
