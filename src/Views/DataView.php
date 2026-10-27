@@ -134,6 +134,8 @@ class DataView extends View_Base {
 			'title'                       => $settings_obj->get_title(),
 			'fields'                      => $this->get_fields(),
 			'tabs'                        => $this->get_tabs_config( $page_slug ),
+			'tab_navigation'              => $this->get_settings_obj()->is_tab_navigation_visible( $this->get_root_tabs( $page_slug ) ),
+			'single_tab'                  => $this->get_single_tab_name( $page_slug ),
 			'rest_config_path'            => esc_url_raw(
 				add_query_arg(
 					array( 'page' => $page_slug ),
@@ -218,6 +220,32 @@ class DataView extends View_Base {
 			$fields_by_section[ spl_object_id( $section ) ][] = $dataview['id'];
 		}
 
+		// get the root tabs.
+		$root_tabs = $this->get_root_tabs( $page_slug );
+
+		// build the (possibly nested) tree from the roots.
+		$tabs = array();
+		foreach ( $root_tabs as $tab ) {
+			$tabs[] = $this->build_tab_node( $tab, $fields_by_section );
+		}
+
+		/**
+		 * Filter the tab tree used for the dataview.
+		 *
+		 * @since 3.0.0 Available since 3.0.0.
+		 * @param array<int,array<string,mixed>> $tabs List of tabs.
+		 */
+		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_dataview_tabs', $tabs );
+	}
+
+	/**
+	 * Return the root tabs from the settings object and from the requested page.
+	 *
+	 * @param string $page_slug The slug of the requested page.
+	 *
+	 * @return array<int,Tab>
+	 */
+	private function get_root_tabs( string $page_slug = '' ): array {
 		// collect the root tabs from the settings object AND from the requested page.
 		$root_tabs = array();
 		$seen      = array();
@@ -253,19 +281,29 @@ class DataView extends View_Base {
 			}
 		}
 
-		// build the (possibly nested) tree from the roots.
-		$tabs = array();
-		foreach ( $root_tabs as $tab ) {
-			$tabs[] = $this->build_tab_node( $tab, $fields_by_section );
+		// return the list.
+		return $root_tabs;
+	}
+
+	/**
+	 * Return the name of the single visible tab, if the tab navigation is not shown. Empty string otherwise.
+	 *
+	 * @param string $page_slug The slug of the requested page.
+	 *
+	 * @return string
+	 */
+	private function get_single_tab_name( string $page_slug = '' ): string {
+		// get the root tabs.
+		$root_tabs = $this->get_root_tabs( $page_slug );
+
+		// bail if the navigation is shown.
+		if ( $this->get_settings_obj()->is_tab_navigation_visible( $root_tabs ) ) {
+			return '';
 		}
 
-		/**
-		 * Filter the tab tree used for the dataview.
-		 *
-		 * @since 3.0.0 Available since 3.0.0.
-		 * @param array<int,array<string,mixed>> $tabs List of tabs.
-		 */
-		return apply_filters( $this->get_settings_obj()->get_slug() . '_settings_dataview_tabs', $tabs );
+		// return the name of the single visible tab.
+		$visible_tabs = $this->get_settings_obj()->get_visible_tabs( $root_tabs );
+		return isset( $visible_tabs[0] ) ? $visible_tabs[0]->get_name() : '';
 	}
 
 	/**

@@ -1,10 +1,17 @@
 # Changelog
 
-## [Unreleased]
+## [3.9.0] - 27.10.2026
+
+### Added
+
+- A settings page with only one tab is shown without tab navigation (classic view and DataView); use Settings::set_show_single_tab( true ) or "show_single_tab" in JSON to show it anyway
+- New filter <slug>_settings_show_tab_navigation to decide whether the tab navigation is shown
+- New field "Cards": choice of one option like Radio, where each option is shown as card with label, description (HTML), icon, badge and optional disabled state; same look in classic view and DataView
 
 ### Fixed
 
 - Fixed usage of wp_kses_post() in Button
+- Tabs with the class "hidden" (Tab::set_tab_class()) are now also hidden in the DataView, like in the classic view
 
 ## [3.8.4] - 24.10.2026
 

@@ -28,6 +28,7 @@ class Helper {
 	public static function get_field_types(): array {
 		return array(
 			'easySettingsForWordPress\Fields\Button',
+			'easySettingsForWordPress\Fields\Cards',
 			'easySettingsForWordPress\Fields\Checkbox',
 			'easySettingsForWordPress\Fields\Checkboxes',
 			'easySettingsForWordPress\Fields\Color',

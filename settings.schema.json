@@ -48,6 +48,27 @@
       }
     },
 
+    "options_map_cards": {
+      "description": "Value => Label OR Value => {label, description, icon, badge, disabled}, as allowed for cards.",
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "label":       { "type": "string" },
+              "description": { "type": "string", "description": "HTML is allowed (filtered with wp_kses_post())." },
+              "icon":        { "type": "string", "description": "URL of an image shown in the card." },
+              "badge":       { "type": "string", "description": "Short text shown as badge on the card, e.g. \"Active\"." },
+              "disabled":    { "type": "boolean", "default": false, "description": "The option could not be chosen, unless it is the actual value." }
+            },
+            "required": [ "label" ]
+          }
+        ]
+      }
+    },
+
     "field_text": {
       "allOf": [ { "$ref": "#/$defs/field_common" } ],
       "type": "object",
@@ -161,6 +182,18 @@
       "properties": {
         "type":    { "const": "Radio" },
         "options": { "$ref": "#/$defs/options_map_extended" }
+      },
+      "required": [ "type", "options" ]
+    },
+
+    "field_cards": {
+      "description": "Choice of one option like Radio, each option is shown as card.",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":    { "const": "Cards" },
+        "options": { "$ref": "#/$defs/options_map_cards" },
+        "columns": { "type": "integer", "minimum": 0, "default": 0, "description": "Number of columns. 0 uses as many columns as fit in the available width." }
       },
       "required": [ "type", "options" ]
     },
@@ -393,6 +426,7 @@
         { "$ref": "#/$defs/field_datetime" },
         { "$ref": "#/$defs/field_time" },
         { "$ref": "#/$defs/field_radio" },
+        { "$ref": "#/$defs/field_cards" },
         { "$ref": "#/$defs/field_select" },
         { "$ref": "#/$defs/field_multiselect" },
         { "$ref": "#/$defs/field_number" },
@@ -497,6 +531,7 @@
     "capability":        { "type": "string", "default": "manage_options" },
     "auto_save":         { "type": "string", "enum": [ "off", "change", "tab_change" ], "default": "off" },
     "show_settings_link_in_plugin_list": { "type": "boolean", "default": false },
+    "show_single_tab":   { "type": "boolean", "default": false, "description": "Show the tab navigation even if a page has only one tab (without sub-tabs). By default, it is not shown in this case." },
     "view":              { "type": "string", "enum": [ "classic", "dataview" ], "default": "classic" },
     "styling":           { "type": "string", "enum": [ "horizontal_tabs", "vertical_tabs" ], "default": "horizontal_tabs" },
     "default_tab":       { "type": "string", "description": "Name of one of the tabs defined above." },

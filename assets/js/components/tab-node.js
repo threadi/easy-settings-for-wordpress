@@ -49,6 +49,7 @@ export function TabNode( {
                            activeTabPath,
                            onTabChange,
                            parentTabName,
+                           singleTab = '',
                          } ) {
   // a parent tab's hide_save cascades down to all its (sub-)tabs.
   const effectiveHideSave = inheritedHideSave || !! node.hide_save;
@@ -78,6 +79,27 @@ export function TabNode( {
       onActiveLeafChange?.( effectiveHideSave );
     }
   }, [ isLeaf, effectiveHideSave, onActiveLeafChange ] );
+
+  // a single tab without navigation: show its content directly (see Settings::is_tab_navigation_visible()).
+  const singleChild = 0 === depth && singleTab
+    ? ( node.tabs ?? [] ).find( ( t ) => t.name === singleTab && ! t.url )
+    : null;
+  if ( singleChild ) {
+    return (
+      <TabNode
+        node={ singleChild }
+        fields={ fields }
+        settings={ settings }
+        onChange={ onChange }
+        depth={ depth + 1 }
+        onActiveLeafChange={ onActiveLeafChange }
+        inheritedHideSave={ effectiveHideSave }
+        activeTabPath={ activeTabPath }
+        onTabChange={ onTabChange }
+        parentTabName={ singleChild.name }
+      />
+    );
+  }
 
   if ( ! isLeaf ) {
     return (

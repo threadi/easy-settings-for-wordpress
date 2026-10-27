@@ -230,6 +230,7 @@ export const SettingsPage = ( props ) => {
               activeTabPath={ activeTabPath }
               onTabChange={ handleTabChange }
               configVersion={ configVersion }
+              singleTab={ config.tab_navigation === false ? config.single_tab : '' }
             />
           ) : (
             <Card className="esfw-settings-section">

@@ -195,6 +195,13 @@ class Settings {
 	private bool $lock_form_on_save = true;
 
 	/**
+	 * Whether the tab navigation is shown even if there is only one tab.
+	 *
+	 * @var bool
+	 */
+	private bool $show_single_tab = false;
+
+	/**
 	 * Whether the section collapse should be persisted in user meta.
 	 *
 	 * @var bool
@@ -315,7 +322,7 @@ class Settings {
 			// remember the actual default tab of this page (it could be an existing page of the plugin).
 			$this->example_previous_default_tab = $page->get_default_tab();
 
-			$tab  = $page->add_tab( 'easy-settings-for-wordpress_example_tab', 10 );
+			$tab = $page->add_tab( 'easy-settings-for-wordpress_example_tab', 10 );
 			$tab->set_title( 'Easy Settings for WordPress Example Tab' );
 			$tab->set_description( '<p>This is just an example for a tab. Configure your own settings to remove this.</p>' );
 			$tab->set_hide_save( true );
@@ -1439,13 +1446,6 @@ class Settings {
 			}
 		}
 
-		// create the object, if it is a string.
-		$page_obj = $page;
-		if ( ! $page_obj instanceof Page ) {
-			$page_obj = new Page( $this );
-			$page_obj->set_name( $page );
-		}
-
 		// get the object.
 		$page_obj = $page;
 
@@ -1619,10 +1619,10 @@ class Settings {
 			'password_delete_on_save'            => 'The stored value will be deleted when saving.',
 			'password_show'                      => 'Show value',
 			'password_hide'                      => 'Hide value',
-			'color_choose' => 'Choose color',
-			'file_remove'  => 'Remove file',
-			'move_up'      => 'Move up',
-			'move_down'    => 'Move down',
+			'color_choose'                       => 'Choose color',
+			'file_remove'                        => 'Remove file',
+			'move_up'                            => 'Move up',
+			'move_down'                          => 'Move down',
 		);
 
 		// return combined list of translations.
@@ -2042,6 +2042,83 @@ class Settings {
 	 */
 	public function should_lock_form_on_save(): bool {
 		return $this->lock_form_on_save;
+	}
+
+	/**
+	 * Show the tab navigation even if there is only one tab.
+	 *
+	 * By default, the tab navigation is not shown if a page has only one tab (without sub-tabs):
+	 * its settings are then shown without a tab.
+	 *
+	 * @param bool $show True to show the tab navigation also for a single tab.
+	 *
+	 * @return void
+	 */
+	public function set_show_single_tab( bool $show ): void {
+		$this->show_single_tab = $show;
+	}
+
+	/**
+	 * Return whether the tab navigation is shown even if there is only one tab.
+	 *
+	 * @return bool
+	 */
+	public function is_show_single_tab(): bool {
+		return $this->show_single_tab;
+	}
+
+	/**
+	 * Return whether the navigation for the given (top-level) tabs should be shown.
+	 *
+	 * It is not shown if only one tab would be visible, this tab has no sub-tabs and the
+	 * navigation is not forced via set_show_single_tab( true ). Tabs shown as menu item and
+	 * tabs with the class "hidden" are not visible in the navigation.
+	 *
+	 * @param array<int,Tab> $tabs The top-level tabs.
+	 *
+	 * @return bool
+	 */
+	public function is_tab_navigation_visible( array $tabs ): bool {
+		// get the tabs which would be visible in the navigation.
+		$visible_tabs = $this->get_visible_tabs( $tabs );
+
+		// show the navigation if forced, for more than one tab or for a tab with sub-tabs.
+		$show = $this->is_show_single_tab() || 1 !== count( $visible_tabs ) || $visible_tabs[0]->has_tabs();
+
+		/**
+		 * Filter whether the tab navigation is shown.
+		 *
+		 * @since 3.9.0 Available since 3.9.0.
+		 * @param bool           $show Whether to show the tab navigation.
+		 * @param array<int,Tab> $tabs The top-level tabs.
+		 */
+		return (bool) apply_filters( $this->get_slug() . '_settings_show_tab_navigation', $show, $tabs );
+	}
+
+	/**
+	 * Return the tabs of the given list which would be visible in the navigation.
+	 *
+	 * @param array<int,Tab> $tabs The tabs.
+	 *
+	 * @return array<int,Tab>
+	 */
+	public function get_visible_tabs( array $tabs ): array {
+		$visible_tabs = array();
+		foreach ( $tabs as $tab ) {
+			// tabs shown as menu item are not part of the navigation.
+			if ( $tab->is_show_in_menu() ) {
+				continue;
+			}
+
+			// tabs with the class "hidden" are not visible.
+			if ( in_array( 'hidden', explode( ' ', $tab->get_tab_class() ), true ) ) {
+				continue;
+			}
+
+			$visible_tabs[] = $tab;
+		}
+
+		return $visible_tabs;
 	}
 
 	/**
