@@ -64,6 +64,7 @@ class Serializer {
 			'capability'        => $settings->get_capability(),
 			'auto_save'         => $settings->get_auto_save(),
 			'lock_form_on_save' => $settings->should_lock_form_on_save(),
+			'show_single_tab'   => $settings->is_show_single_tab(),
 		);
 		foreach ( $scalars as $key => $value ) {
 			if ( '' !== $value ) {

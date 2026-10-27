@@ -42,3 +42,23 @@ Use this for custom stylings of tabs.
 ### Set custom URL
 
 `$fields_tab->set_url( 'my_class' );`
+
+## Single tab
+
+If a settings page has only one tab (without sub-tabs), the tab navigation is not shown, neither in the
+classic view nor in the DataView. The settings of this tab are shown directly below the title of the page.
+
+Tabs shown as menu item (`set_show_in_menu( true )`) and tabs with the class `hidden` are not counted.
+A tab with a custom URL (e.g. a link to the help) is counted, so the navigation stays visible for it.
+
+To show the tab navigation also for a single tab:
+
+`$settings_obj->set_show_single_tab( true );`
+
+Or in the JSON configuration: `"show_single_tab": true`.
+
+The decision could also be changed with the filter `<slug>_settings_show_tab_navigation`:
+
+```
+add_filter( 'my_slug_settings_show_tab_navigation', '__return_true' );
+```

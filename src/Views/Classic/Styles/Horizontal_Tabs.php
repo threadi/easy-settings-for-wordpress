@@ -91,9 +91,21 @@ class Horizontal_Tabs extends Styling_Base {
 		// get sub tab from request.
 		$current_sub_tab = filter_input( INPUT_GET, 'subtab', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
+		// check whether the navigation of the tabs should be shown (not for a single tab, see Settings::set_show_single_tab()).
+		$show_nav = $this->get_settings_obj()->is_tab_navigation_visible( $page_obj->get_tabs() );
+
+		// without navigation the single visible tab is the active tab.
+		if ( ! $show_nav ) {
+			$visible_tabs    = $this->get_settings_obj()->get_visible_tabs( $page_obj->get_tabs() );
+			$main_active_tab = $visible_tabs[0] ?? false;
+		}
+
 		?>
 		<div class="wrap easy-settings-for-wordpress">
 			<h1 class="wp-heading-inline"><?php echo esc_html( $this->get_settings_obj()->get_title() ); ?></h1>
+			<?php
+			if ( $show_nav ) {
+				?>
 			<nav class="nav-tab-wrapper">
 				<?php
 				// loop through the tabs.
@@ -148,6 +160,9 @@ class Horizontal_Tabs extends Styling_Base {
 				}
 				?>
 			</nav>
+				<?php
+			}
+			?>
 
 			<?php
 			// show sub-tabs of the active tab as breadcrumb-like sub-navigation.

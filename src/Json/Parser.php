@@ -136,6 +136,9 @@ class Parser extends Base_Object {
 		if ( isset( $config['lock_form_on_save'] ) ) {
 			$this->get_settings_obj()->set_lock_form_on_save( (bool) $config['lock_form_on_save'] );
 		}
+		if ( isset( $config['show_single_tab'] ) ) {
+			$this->get_settings_obj()->set_show_single_tab( (bool) $config['show_single_tab'] );
+		}
 
 		// setting the menu slug auto-creates the page with this name (see Settings::set_menu_slug()).
 		$this->get_settings_obj()->set_menu_slug( (string) $config['menu_slug'] );

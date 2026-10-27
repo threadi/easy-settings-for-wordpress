@@ -4,6 +4,8 @@
 
 ### Added
 
+- A settings page with only one tab is shown without tab navigation (classic view and DataView); use Settings::set_show_single_tab( true ) or "show_single_tab" in JSON to show it anyway
+- New filter <slug>_settings_show_tab_navigation to decide whether the tab navigation is shown
 - New field "Cards": choice of one option like Radio, where each option is shown as card with label, description (HTML), icon, badge and optional disabled state; same look in classic view and DataView
 
 ### Fixed
