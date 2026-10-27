@@ -343,3 +343,158 @@ button.esfw-settings-file-choose:not(.button) {
 .esfw-settings-tabs .components-tab-panel__tabs-item-label:has(> .esfw-tab-title) {
 	display: contents;
 }
+
+/**
+ * Field "Cards": choice of one option, each option shown as card.
+ *
+ * Used by the classic view (Fields/Cards.php) and the DataView (assets/js/fields/cards.js) with the same markup.
+ */
+.esfw-cards {
+	border: 0;
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	margin: 0;
+	min-width: 0;
+	padding: 0;
+}
+
+.esfw-cards[data-columns] {
+	grid-template-columns: repeat(var(--esfw-cards-columns, 3), minmax(0, 1fr));
+}
+
+@media only screen and (max-width: 782px) {
+	.esfw-cards[data-columns] {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.esfw-cards__legend {
+	margin-bottom: 8px;
+	padding: 0;
+}
+
+.esfw-card {
+	background-color: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+	padding: 16px 12px 12px;
+	position: relative;
+	transition: border-color .1s ease-in-out, box-shadow .1s ease-in-out;
+}
+
+.esfw-card:hover {
+	border-color: var(--wp-admin-theme-color, #2271b1);
+}
+
+/* the radio is only visible for assistive technologies, the whole card is clickable. */
+.esfw-card__input {
+	border: 0;
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px !important;
+	overflow: hidden;
+	padding: 0;
+	position: absolute !important;
+	width: 1px;
+	word-wrap: normal !important;
+}
+
+.esfw-card:has(.esfw-card__input:checked) {
+	border-color: var(--wp-admin-theme-color, #2271b1);
+	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #2271b1);
+}
+
+.esfw-card:has(.esfw-card__input:focus-visible) {
+	outline: 2px solid var(--wp-admin-theme-color, #2271b1);
+	outline-offset: 2px;
+}
+
+.esfw-card__header {
+	align-items: flex-start;
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+}
+
+.esfw-card__label {
+	font-size: 1.3em;
+	font-weight: 400;
+	line-height: 1.4;
+}
+
+/* the label covers the whole card, so a click anywhere in the card chooses it. */
+.esfw-card__label::after {
+	border-radius: inherit;
+	content: "";
+	cursor: pointer;
+	inset: 0;
+	position: absolute;
+	z-index: 1;
+}
+
+.esfw-card__icon {
+	flex-shrink: 0;
+	height: 32px;
+	max-width: 50%;
+	object-fit: contain;
+	width: auto;
+}
+
+.esfw-card__badge {
+	background-color: var(--wp-admin-theme-color, #2271b1);
+	border-radius: 8px;
+	color: #fff;
+	left: 50%;
+	line-height: 1.4;
+	padding: 4px 12px;
+	position: absolute;
+	top: 0;
+	transform: translate(-50%, -50%);
+	white-space: nowrap;
+	z-index: 2;
+}
+
+.esfw-card__description {
+	line-height: 1.5;
+}
+
+.esfw-card__description > :first-child {
+	margin-top: 0;
+}
+
+.esfw-card__description > :last-child {
+	margin-bottom: 0;
+}
+
+/* links, buttons and fields in the description stay usable above the clickable label. */
+.esfw-card__description :is(a, button, input, select, textarea, summary) {
+	position: relative;
+	z-index: 2;
+}
+
+.esfw-card.is-disabled {
+	opacity: .7;
+}
+
+.esfw-card.is-disabled:hover {
+	border-color: #c3c4c7;
+}
+
+.esfw-card.is-disabled .esfw-card__label::after {
+	cursor: not-allowed;
+}
+
+.esfw-cards__help {
+	margin-top: 8px;
+}
+
+/* DataView: tabs with the class "hidden" (see Tab::set_tab_class()) are not shown, like in the classic view. */
+.esfw-settings-tabs .components-tab-panel__tabs-item.hidden {
+	display: none;
+}

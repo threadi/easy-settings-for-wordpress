@@ -1,10 +1,15 @@
 # Changelog
 
-## [Unreleased]
+## [3.9.0] - 27.10.2026
+
+### Added
+
+- New field "Cards": choice of one option like Radio, where each option is shown as card with label, description (HTML), icon, badge and optional disabled state; same look in classic view and DataView
 
 ### Fixed
 
 - Fixed usage of wp_kses_post() in Button
+- Tabs with the class "hidden" (Tab::set_tab_class()) are now also hidden in the DataView, like in the classic view
 
 ## [3.8.4] - 24.10.2026
 

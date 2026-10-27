@@ -7,6 +7,7 @@ This composer package provides the following fields for use as settings in WordP
 | Field         | Outout                                                               | REST API |
 |---------------|----------------------------------------------------------------------|----------|
 | Button        | Show a clickable button to run custom tasks                          | false    |
+| Cards         | Show a list of cards where only one could be selected (like Radio)   | false    |
 | Checkbox      | Show a checkbox to enable or diable things                           | used     |
 | Checkboxes    | Show a list of checkboxes where each could be checked                | used     |
 | Date          | Show a field to choose a date                                        | used     |
@@ -49,6 +50,59 @@ ignored in the DataView.
 
 Hint: `FieldTable` in the DataView requires the `simple` storage method (the
 default), because its cells are registered as individual REST options.
+
+## Cards field
+
+The Cards field works like the Radio field: one option could be chosen and the
+value is validated against the options. Each option is shown as card, which is
+useful for choices the user should recognize at a glance (e.g. the choice of a
+service with logo, description and state). The classic view and the DataView
+use the same markup and styles.
+
+Each option could be a simple label or an array with these keys:
+
+| Key         | Type   | Description                                                                 |
+|-------------|--------|-----------------------------------------------------------------------------|
+| label       | string | The title of the card (text).                                               |
+| description | string | The description, HTML is allowed (filtered with `wp_kses_post()`). Links and buttons in it stay clickable. |
+| icon        | string | URL of an image shown in the card (e.g. a logo).                            |
+| badge       | string | Short text shown as badge on the card, e.g. "Active".                       |
+| disabled    | bool   | The option could not be chosen. The actual value could always be kept.      |
+
+```php
+use easySettingsForWordPress\Fields\Cards;
+
+$setting = $settings_obj->add_setting( 'my_plugin_service' );
+$setting->set_section( $section );
+$setting->set_type( 'string' );
+$setting->set_default( 'basic' );
+$field = new Cards( $settings_obj );
+$field->set_title( __( 'Choose your service', 'my-plugin' ) );
+$field->set_columns( 3 ); // optional, 0 (default) uses as many columns as fit.
+$field->set_options(
+    array(
+        'basic' => array(
+            'label'       => __( 'Basic', 'my-plugin' ),
+            'description' => '<p>' . __( 'Free, no account needed.', 'my-plugin' ) . '</p>',
+            'icon'        => plugins_url( 'gfx/basic.svg', __FILE__ ),
+            'badge'       => __( 'Active', 'my-plugin' ),
+        ),
+        'pro'   => array(
+            'label'       => __( 'Pro', 'my-plugin' ),
+            'description' => '<p>' . __( 'Needs an API key.', 'my-plugin' ) . '</p>',
+            'disabled'    => true,
+        ),
+    )
+);
+$setting->set_field( $field );
+```
+
+Classes to adjust the look in your plugin: `.esfw-cards` (the list, also
+`.esfw-cards-<setting name>`), `.esfw-card` (with `.is-selected` and
+`.is-disabled`), `.esfw-card__header`, `.esfw-card__label`, `.esfw-card__icon`,
+`.esfw-card__badge` and `.esfw-card__description`.
+
+The Cards field is not supported as inner field of `MultiField` or `FieldTable`.
 
 ## Password field
 

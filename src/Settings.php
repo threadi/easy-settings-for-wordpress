@@ -315,7 +315,7 @@ class Settings {
 			// remember the actual default tab of this page (it could be an existing page of the plugin).
 			$this->example_previous_default_tab = $page->get_default_tab();
 
-			$tab  = $page->add_tab( 'easy-settings-for-wordpress_example_tab', 10 );
+			$tab = $page->add_tab( 'easy-settings-for-wordpress_example_tab', 10 );
 			$tab->set_title( 'Easy Settings for WordPress Example Tab' );
 			$tab->set_description( '<p>This is just an example for a tab. Configure your own settings to remove this.</p>' );
 			$tab->set_hide_save( true );
@@ -1439,13 +1439,6 @@ class Settings {
 			}
 		}
 
-		// create the object, if it is a string.
-		$page_obj = $page;
-		if ( ! $page_obj instanceof Page ) {
-			$page_obj = new Page( $this );
-			$page_obj->set_name( $page );
-		}
-
 		// get the object.
 		$page_obj = $page;
 
@@ -1619,10 +1612,10 @@ class Settings {
 			'password_delete_on_save'            => 'The stored value will be deleted when saving.',
 			'password_show'                      => 'Show value',
 			'password_hide'                      => 'Hide value',
-			'color_choose' => 'Choose color',
-			'file_remove'  => 'Remove file',
-			'move_up'      => 'Move up',
-			'move_down'    => 'Move down',
+			'color_choose'                       => 'Choose color',
+			'file_remove'                        => 'Remove file',
+			'move_up'                            => 'Move up',
+			'move_down'                          => 'Move down',
 		);
 
 		// return combined list of translations.

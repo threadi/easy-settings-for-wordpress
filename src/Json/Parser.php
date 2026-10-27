@@ -460,6 +460,7 @@ class Parser extends Base_Object {
 				}
 				break;
 
+			case 'Cards':
 			case 'Checkboxes':
 			case 'Radio':
 			case 'Select':
@@ -470,6 +471,9 @@ class Parser extends Base_Object {
 				}
 				if ( 'MultiSelect' === $type && isset( $field_config['sortable'] ) && method_exists( $field_obj, 'set_sortable' ) ) {
 					$field_obj->set_sortable( (bool) $field_config['sortable'] );
+				}
+				if ( 'Cards' === $type && isset( $field_config['columns'] ) && method_exists( $field_obj, 'set_columns' ) ) {
+					$field_obj->set_columns( (int) $field_config['columns'] );
 				}
 				if ( 'PermalinkSlug' === $type && isset( $field_config['list_title'] ) && method_exists( $field_obj, 'set_list_title' ) ) {
 					$field_obj->set_list_title( (string) $field_config['list_title'] );
@@ -703,7 +707,7 @@ class Parser extends Base_Object {
 	 * Normalize an "options" map from JSON (object) into the array shape the field setters expect.
 	 *
 	 * JSON objects always decode to string keys in PHP; this passes them through as-is, since
-	 * Select/MultiSelect/Checkboxes/Radio/PermalinkSlug all accept string (or int|string) keys.
+	 * Select/MultiSelect/Checkboxes/Radio/Cards/PermalinkSlug all accept string (or int|string) keys.
 	 *
 	 * @param array<string,mixed> $options The options as decoded from JSON.
 	 *

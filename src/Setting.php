@@ -13,6 +13,7 @@ namespace easySettingsForWordPress;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Fields\Button;
+use easySettingsForWordPress\Fields\Cards;
 use easySettingsForWordPress\Fields\Checkboxes;
 use easySettingsForWordPress\Fields\FieldTable;
 use easySettingsForWordPress\Fields\File;
@@ -721,6 +722,20 @@ class Setting extends Base_Object {
 					$configuration['button_data']    = $field->get_data_as_array();
 				}
 				break;
+			case 'Cards':
+				$configuration['type'] = 'esfw-cards';
+				if ( $field instanceof Cards ) {
+					$cards = array();
+					foreach ( $field->get_cards() as $card ) {
+						// the description could contain HTML, which is output as it is in the DataView.
+						$card['description'] = wp_kses_post( $card['description'] );
+						$card['icon']        = esc_url_raw( $card['icon'] );
+						$cards[]             = $card;
+					}
+					$configuration['options'] = $cards;
+					$configuration['columns'] = $field->get_columns();
+				}
+				break;
 			case 'Checkbox':
 				$configuration['type'] = 'boolean';
 				break;
@@ -738,7 +753,7 @@ class Setting extends Base_Object {
 				}
 				break;
 			case 'Color':
-				$configuration['type'] = 'esfw-color';
+				$configuration['type']         = 'esfw-color';
 				$configuration['choose_label'] = $this->get_settings_obj()->get_translations()['color_choose'];
 				break;
 			case 'Date':
@@ -786,8 +801,8 @@ class Setting extends Base_Object {
 				}
 				break;
 			case 'File':
-				$configuration['type']     = 'media';
-				$configuration['multiple'] = false;
+				$configuration['type']        = 'media';
+				$configuration['multiple']    = false;
 				$configuration['placeholder'] = $this->get_settings_obj()->get_translations()['file_choose_file'];
 				if ( $field instanceof File ) {
 					$configuration['allowed_types']      = Helper::get_media_library_types( $field->get_file_types() );
@@ -795,8 +810,8 @@ class Setting extends Base_Object {
 				}
 				break;
 			case 'Files':
-				$configuration['type']     = 'media';
-				$configuration['multiple'] = true;
+				$configuration['type']        = 'media';
+				$configuration['multiple']    = true;
 				$configuration['placeholder'] = $this->get_settings_obj()->get_translations()['file_choose_file'];
 				if ( $field instanceof Files ) {
 					$configuration['allowed_types']      = Helper::get_media_library_types( $field->get_file_types() );

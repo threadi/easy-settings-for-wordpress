@@ -11,6 +11,7 @@
  * equivalent control.
  */
 import { createButtonEdit } from './button';
+import { createCardsEdit } from './cards';
 import { createCheckboxListEdit } from './checkbox-list';
 import { createColorEdit } from './color';
 import { createDateTimeEdit } from './datetime';
@@ -38,6 +39,11 @@ export function getEditComponent( descriptor ) {
         buttonUrl: descriptor.button_url,
         buttonClasses: descriptor.button_classes,
         buttonData: descriptor.button_data,
+      } );
+    case 'esfw-cards':
+      return createCardsEdit( {
+        options: descriptor.options,
+        columns: descriptor.columns,
       } );
     case 'esfw-checkboxes':
       return createCheckboxListEdit( descriptor.options );

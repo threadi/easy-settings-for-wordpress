@@ -14,6 +14,7 @@ namespace easySettingsForWordPress\Json;
 defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
+use easySettingsForWordPress\Fields\Cards;
 use easySettingsForWordPress\Section;
 use easySettingsForWordPress\Setting;
 use easySettingsForWordPress\Settings;
@@ -273,12 +274,17 @@ class Serializer {
 			$config['readonly'] = true;
 		}
 
-		// options for option-based fields (Select, Radio, Checkboxes, MultiSelect, PermalinkSlug).
+		// options for option-based fields (Select, Radio, Cards, Checkboxes, MultiSelect, PermalinkSlug).
 		if ( method_exists( $field, 'get_options' ) ) {
 			$options = $field->get_options();
 			if ( ! empty( $options ) ) {
 				$config['options'] = $options;
 			}
+		}
+
+		// number of columns for cards.
+		if ( $field instanceof Cards && $field->get_columns() > 0 ) {
+			$config['columns'] = $field->get_columns();
 		}
 
 		return $config;
