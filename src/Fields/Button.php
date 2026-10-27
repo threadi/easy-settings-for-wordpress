@@ -93,15 +93,7 @@ class Button extends Field_Base {
 
 		// output.
 		?>
-		<a href="<?php echo esc_url( $this->get_button_url() ); ?>"<?php echo wp_kses_post( $this->get_custom_attributes() ); ?> class="button button-primary
-			<?php
-			echo esc_attr( $this->get_classes() );
-			?>
-			"
-				<?php
-				echo ( $this->is_readonly() ? ' disabled' : '' );
-				?>
-			data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo wp_kses_post( $this->get_data() ); ?>><?php echo esc_html( $this->get_button_title() ); ?></a>
+		<a href="<?php echo esc_url( $this->get_button_url() ); ?>"<?php echo $this->get_custom_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in get_custom_attributes(). ?> class="button button-primary<?php echo esc_attr( $this->get_classes() ); ?>"<?php echo $this->is_readonly() ? ' disabled' : ''; ?> data-depends="<?php echo esc_attr( $this->get_depend() ); ?>"<?php echo $this->get_data(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in get_data(). ?>><?php echo esc_html( $this->get_button_title() ); ?></a>
 		<?php
 
 		// show optional description for this checkbox.
@@ -179,7 +171,11 @@ class Button extends Field_Base {
 	private function get_custom_attributes(): string {
 		$attributes = '';
 		foreach ( $this->button_custom_attributes as $name => $value ) {
-			$attributes .= ' ' . esc_attr( $name ) . '="' . esc_attr( $value ) . '"';
+			$name = sanitize_key( (string) $name );
+			if ( '' === $name ) {
+				continue;
+			}
+			$attributes .= ' ' . $name . '="' . esc_attr( $value ) . '"';
 		}
 
 		return $attributes;
@@ -258,7 +254,12 @@ class Button extends Field_Base {
 
 		// loop through the data attributes.
 		foreach ( $this->get_data_as_array() as $key => $value ) {
-			$output .= ' data-' . esc_attr( $key ) . '="' . esc_attr( $value ) . '"';
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key ) {
+				continue;
+			}
+
+			$output .= ' data-' . $key . '="' . esc_attr( $value ) . '"';
 		}
 
 		// return the resulting string.

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed usage of wp_kses_post() in Button
+
 ## [3.8.4] - 24.10.2026
 
 ### Fixed
