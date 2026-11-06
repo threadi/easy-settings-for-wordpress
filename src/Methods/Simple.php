@@ -77,6 +77,7 @@ class Simple extends Method_Base {
 		foreach ( $this->get_settings_obj()->get_settings() as $setting ) {
 			// remove our filter.
 			remove_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ) );
+			remove_filter( 'default_option_' . $setting->get_name(), array( $this, 'get_default_option' ) );
 			if ( $setting->has_read_callback() ) {
 				remove_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
 			}
@@ -335,6 +336,12 @@ class Simple extends Method_Base {
 		// sanitize the option before any output.
 		add_filter( 'option_' . $setting->get_name(), array( $this, 'sanitize_option' ), 10, 2 );
 
+		// return the default value of the setting if the option does not exist in the database yet,
+		// as register_setting() would do (which is not called in this lightweight registration).
+		if ( $setting->is_default_set() ) {
+			add_filter( 'default_option_' . $setting->get_name(), array( $this, 'get_default_option' ), 10, 3 );
+		}
+
 		// run the custom callback after reading an option.
 		if ( $setting->has_read_callback() ) {
 			add_filter( 'option_' . $setting->get_name(), $setting->get_read_callback() );
@@ -344,6 +351,35 @@ class Simple extends Method_Base {
 		if ( $setting->has_save_callback() ) {
 			add_filter( 'pre_update_option_' . $setting->get_name(), $setting->get_save_callback(), 10, 3 );
 		}
+	}
+
+	/**
+	 * Return the default value of a setting, if its option does not exist in the database.
+	 *
+	 * Mirrors filter_default_option() of WordPress: a default passed explicitly to get_option() wins.
+	 *
+	 * @param mixed  $default_value  The default value given to get_option().
+	 * @param string $option         The name of the option.
+	 * @param bool   $passed_default Whether get_option() was called with an explicit default.
+	 *
+	 * @return mixed
+	 */
+	public function get_default_option( mixed $default_value, string $option, bool $passed_default ): mixed {
+		// bail if the caller has given its own default.
+		if ( $passed_default ) {
+			return $default_value;
+		}
+
+		// get the setting.
+		$setting = $this->get_settings_obj()->get_setting( $option );
+
+		// bail if the setting is unknown or has no default.
+		if ( ! $setting instanceof Setting || ! $setting->is_default_set() ) {
+			return $default_value;
+		}
+
+		// return the default of this setting.
+		return $setting->get_default();
 	}
 
 	/**
