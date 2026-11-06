@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.9.1] - 06.11.2026
+
+### Changed
+
+- Set default_option_xy during single registering
+
 ## [3.9.0] - 27.10.2026
 
 ### Added
