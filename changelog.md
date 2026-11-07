@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.9.2] - 07.11.2026
+
+### Fixed
+
+- Fixed missing reloading of password fields in DataView
+
 ## [3.9.1] - 06.11.2026
 
 ### Changed

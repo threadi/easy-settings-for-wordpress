@@ -138,7 +138,9 @@ export const useSettings = ( props ) => {
 
           const prev = initialSettingsRef.current[ id ];
           const next = persisted[ id ];
-          if ( JSON.stringify( prev ) === JSON.stringify( next ) ) {
+          const sent = id in settingsToSave ? settingsToSave[ id ] : next;
+          if ( JSON.stringify( prev ) === JSON.stringify( next )
+            && JSON.stringify( prev ) === JSON.stringify( sent ) ) {
             continue;
           }
 
