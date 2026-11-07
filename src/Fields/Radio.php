@@ -29,7 +29,7 @@ class Radio extends Field_Base {
 	/**
 	 * The options for this field.
 	 *
-	 * @var array<string,string|array<string,string>>
+	 * @var array<string,string|array<string,string|bool>>
 	 */
 	protected array $options = array();
 
@@ -82,7 +82,7 @@ class Radio extends Field_Base {
 				$title = isset( $settings['label'] ) ? (string) $settings['label'] : '';
 
 				// get the description.
-				$description = isset( $settings['description'] ) ? $settings['description'] : '';
+				$description = isset( $settings['description'] ) ? (string) $settings['description'] : '';
 			}
 
 			?>
@@ -126,7 +126,7 @@ class Radio extends Field_Base {
 	/**
 	 * Return the options for this field.
 	 *
-	 * @return array<string,string|array<string,string>>
+	 * @return array<string,string|array<string,string|bool>>
 	 */
 	public function get_options(): array {
 		return $this->options;
@@ -135,7 +135,7 @@ class Radio extends Field_Base {
 	/**
 	 * Set the options for this field.
 	 *
-	 * @param array<string,string|array<string,string>> $options List of options.
+	 * @param array<string,string|array<string,string|bool>> $options List of options.
 	 *
 	 * @return void
 	 */
