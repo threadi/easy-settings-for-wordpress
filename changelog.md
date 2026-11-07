@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Show actual changes in release notes in GitHub
+
 ## [3.9.2] - 07.11.2026
 
 ### Fixed

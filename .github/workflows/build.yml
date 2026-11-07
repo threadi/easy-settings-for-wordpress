@@ -35,6 +35,37 @@ jobs:
       - name: Validate example JSON against schema
         run: composer validate-schema
 
+      - name: Extract release notes from changelog
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ -n "${INPUT_VERSION}" ]; then
+            VERSION="${INPUT_VERSION}"
+          else
+            VERSION="${GITHUB_REF_NAME#build-}"
+          fi
+          # Prints the body of the section "## [<version>] ..." up to the next "## " heading.
+          extract() {
+            awk -v head="## [$1]" '
+              { sub(/\r$/, "") }
+              index($0, head) == 1 { found = 1; next }
+              found && /^## / { exit }
+              found { print }
+            ' changelog.md | sed -e '/./,$!d' | sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}'
+          }
+          NOTES="$(extract "${VERSION}")"
+          # Pre-releases like 1.1.0-beta1 fall back to the entry for 1.1.0.
+          if [ -z "${NOTES}" ] && [ "${VERSION}" != "${VERSION%%-*}" ]; then
+            NOTES="$(extract "${VERSION%%-*}")"
+          fi
+          if [ -z "${NOTES}" ]; then
+            echo "::error::No entry for version ${VERSION} found in changelog.md"
+            exit 1
+          fi
+          printf '%s\n' "${NOTES}" > "${RUNNER_TEMP}/release-notes.md"
+          cat "${RUNNER_TEMP}/release-notes.md"
+
       - name: Tag release
         id: tag
         env:
@@ -63,4 +94,4 @@ jobs:
           TAG="${{ steps.tag.outputs.tag }}"
           PRE=""
           case "$TAG" in *-*) PRE="--prerelease";; esac
-          gh release create "$TAG" --generate-notes $PRE
+          gh release create "$TAG" --title "$TAG" --notes-file "${RUNNER_TEMP}/release-notes.md" $PRE
