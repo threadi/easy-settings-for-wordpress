@@ -6,6 +6,10 @@
 
 - Show actual changes in release notes in GitHub
 
+### Fixed
+
+- Fixed annotations for Radio field to match phpstan-requirements for the dependent Cards field
+
 ## [3.9.2] - 07.11.2026
 
 ### Fixed
