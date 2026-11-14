@@ -233,6 +233,8 @@ export const SettingsPage = ( props ) => {
       ) : (
         <SettingsTitle title={ config.title } />
       ) }
+      { /* WordPress moves admin notices of all plugins behind this marker, not between title and search. */ }
+      <hr className="wp-header-end" />
       <Notices />
       { isLoading ? (
         <div className="esfw-settings-loading">

@@ -76,12 +76,13 @@ class Styling_Base extends Base_Object {
 		// get the translations.
 		$translations = $this->settings_obj->get_translations();
 
-		// output the field (the script adds the search).
+		// output the field (the script adds the search); WordPress moves admin notices behind the marker below, not between title and search.
 		?>
 		<div class="esfw-search" role="search">
 			<label class="screen-reader-text" for="esfw-search-input"><?php echo esc_html( $translations['search_label'] ); ?></label>
 			<input type="search" id="esfw-search-input" class="esfw-search-input" placeholder="<?php echo esc_attr( $translations['search_placeholder'] ); ?>" autocomplete="off">
 		</div>
+		<hr class="wp-header-end">
 		<?php
 	}
 
