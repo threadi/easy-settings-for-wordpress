@@ -139,6 +139,12 @@ class Parser extends Base_Object {
 		if ( isset( $config['show_single_tab'] ) ) {
 			$this->get_settings_obj()->set_show_single_tab( (bool) $config['show_single_tab'] );
 		}
+		if ( isset( $config['search'] ) ) {
+			$this->get_settings_obj()->set_search( (bool) $config['search'] );
+		}
+		if ( isset( $config['search_in_command_palette'] ) ) {
+			$this->get_settings_obj()->set_search_in_command_palette( (bool) $config['search_in_command_palette'] );
+		}
 
 		// setting the menu slug auto-creates the page with this name (see Settings::set_menu_slug()).
 		$this->get_settings_obj()->set_menu_slug( (string) $config['menu_slug'] );
@@ -221,6 +227,11 @@ class Parser extends Base_Object {
 		// set description.
 		if ( isset( $tab_config['description'] ) ) {
 			$tab->set_description( (string) $tab_config['description'] );
+		}
+
+		// set the search terms.
+		if ( isset( $tab_config['search_keywords'] ) && ( is_array( $tab_config['search_keywords'] ) || is_string( $tab_config['search_keywords'] ) ) ) {
+			$tab->set_search_keywords( $tab_config['search_keywords'] );
 		}
 
 		// set to show it in menu.
@@ -338,6 +349,9 @@ class Parser extends Base_Object {
 		}
 		if ( isset( $setting_config['help'] ) ) {
 			$setting->set_help( (string) $setting_config['help'] );
+		}
+		if ( isset( $setting_config['search_keywords'] ) && ( is_array( $setting_config['search_keywords'] ) || is_string( $setting_config['search_keywords'] ) ) ) {
+			$setting->set_search_keywords( $setting_config['search_keywords'] );
 		}
 		if ( isset( $setting_config['autoload'] ) ) {
 			$setting->set_autoload( (bool) $setting_config['autoload'] );

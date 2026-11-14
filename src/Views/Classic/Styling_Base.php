@@ -63,6 +63,46 @@ class Styling_Base extends Base_Object {
 	}
 
 	/**
+	 * Show the field for the search in the settings, if it is enabled.
+	 *
+	 * @return void
+	 */
+	protected function show_search(): void {
+		// bail if the search is not enabled.
+		if ( ! $this->settings_obj->is_search_enabled() ) {
+			return;
+		}
+
+		// get the translations.
+		$translations = $this->settings_obj->get_translations();
+
+		// output the field (the script adds the search).
+		?>
+		<div class="esfw-search" role="search">
+			<label class="screen-reader-text" for="esfw-search-input"><?php echo esc_html( $translations['search_label'] ); ?></label>
+			<input type="search" id="esfw-search-input" class="esfw-search-input" placeholder="<?php echo esc_attr( $translations['search_placeholder'] ); ?>" autocomplete="off">
+		</div>
+		<?php
+	}
+
+	/**
+	 * Show the container for the matches of the search in other tabs.
+	 *
+	 * @return void
+	 */
+	protected function show_search_results(): void {
+		// bail if the search is not enabled.
+		if ( ! $this->settings_obj->is_search_enabled() ) {
+			return;
+		}
+
+		// output the container (the script fills it).
+		?>
+		<div class="esfw-search-results" aria-live="polite" hidden></div>
+		<?php
+	}
+
+	/**
 	 * Output the content of the active tab and its active sub-tab.
 	 *
 	 * A main tab that only serves as container for its sub-tabs shows just its

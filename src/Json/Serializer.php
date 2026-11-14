@@ -66,6 +66,14 @@ class Serializer {
 			'lock_form_on_save' => $settings->should_lock_form_on_save(),
 			'show_single_tab'   => $settings->is_show_single_tab(),
 		);
+
+		// the search is only emitted when enabled, so configurations without it stay unchanged.
+		if ( $settings->is_search_enabled() ) {
+			$config['search'] = true;
+		}
+		if ( $settings->is_search_in_command_palette_enabled() ) {
+			$config['search_in_command_palette'] = true;
+		}
 		foreach ( $scalars as $key => $value ) {
 			if ( '' !== $value ) {
 				$config[ $key ] = $value;
@@ -136,6 +144,9 @@ class Serializer {
 		}
 		if ( '' !== $tab->get_description() ) {
 			$config['description'] = $tab->get_description();
+		}
+		if ( ! empty( $tab->get_search_keywords() ) ) {
+			$config['search_keywords'] = $tab->get_search_keywords();
 		}
 		if ( $tab->is_save_hidden() ) {
 			$config['hide_save'] = true;
@@ -226,6 +237,9 @@ class Serializer {
 		}
 		if ( '' !== $setting->get_help() ) {
 			$config['help'] = $setting->get_help();
+		}
+		if ( ! empty( $setting->get_search_keywords() ) ) {
+			$config['search_keywords'] = $setting->get_search_keywords();
 		}
 
 		// emitted explicitly so a reparse is a fixed point regardless of the default.

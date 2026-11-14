@@ -125,8 +125,49 @@ class Classic extends View_Base {
 			)
 		);
 
+		// add the search, if it is enabled.
+		$this->add_search_script();
+
 		// add media library.
 		wp_enqueue_media();
+	}
+
+	/**
+	 * Add the script for the search with its configuration, if the search is enabled.
+	 *
+	 * @return void
+	 */
+	private function add_search_script(): void {
+		// get the settings object.
+		$settings_obj = $this->get_settings_obj();
+
+		// bail if the search is not enabled.
+		if ( ! $settings_obj->is_search_enabled() ) {
+			return;
+		}
+
+		// bail if the script is missing.
+		$asset_file = $settings_obj->get_path() . 'build/search.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+
+		// get the asset data.
+		$script_asset = require $asset_file;
+
+		// add the script.
+		$handle = $settings_obj->get_slug() . '-settings-search';
+		wp_enqueue_script(
+			$handle,
+			$settings_obj->get_url() . 'build/search.js',
+			$script_asset['dependencies'],
+			$script_asset['version'],
+			true
+		);
+
+		// add the configuration.
+		$config = $settings_obj->get_search()->get_view_config( (string) filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) );
+		wp_add_inline_script( $handle, 'window.esfwSearchConfig = ' . Helper::get_json( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ) . ';', 'before' );
 	}
 
 	/**

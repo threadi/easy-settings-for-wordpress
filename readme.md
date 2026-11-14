@@ -7,6 +7,7 @@ This composer package adds a simple wrapper for settings for WordPress plugins a
 - Don't worry about the data type accuracy of your settings - WordPress doesn't (yet) take that into account, but this package does.
 - Save time when configuring your plugin settings.
 - Use settings that are interdependent.
+- Let your users search the settings of large plugins (optional, see [search](docs/search.md)).
 - Have your AI generate a ready-made JSON file for your settings, which you can then simply drop in.
 - And don't worry about updates or cleaning up after them - this package takes care of that for you.
 

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- Added optional search in the settings (opt-in via Settings::set_search( true ) or "search" in JSON): the classic view filters the settings of the actual tab and lists matches in other tabs, the DataView shows the matching settings of all tabs on one page
+- The search finds settings by title, description, help, options, titles of tab and section, name and additional search terms (Setting::set_search_keywords(), Tab::set_search_keywords() or "search_keywords" in JSON)
+- Added optional search for settings in the command palette of WordPress (opt-in via Settings::set_search_in_command_palette( true ) or "search_in_command_palette" in JSON)
+- Added Search::get_results() and Search::get_result_url() for plugins with an own command palette
+
 ### Changed
 
 - Show actual changes in release notes in GitHub

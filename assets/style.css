@@ -498,3 +498,98 @@ button.esfw-settings-file-choose:not(.button) {
 .esfw-settings-tabs .components-tab-panel__tabs-item.hidden {
 	display: none;
 }
+
+/* search in the settings (only output if a plugin enabled it via Settings::set_search()) */
+.easy-settings-for-wordpress .esfw-search {
+	float: right;
+	margin: 9px 0 4px 12px;
+}
+.easy-settings-for-wordpress .esfw-search ~ .nav-tab-wrapper,
+.easy-settings-for-wordpress .esfw-search ~ div {
+	clear: both;
+}
+.easy-settings-for-wordpress .esfw-search-input {
+	width: 280px;
+	max-width: 100%;
+}
+.easy-settings-for-wordpress .esfw-search-hidden {
+	display: none !important;
+}
+.easy-settings-for-wordpress .esfw-search-results {
+	clear: both;
+	margin: 1em 0;
+	padding: 12px 16px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+.easy-settings-for-wordpress .esfw-search-results h2 {
+	font-size: 14px;
+	margin: 0 0 8px;
+}
+.easy-settings-for-wordpress .esfw-search-results h2:not(:first-child) {
+	margin-top: 16px;
+}
+.easy-settings-for-wordpress .esfw-search-list {
+	margin: 0;
+}
+.easy-settings-for-wordpress .esfw-search-list li {
+	margin: 0;
+	padding: 6px 0;
+	border-top: 1px solid #f0f0f1;
+}
+.easy-settings-for-wordpress .esfw-search-list li:first-child {
+	border-top: 0;
+}
+.easy-settings-for-wordpress .esfw-search-path,
+.easy-settings-for-wordpress .esfw-search-description,
+.easy-settings-for-wordpress .esfw-search-depend {
+	display: block;
+	font-size: 12px;
+	color: #646970;
+}
+.easy-settings-for-wordpress .esfw-search-depend {
+	color: #996800;
+}
+.easy-settings-for-wordpress .esfw-search-empty {
+	margin: 0 0 8px;
+}
+.easy-settings-for-wordpress .esfw-search-count {
+	display: inline-block;
+	margin-left: 6px;
+	padding: 0 6px;
+	border-radius: 9px;
+	background: var(--wp-admin-theme-color, #2271b1);
+	color: #fff;
+	font-size: 11px;
+	line-height: 18px;
+	vertical-align: text-top;
+}
+.easy-settings-for-wordpress tr.esfw-search-highlight > th,
+.easy-settings-for-wordpress tr.esfw-search-highlight > td,
+.esfw-field.esfw-search-highlight {
+	background: #fcf9e8;
+	transition: background-color 0.4s;
+}
+.easy-settings-for-wordpress mark,
+.esfw-search-results-dataview mark {
+	background: #fff3a6;
+	color: inherit;
+	padding: 0;
+}
+
+/* search in the DataView */
+.esfw-settings-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+.esfw-settings-header .esfw-search {
+	width: 280px;
+	max-width: 100%;
+}
+.esfw-search-results-dataview .esfw-search-depend {
+	color: #996800;
+}

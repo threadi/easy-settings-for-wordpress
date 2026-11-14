@@ -26,6 +26,10 @@ This makes it possible to display settings spread across multiple pages, organiz
 
 See [list of fields](fields.md).
 
+## Search
+
+Optional search in the settings and in the command palette, see [search](search.md).
+
 ## Choose your way
 
 You can choose from the following basic methods for using this composer package in your plugin or theme:
