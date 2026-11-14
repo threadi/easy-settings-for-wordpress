@@ -21,6 +21,12 @@
 5. **Expecting method `one` raw array**  
    Reading the parent option key instead of `get_option( $setting_name )`.
 
+## "My setting reads the string `Array`"
+
+Fields that save an array (`Range`, `MultiSelect`, `Checkboxes`, `Files`,
+`MultiField`) need `$setting->set_type( 'array' )` (JSON: `"type": "array"`).
+The default type `string` converts the value to a string when it is read.
+
 ## Ordering anti-patterns
 
 ```php

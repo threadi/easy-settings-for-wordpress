@@ -45,6 +45,10 @@ export function emptyValueFor( descriptor ) {
       return descriptor.multiple ? [] : 0;
     case 'esfw-post-select':
       return 0;
+    case 'esfw-range':
+      return descriptor.fallback
+        ? { ...descriptor.fallback }
+        : { min: descriptor.min ?? 0, max: descriptor.max ?? 100 };
     default:
       return '';
   }

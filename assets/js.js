@@ -676,3 +676,107 @@ function esfw_unlock_form( $ ) {
     .prop( 'disabled', false )
     .removeClass( 'is-busy' );
 }
+
+/**
+ * Handle the range fields (slider with two handles) in the classic view.
+ *
+ * Keeps both handles in order (with the configured minimal gap), syncs the
+ * number fields with the handles and updates the filled part of the slider.
+ * The values are validated again on save.
+ */
+jQuery( function ( $ ) {
+  /**
+   * Return the lower and upper bound of a range field.
+   *
+   * @param {jQuery} $range The range field.
+   * @return {{lo: number, hi: number}} The bounds.
+   */
+  function esfw_range_bounds( $range ) {
+    const input = $range.find( '.esfw-range__input--min' ).get( 0 );
+    return { lo: parseFloat( input.min ), hi: parseFloat( input.max ) };
+  }
+
+  /**
+   * Apply the order and the gap of both handles after one of them has been moved.
+   *
+   * @param {jQuery} $range The range field.
+   * @param {string} moved  Which handle has been moved: "min" or "max".
+   */
+  function esfw_range_apply( $range, moved ) {
+    const min_input = $range.find( '.esfw-range__input--min' ).get( 0 );
+    const max_input = $range.find( '.esfw-range__input--max' ).get( 0 );
+    const gap = parseFloat( $range.data( 'min-gap' ) ) || 0;
+    const bounds = esfw_range_bounds( $range );
+
+    let lower = parseFloat( min_input.value );
+    let upper = parseFloat( max_input.value );
+
+    if ( upper - lower < gap ) {
+      if ( 'min' === moved ) {
+        lower = Math.max( bounds.lo, upper - gap );
+        min_input.value = lower;
+        // the gap does not fit: push the other handle.
+        if ( parseFloat( max_input.value ) - parseFloat( min_input.value ) < gap ) {
+          max_input.value = Math.min( bounds.hi, parseFloat( min_input.value ) + gap );
+        }
+      } else {
+        upper = Math.min( bounds.hi, lower + gap );
+        max_input.value = upper;
+        if ( parseFloat( max_input.value ) - parseFloat( min_input.value ) < gap ) {
+          min_input.value = Math.max( bounds.lo, parseFloat( max_input.value ) - gap );
+        }
+      }
+    }
+
+    esfw_range_update( $range );
+  }
+
+  /**
+   * Update the number fields, the filled part and the stacking of the handles.
+   *
+   * @param {jQuery} $range The range field.
+   */
+  function esfw_range_update( $range ) {
+    const min_input = $range.find( '.esfw-range__input--min' ).get( 0 );
+    const max_input = $range.find( '.esfw-range__input--max' ).get( 0 );
+    const bounds = esfw_range_bounds( $range );
+    const span = bounds.hi - bounds.lo;
+    const lower = parseFloat( min_input.value );
+    const upper = parseFloat( max_input.value );
+
+    $range.find( '.esfw-range__number--min' ).val( min_input.value );
+    $range.find( '.esfw-range__number--max' ).val( max_input.value );
+
+    if ( span > 0 ) {
+      $range.get( 0 ).style.setProperty( '--esfw-range-from', ( ( lower - bounds.lo ) / span * 100 ) + '%' );
+      $range.get( 0 ).style.setProperty( '--esfw-range-to', ( ( upper - bounds.lo ) / span * 100 ) + '%' );
+    }
+
+    // keep the min handle reachable if both handles are at the upper end.
+    $range.toggleClass( 'is-min-on-top', span > 0 && lower >= bounds.lo + span / 2 );
+  }
+
+  // initialize all range fields.
+  $( '.esfw-range' ).each( function () {
+    esfw_range_update( $( this ) );
+  } );
+
+  // move a handle.
+  $( document ).on( 'input change', '.esfw-range__input', function () {
+    esfw_range_apply( $( this ).closest( '.esfw-range' ), $( this ).hasClass( 'esfw-range__input--min' ) ? 'min' : 'max' );
+  } );
+
+  // enter a value in a number field.
+  $( document ).on( 'change', '.esfw-range__number', function () {
+    const $range = $( this ).closest( '.esfw-range' );
+    const moved = $( this ).hasClass( 'esfw-range__number--min' ) ? 'min' : 'max';
+    const input = $range.find( '.esfw-range__input--' + moved ).get( 0 );
+    const number = parseFloat( String( $( this ).val() ).replace( ',', '.' ) );
+
+    // the range input clamps and snaps the value to its bounds and step.
+    if ( ! isNaN( number ) ) {
+      input.value = number;
+    }
+    esfw_range_apply( $range, moved );
+  } );
+} );

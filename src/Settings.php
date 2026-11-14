@@ -1731,6 +1731,8 @@ class Settings {
 			'password_show'                      => 'Show value',
 			'password_hide'                      => 'Hide value',
 			'color_choose'                       => 'Choose color',
+			'range_minimum'                      => 'Minimum',
+			'range_maximum'                      => 'Maximum',
 			'file_remove'                        => 'Remove file',
 			'move_up'                            => 'Move up',
 			'move_down'                          => 'Move down',

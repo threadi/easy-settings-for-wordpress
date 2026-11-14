@@ -231,6 +231,20 @@
       "required": [ "type" ]
     },
 
+    "field_range": {
+      "description": "Corresponds to Fields\\Range: a slider with two handles. The value is stored as object { \"min\": …, \"max\": … }; integers if min, max and step are whole numbers, otherwise floats.",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":    { "const": "Range" },
+        "min":     { "type": "number", "default": 0, "description": "The lowest value the user could choose." },
+        "max":     { "type": "number", "default": 100, "description": "The highest value the user could choose." },
+        "step":    { "type": "number", "minimum": 0, "default": 1, "description": "The step, e.g. 0.5. 0 allows any value." },
+        "min_gap": { "type": "number", "minimum": 0, "default": 0, "description": "The minimal distance between the chosen minimum and maximum." }
+      },
+      "required": [ "type" ]
+    },
+
     "field_file": {
       "allOf": [ { "$ref": "#/$defs/field_common" } ],
       "type": "object",
@@ -430,6 +444,7 @@
         { "$ref": "#/$defs/field_select" },
         { "$ref": "#/$defs/field_multiselect" },
         { "$ref": "#/$defs/field_number" },
+        { "$ref": "#/$defs/field_range" },
         { "$ref": "#/$defs/field_file" },
         { "$ref": "#/$defs/field_files" },
         { "$ref": "#/$defs/field_table" },

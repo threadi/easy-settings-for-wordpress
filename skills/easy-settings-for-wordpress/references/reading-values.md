@@ -35,3 +35,20 @@ cron **as long as** the settings setup (including `init()`) has run on that
 request before the read. Typical pattern: register on `init` (or earlier)
 and read later in the same request or on subsequent requests after options
 were saved.
+
+## Fields with array values
+
+Some fields save an array, e.g. `Range` (`array( 'min' => …, 'max' => … )`),
+`MultiSelect`, `Checkboxes`, `Files` or `MultiField`. Set the type of the
+setting to `array` (otherwise the value is converted to a string on read), read
+them with the same `get_option( $setting_name )` call and set an array as
+default, so the value has its shape even before the settings were saved:
+
+```php
+$setting->set_type( 'array' );
+$setting->set_default( array( 'min' => 0, 'max' => 100 ) );
+$range = get_option( 'my_range' ); // array( 'min' => 0, 'max' => 100 )
+```
+
+The values of a `Range` field are integers if its bounds and step are whole
+numbers, otherwise floats.

@@ -21,6 +21,7 @@ This composer package provides the following fields for use as settings in WordP
 | Passwort      | Show a password field, e.g., to enter a API key                      | false    |
 | PermalinkSlug | Configure individuel permalink slug with parameters                  | used     |
 | Radio         | Show a list of radio boxes where only one could be selected | false    |
+| Range         | Show a slider with two handles to choose a minimum and a maximum value | used     |
 | Select        | Show a dropdown to select one entry. | false    |
 | SelectPostTypeObject | Select a post type object, e.g., to chose a page as target for something | used     |
 | Table | Show a table of settings | used     |
@@ -40,7 +41,7 @@ Some fields provide their own configurations for the REST API. You do not need t
 the following field types. In the classic view every field type works; in the
 DataView these types are supported:
 
-`Text`, `Textarea`, `Number`, `Password`, `Select`, `Radio`, `Checkbox`,
+`Text`, `Textarea`, `Number`, `Password`, `Select`, `Radio`, `Range`, `Checkbox`,
 `MultiSelect`, `File`, `Files`, `SelectPostTypeObject`, `PermalinkSlug`,
 `Date`, `DateTime`, `Time`.
 
@@ -172,6 +173,62 @@ crosses midnight (e.g. min `22:00` and max `06:00`).
 
 `DateTime` and `Time` use seconds (900 = steps of 15 minutes), `Date` uses days.
 If the step is not a multiple of 60, the time is saved with seconds (`H:i:s`).
+
+## Range field
+
+The Range field shows a slider with two handles to choose a minimum and a
+maximum value. Below the slider two number fields allow to enter exact values.
+The classic view and the DataView use the same markup and styles.
+
+The value is saved as array with the keys `min` and `max`:
+
+```
+$range = get_option( 'my_price_range' ); // array( 'min' => 20, 'max' => 80 )
+```
+
+Both values are integers if the bounds and the step of the field are whole
+numbers, otherwise they are floats (e.g. with `set_step( 0.5 )`).
+
+```
+$setting = $settings_object->add_setting( 'my_price_range' );
+$setting->set_section( $section );
+$setting->set_type( 'array' );
+$setting->set_default( array( 'min' => 20, 'max' => 80 ) );
+$field = new Range( $settings_object );
+$field->set_title( 'Price range' );
+$field->set_min( 0 );       // the lowest value the user could choose, default: 0.
+$field->set_max( 500 );     // the highest value the user could choose, default: 100.
+$field->set_step( 10 );     // optional, default: 1. Use e.g. 0.5 for decimals or 0 for any value.
+$field->set_min_gap( 20 );  // optional: minimal distance between minimum and maximum, default: 0.
+$setting->set_field( $field );
+```
+
+In JSON:
+
+```
+{
+  "name": "my_price_range",
+  "type": "array",
+  "default": { "min": 20, "max": 80 },
+  "field": { "type": "Range", "title": "Price range", "min": 0, "max": 500, "step": 10, "min_gap": 20 }
+}
+```
+
+Important: set the type of the setting to `array` (like for `MultiSelect`).
+Otherwise the value is converted to a string when it is read. For the REST API
+the field registers itself as object with the properties `min` and `max`.
+
+On save the value is validated: both values are snapped to the step (counted
+from `min`), kept within the bounds, swapped if the minimum is higher than the
+maximum and kept at least `min_gap` apart. Missing or invalid values are taken
+from the default of the setting or, without a usable default, from the bounds of
+the field. If nothing has been saved yet, `get_option()` returns the default of
+the setting.
+
+The labels "Minimum" and "Maximum" can be translated via the translations of the
+settings object (keys `range_minimum` and `range_maximum`).
+
+Inside a `MultiField` each entry is an array with `min` and `max`.
 
 ## Usage
 

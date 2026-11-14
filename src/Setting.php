@@ -23,6 +23,7 @@ use easySettingsForWordPress\Fields\MultiSelect;
 use easySettingsForWordPress\Fields\Password;
 use easySettingsForWordPress\Fields\PermalinkSlug;
 use easySettingsForWordPress\Fields\Radio;
+use easySettingsForWordPress\Fields\Range;
 use easySettingsForWordPress\Fields\Select;
 use easySettingsForWordPress\Fields\SelectPostTypeObject;
 use easySettingsForWordPress\Fields\TextInfo;
@@ -921,6 +922,21 @@ class Setting extends Base_Object {
 					$configuration['list_title'] = $field->get_list_title();
 				}
 				break;
+			case 'Range':
+				$configuration['type'] = 'esfw-range';
+				if ( $field instanceof Range ) {
+					list( $min, $max )          = $field->get_bounds();
+					$translations               = $this->get_settings_obj()->get_translations();
+					$configuration['min']       = $min;
+					$configuration['max']       = $max;
+					$configuration['step']      = $field->get_step();
+					$configuration['min_gap']   = $field->get_min_gap();
+					$configuration['precision'] = $field->get_precision();
+					$configuration['fallback']  = $field->get_fallback_value( '' !== $id ? $this->get_default() : null );
+					$configuration['min_label'] = $translations['range_minimum'];
+					$configuration['max_label'] = $translations['range_maximum'];
+				}
+				break;
 			case 'Radio':
 				$configuration['type'] = 'text';
 				$configuration['Edit'] = 'radio';
@@ -1009,6 +1025,7 @@ class Setting extends Base_Object {
 				'Password',
 				'Select',
 				'Radio',
+				'Range',
 				'Checkbox',
 				'Date',
 				'DateTime',

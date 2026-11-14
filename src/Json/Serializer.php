@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
 
 use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Fields\Cards;
+use easySettingsForWordPress\Fields\Range;
 use easySettingsForWordPress\Section;
 use easySettingsForWordPress\Setting;
 use easySettingsForWordPress\Settings;
@@ -300,6 +301,14 @@ class Serializer {
 		// number of columns for cards.
 		if ( $field instanceof Cards && $field->get_columns() > 0 ) {
 			$config['columns'] = $field->get_columns();
+		}
+
+		// bounds, step and gap for range fields.
+		if ( $field instanceof Range ) {
+			$config['min']     = $field->get_min();
+			$config['max']     = $field->get_max();
+			$config['step']    = $field->get_step();
+			$config['min_gap'] = $field->get_min_gap();
 		}
 
 		return $config;

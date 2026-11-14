@@ -18,6 +18,7 @@ use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Fields\Button;
 use easySettingsForWordPress\Fields\FieldTable;
 use easySettingsForWordPress\Fields\MultiField;
+use easySettingsForWordPress\Fields\Range;
 use easySettingsForWordPress\Fields\SelectPostTypeObject;
 use easySettingsForWordPress\Helper;
 use easySettingsForWordPress\Page;
@@ -509,6 +510,23 @@ class Parser extends Base_Object {
 				}
 				break;
 
+			case 'Range':
+				if ( $field_obj instanceof Range ) {
+					if ( isset( $field_config['min'] ) && is_numeric( $field_config['min'] ) ) {
+						$field_obj->set_min( $this->to_number( $field_config['min'] ) );
+					}
+					if ( isset( $field_config['max'] ) && is_numeric( $field_config['max'] ) ) {
+						$field_obj->set_max( $this->to_number( $field_config['max'] ) );
+					}
+					if ( isset( $field_config['step'] ) && is_numeric( $field_config['step'] ) ) {
+						$field_obj->set_step( $this->to_number( $field_config['step'] ) );
+					}
+					if ( isset( $field_config['min_gap'] ) && is_numeric( $field_config['min_gap'] ) ) {
+						$field_obj->set_min_gap( $this->to_number( $field_config['min_gap'] ) );
+					}
+				}
+				break;
+
 			case 'Date':
 			case 'DateTime':
 			case 'Time':
@@ -718,6 +736,24 @@ class Parser extends Base_Object {
 		if ( isset( $field_config['cancel_button_title'] ) ) {
 			$field_obj->set_cancel_button_title( (string) $field_config['cancel_button_title'] );
 		}
+	}
+
+	/**
+	 * Return a numeric JSON value as integer if it is a whole number, otherwise as float.
+	 *
+	 * @param int|float|string $value The numeric value.
+	 *
+	 * @return int|float
+	 */
+	private function to_number( int|float|string $value ): int|float {
+		$number = (float) $value;
+
+		// keep whole numbers as integers.
+		if ( floor( $number ) === $number && abs( $number ) <= PHP_INT_MAX ) {
+			return (int) $number;
+		}
+
+		return $number;
 	}
 
 	/**

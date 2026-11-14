@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [3.10.0] - 15.11.2026
 
 ### Added
 
@@ -8,6 +8,7 @@
 - The search finds settings by title, description, help, options, titles of tab and section, name and additional search terms (Setting::set_search_keywords(), Tab::set_search_keywords() or "search_keywords" in JSON)
 - Added optional search for settings in the command palette of WordPress (opt-in via Settings::set_search_in_command_palette( true ) or "search_in_command_palette" in JSON)
 - Added Search::get_results() and Search::get_result_url() for plugins with an own command palette
+- Added field Range: a slider with two handles to choose a minimum and a maximum value, saved as array( 'min' => …, 'max' => … ), with optional decimal steps and minimal gap, usable in classic view, DataView, JSON and inside MultiField and FieldTable
 
 ### Changed
 
@@ -16,6 +17,7 @@
 ### Fixed
 
 - Fixed annotations for Radio field to match phpstan-requirements for the dependent Cards field
+- Fixed remount of custom controls inside MultiField and FieldTable in the DataView on every change (the Edit component is now resolved once per field descriptor)
 
 ## [3.9.2] - 07.11.2026
 
