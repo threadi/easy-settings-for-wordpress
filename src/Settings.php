@@ -251,6 +251,27 @@ class Settings {
 	private Views $views;
 
 	/**
+	 * The search object.
+	 *
+	 * @var Search
+	 */
+	private Search $search;
+
+	/**
+	 * Whether the search in the settings is enabled (opt-in).
+	 *
+	 * @var bool
+	 */
+	private bool $search_enabled = false;
+
+	/**
+	 * Whether the settings could be found via the command palette of WordPress (opt-in, requires the search).
+	 *
+	 * @var bool
+	 */
+	private bool $search_in_command_palette = false;
+
+	/**
 	 * Marker for initialized settings.
 	 *
 	 * @var bool
@@ -299,6 +320,9 @@ class Settings {
 
 			// prepare the views.
 			$this->views = new Views( $this );
+
+			// prepare the search.
+			$this->search = new Search( $this );
 		} catch ( Exception $e ) {
 			// log this error.
 			$this->add_error( 'constructor_error', $e->getMessage() );
@@ -357,6 +381,9 @@ class Settings {
 		// initiate import and export.
 		$this->get_import_obj()->init();
 		$this->get_export_obj()->init();
+
+		// initiate the search (it is only used, if it is enabled).
+		$this->get_search()->init();
 
 		// register the meta fields.
 		$this->register_meta_fields();
@@ -809,6 +836,80 @@ class Settings {
 	}
 
 	/**
+	 * Return the search object.
+	 *
+	 * @since 3.10.0 Available since 3.10.0.
+	 *
+	 * @return Search
+	 */
+	public function get_search(): Search {
+		return $this->search;
+	}
+
+	/**
+	 * Enable or disable the search in the settings (disabled by default).
+	 *
+	 * The search shows a field above the settings, which filters the settings of the actual tab and lists the matches
+	 * in other tabs. It is useful for plugins with many settings.
+	 *
+	 * @since 3.10.0 Available since 3.10.0.
+	 *
+	 * @param bool $enabled True to enable the search.
+	 *
+	 * @return void
+	 */
+	public function set_search( bool $enabled ): void {
+		$this->search_enabled = $enabled;
+	}
+
+	/**
+	 * Return whether the search in the settings is enabled.
+	 *
+	 * @since 3.10.0 Available since 3.10.0.
+	 *
+	 * @return bool
+	 */
+	public function is_search_enabled(): bool {
+		$enabled  = $this->search_enabled;
+		$instance = $this;
+		/**
+		 * Filter whether the search in the settings is enabled.
+		 *
+		 * @since 3.10.0 Available since 3.10.0.
+		 * @param bool     $enabled  True if the search is enabled.
+		 * @param Settings $instance The settings object.
+		 */
+		return (bool) apply_filters( $this->get_slug() . '_settings_search_enabled', $enabled, $instance );
+	}
+
+	/**
+	 * Enable or disable the search for settings in the command palette of WordPress (disabled by default).
+	 *
+	 * Requires the enabled search (see set_search()). Plugins with an own command palette could use
+	 * Search::get_results() instead.
+	 *
+	 * @since 3.10.0 Available since 3.10.0.
+	 *
+	 * @param bool $enabled True to enable the search in the command palette.
+	 *
+	 * @return void
+	 */
+	public function set_search_in_command_palette( bool $enabled ): void {
+		$this->search_in_command_palette = $enabled;
+	}
+
+	/**
+	 * Return whether the settings could be found via the command palette of WordPress.
+	 *
+	 * @since 3.10.0 Available since 3.10.0.
+	 *
+	 * @return bool
+	 */
+	public function is_search_in_command_palette_enabled(): bool {
+		return $this->search_in_command_palette && $this->is_search_enabled();
+	}
+
+	/**
 	 * Show the navigation of settings.
 	 *
 	 * @return void
@@ -913,12 +1014,22 @@ class Settings {
 					continue;
 				}
 
+				// wrap the section for the search, so it could be hidden if none of its settings matches.
+				$args = array();
+				if ( $this->is_search_enabled() ) {
+					$args = array(
+						'before_section' => '<div class="esfw-search-section">',
+						'after_section'  => '</div>',
+					);
+				}
+
 				// add the section.
 				add_settings_section(
 					$section->get_name(),
 					$section->get_title(),
 					$section->get_callback(),
-					$tab->get_name()
+					$tab->get_name(),
+					$args
 				);
 			}
 		}
@@ -1620,9 +1731,28 @@ class Settings {
 			'password_show'                      => 'Show value',
 			'password_hide'                      => 'Hide value',
 			'color_choose'                       => 'Choose color',
+			'range_minimum'                      => 'Minimum',
+			'range_maximum'                      => 'Maximum',
 			'file_remove'                        => 'Remove file',
 			'move_up'                            => 'Move up',
 			'move_down'                          => 'Move down',
+			'search_placeholder'                 => 'Search settings',
+			'search_label'                       => 'Search settings',
+			'search_no_results'                  => 'No setting found.',
+			'search_no_results_tab'              => 'No matches in this tab.',
+			/* translators: %1$d will be replaced by a number. */
+			'search_other_results'               => 'Matches in other tabs (%1$d)',
+			/* translators: %1$d will be replaced by a number. */
+			'search_results'                     => 'Search results (%1$d)',
+			/* translators: %1$s will be replaced by the title of a setting. */
+			'search_depends'                     => 'Only visible if "%1$s" is set accordingly.',
+			/* translators: %1$s will be replaced by the title of a setting. */
+			'search_depends_enabled'             => 'Only visible if "%1$s" is enabled.',
+			/* translators: %1$s will be replaced by the title of a setting. */
+			'search_go_to'                       => 'Go to "%1$s"',
+			'search_open_tab'                    => 'Open tab',
+			/* translators: %1$s will be replaced by the title of a setting. */
+			'search_command_label'               => 'Settings: %1$s',
 		);
 
 		// return combined list of translations.

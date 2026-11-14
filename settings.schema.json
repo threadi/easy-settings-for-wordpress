@@ -231,6 +231,20 @@
       "required": [ "type" ]
     },
 
+    "field_range": {
+      "description": "Corresponds to Fields\\Range: a slider with two handles. The value is stored as object { \"min\": …, \"max\": … }; integers if min, max and step are whole numbers, otherwise floats.",
+      "allOf": [ { "$ref": "#/$defs/field_common" } ],
+      "type": "object",
+      "properties": {
+        "type":    { "const": "Range" },
+        "min":     { "type": "number", "default": 0, "description": "The lowest value the user could choose." },
+        "max":     { "type": "number", "default": 100, "description": "The highest value the user could choose." },
+        "step":    { "type": "number", "minimum": 0, "default": 1, "description": "The step, e.g. 0.5. 0 allows any value." },
+        "min_gap": { "type": "number", "minimum": 0, "default": 0, "description": "The minimal distance between the chosen minimum and maximum." }
+      },
+      "required": [ "type" ]
+    },
+
     "field_file": {
       "allOf": [ { "$ref": "#/$defs/field_common" } ],
       "type": "object",
@@ -430,6 +444,7 @@
         { "$ref": "#/$defs/field_select" },
         { "$ref": "#/$defs/field_multiselect" },
         { "$ref": "#/$defs/field_number" },
+        { "$ref": "#/$defs/field_range" },
         { "$ref": "#/$defs/field_file" },
         { "$ref": "#/$defs/field_files" },
         { "$ref": "#/$defs/field_table" },
@@ -451,6 +466,7 @@
         "type":         { "type": "string", "enum": [ "string", "boolean", "integer", "number", "array", "object" ], "default": "string" },
         "default":      {},
         "help":         { "type": "string" },
+        "search_keywords": { "oneOf": [ { "type": "array", "items": { "type": "string" } }, { "type": "string" } ], "description": "Additional search terms for the search in the settings (list or comma-separated)." },
         "autoload":     { "type": "boolean", "default": true },
         "prevent_export": { "type": "boolean", "default": false },
         "show_in_rest": {
@@ -502,6 +518,7 @@
         "description":  { "type": "string" },
         "position":     { "type": "integer", "default": 0 },
         "show_in_menu": { "type": "boolean", "default": false },
+        "search_keywords": { "oneOf": [ { "type": "array", "items": { "type": "string" } }, { "type": "string" } ], "description": "Additional search terms for the search in the settings (list or comma-separated)." },
         "hide_save":    { "type": "boolean", "default": false },
         "not_linked":   { "type": "boolean", "default": false },
         "url":          { "type": "string" },
@@ -532,6 +549,8 @@
     "auto_save":         { "type": "string", "enum": [ "off", "change", "tab_change" ], "default": "off" },
     "show_settings_link_in_plugin_list": { "type": "boolean", "default": false },
     "show_single_tab":   { "type": "boolean", "default": false, "description": "Show the tab navigation even if a page has only one tab (without sub-tabs). By default, it is not shown in this case." },
+    "search":            { "type": "boolean", "default": false, "description": "Show a search field, which filters the settings of the actual tab and lists matches in other tabs (opt-in)." },
+    "search_in_command_palette": { "type": "boolean", "default": false, "description": "Find the settings also via the command palette of WordPress (opt-in, requires search)." },
     "view":              { "type": "string", "enum": [ "classic", "dataview" ], "default": "classic" },
     "styling":           { "type": "string", "enum": [ "horizontal_tabs", "vertical_tabs" ], "default": "horizontal_tabs" },
     "default_tab":       { "type": "string", "description": "Name of one of the tabs defined above." },

@@ -43,6 +43,7 @@ class Helper {
 			'easySettingsForWordPress\Fields\Password',
 			'easySettingsForWordPress\Fields\PermalinkSlug',
 			'easySettingsForWordPress\Fields\Radio',
+			'easySettingsForWordPress\Fields\Range',
 			'easySettingsForWordPress\Fields\Select',
 			'easySettingsForWordPress\Fields\SelectPostTypeObject',
 			'easySettingsForWordPress\Fields\Table',

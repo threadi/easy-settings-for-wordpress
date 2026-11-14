@@ -18,6 +18,7 @@ use easySettingsForWordPress\Field_Base;
 use easySettingsForWordPress\Fields\Button;
 use easySettingsForWordPress\Fields\FieldTable;
 use easySettingsForWordPress\Fields\MultiField;
+use easySettingsForWordPress\Fields\Range;
 use easySettingsForWordPress\Fields\SelectPostTypeObject;
 use easySettingsForWordPress\Helper;
 use easySettingsForWordPress\Page;
@@ -139,6 +140,12 @@ class Parser extends Base_Object {
 		if ( isset( $config['show_single_tab'] ) ) {
 			$this->get_settings_obj()->set_show_single_tab( (bool) $config['show_single_tab'] );
 		}
+		if ( isset( $config['search'] ) ) {
+			$this->get_settings_obj()->set_search( (bool) $config['search'] );
+		}
+		if ( isset( $config['search_in_command_palette'] ) ) {
+			$this->get_settings_obj()->set_search_in_command_palette( (bool) $config['search_in_command_palette'] );
+		}
 
 		// setting the menu slug auto-creates the page with this name (see Settings::set_menu_slug()).
 		$this->get_settings_obj()->set_menu_slug( (string) $config['menu_slug'] );
@@ -221,6 +228,11 @@ class Parser extends Base_Object {
 		// set description.
 		if ( isset( $tab_config['description'] ) ) {
 			$tab->set_description( (string) $tab_config['description'] );
+		}
+
+		// set the search terms.
+		if ( isset( $tab_config['search_keywords'] ) && ( is_array( $tab_config['search_keywords'] ) || is_string( $tab_config['search_keywords'] ) ) ) {
+			$tab->set_search_keywords( $tab_config['search_keywords'] );
 		}
 
 		// set to show it in menu.
@@ -338,6 +350,9 @@ class Parser extends Base_Object {
 		}
 		if ( isset( $setting_config['help'] ) ) {
 			$setting->set_help( (string) $setting_config['help'] );
+		}
+		if ( isset( $setting_config['search_keywords'] ) && ( is_array( $setting_config['search_keywords'] ) || is_string( $setting_config['search_keywords'] ) ) ) {
+			$setting->set_search_keywords( $setting_config['search_keywords'] );
 		}
 		if ( isset( $setting_config['autoload'] ) ) {
 			$setting->set_autoload( (bool) $setting_config['autoload'] );
@@ -492,6 +507,23 @@ class Parser extends Base_Object {
 				}
 				if ( isset( $field_config['step'] ) && method_exists( $field_obj, 'set_step' ) ) {
 					$field_obj->set_step( (int) $field_config['step'] );
+				}
+				break;
+
+			case 'Range':
+				if ( $field_obj instanceof Range ) {
+					if ( isset( $field_config['min'] ) && is_numeric( $field_config['min'] ) ) {
+						$field_obj->set_min( $this->to_number( $field_config['min'] ) );
+					}
+					if ( isset( $field_config['max'] ) && is_numeric( $field_config['max'] ) ) {
+						$field_obj->set_max( $this->to_number( $field_config['max'] ) );
+					}
+					if ( isset( $field_config['step'] ) && is_numeric( $field_config['step'] ) ) {
+						$field_obj->set_step( $this->to_number( $field_config['step'] ) );
+					}
+					if ( isset( $field_config['min_gap'] ) && is_numeric( $field_config['min_gap'] ) ) {
+						$field_obj->set_min_gap( $this->to_number( $field_config['min_gap'] ) );
+					}
 				}
 				break;
 
@@ -704,6 +736,24 @@ class Parser extends Base_Object {
 		if ( isset( $field_config['cancel_button_title'] ) ) {
 			$field_obj->set_cancel_button_title( (string) $field_config['cancel_button_title'] );
 		}
+	}
+
+	/**
+	 * Return a numeric JSON value as integer if it is a whole number, otherwise as float.
+	 *
+	 * @param int|float|string $value The numeric value.
+	 *
+	 * @return int|float
+	 */
+	private function to_number( int|float|string $value ): int|float {
+		$number = (float) $value;
+
+		// keep whole numbers as integers.
+		if ( floor( $number ) === $number && abs( $number ) <= PHP_INT_MAX ) {
+			return (int) $number;
+		}
+
+		return $number;
 	}
 
 	/**

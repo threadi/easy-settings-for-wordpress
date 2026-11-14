@@ -23,16 +23,49 @@ import { createMultiSelectEdit } from './multiselect';
 import { createPasswordEdit } from './password';
 import { createPermalinkSlugEdit } from './permalink-slug';
 import { createPostSelectEdit } from './post-select';
+import { createRangeEdit } from './range';
 import { createTableEdit } from './table';
 
 /**
+ * Cache of the resolved Edit components per descriptor object.
+ *
+ * Nested fields (MultiField, FieldTable) resolve their Edit component on every
+ * render. Without this cache each render would create a new component type, so
+ * React would remount the control (e.g. interrupting a drag on a range slider
+ * or losing the focus of an input).
+ *
+ * @type {WeakMap<Object, Function|null>}
+ */
+const editComponentCache = new WeakMap();
+
+/**
  * Resolve the custom Edit component for a field descriptor.
+ *
+ * The same descriptor object always gets the same component.
  *
  * @param {Object} descriptor The field descriptor.
  * @return {Function|null} The Edit component, or null to use the native control.
  */
 export function getEditComponent( descriptor ) {
-  switch ( descriptor.type ) {
+  if ( ! descriptor || 'object' !== typeof descriptor ) {
+    return resolveEditComponent( descriptor );
+  }
+
+  if ( ! editComponentCache.has( descriptor ) ) {
+    editComponentCache.set( descriptor, resolveEditComponent( descriptor ) );
+  }
+
+  return editComponentCache.get( descriptor );
+}
+
+/**
+ * Create the custom Edit component for a field descriptor.
+ *
+ * @param {Object} descriptor The field descriptor.
+ * @return {Function|null} The Edit component, or null to use the native control.
+ */
+function resolveEditComponent( descriptor ) {
+  switch ( descriptor?.type ) {
     case 'esfw-button':
       return createButtonEdit( {
         buttonTitle: descriptor.button_title,
@@ -75,6 +108,17 @@ export function getEditComponent( descriptor ) {
       return createDisplayEdit( {
         isStatic: descriptor.is_static,
         staticText: descriptor.text,
+      } );
+    case 'esfw-range':
+      return createRangeEdit( {
+        min: descriptor.min,
+        max: descriptor.max,
+        step: descriptor.step,
+        minGap: descriptor.min_gap,
+        precision: descriptor.precision,
+        fallback: descriptor.fallback,
+        minLabel: descriptor.min_label,
+        maxLabel: descriptor.max_label,
       } );
     case 'esfw-table':
       return createTableEdit( descriptor.content );

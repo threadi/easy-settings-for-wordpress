@@ -103,6 +103,7 @@ class Horizontal_Tabs extends Styling_Base {
 		?>
 		<div class="wrap easy-settings-for-wordpress">
 			<h1 class="wp-heading-inline"><?php echo esc_html( $this->get_settings_obj()->get_title() ); ?></h1>
+			<?php $this->show_search(); ?>
 			<?php
 			if ( $show_nav ) {
 				?>
@@ -216,6 +217,7 @@ class Horizontal_Tabs extends Styling_Base {
 			<div class="tab-content">
 				<?php $this->show_tab_contents( $main_active_tab, $sub_active_tab ); ?>
 			</div>
+			<?php $this->show_search_results(); ?>
 		</div>
 		<?php
 	}

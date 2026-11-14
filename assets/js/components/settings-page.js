@@ -5,6 +5,7 @@ import {
   __experimentalVStack as VStack,
   Card,
   CardBody,
+  SearchControl,
   Spinner,
 } from '@wordpress/components';
 import { DataForm } from '@wordpress/dataviews';
@@ -16,6 +17,7 @@ import { useSettings } from '../hooks/use-settings';
 import { mapFields } from '../fields';
 import { getVisibleFieldIds } from '../utils/visibility';
 import { Notices, SnackbarNotices } from './notices';
+import { SearchResults } from './search-results';
 import { SaveButton } from './save-button';
 import { SettingsTitle } from './settings-title';
 import { TabNode } from './tab-node';
@@ -72,6 +74,18 @@ export const SettingsPage = ( props ) => {
   } );
 
   const [ hideSave, setHideSave ] = useState( false );
+
+  // the search in the settings (only if the plugin enabled it).
+  const searchConfig = config.search ?? {};
+  const isSearchEnabled = !! searchConfig.enabled;
+  const [ query, setQuery ] = useState( () =>
+    isSearchEnabled ? new URLSearchParams( window.location.search ).get( 'esfw_search' ) ?? '' : ''
+  );
+  const highlightName = useMemo( () => new URLSearchParams( window.location.search ).get( 'esfw_highlight' ) ?? '', [] );
+  const isSearching = isSearchEnabled && '' !== query.trim();
+
+  // whether the results of the search contain fields, which could be saved (the save button is hidden otherwise).
+  const [ searchHasFields, setSearchHasFields ] = useState( true );
 
   // true while there are user edits which have not been handed to a save yet.
   const hasUserEditedRef = useRef( false );
@@ -204,7 +218,21 @@ export const SettingsPage = ( props ) => {
 
   return (
     <>
-      <SettingsTitle title={ config.title } />
+      { isSearchEnabled ? (
+        <div className="esfw-settings-header">
+          <SettingsTitle title={ config.title } />
+          <SearchControl
+            className="esfw-search"
+            label={ searchConfig.labels?.label }
+            placeholder={ searchConfig.labels?.placeholder }
+            value={ query }
+            onChange={ ( value ) => setQuery( value ?? '' ) }
+            __nextHasNoMarginBottom
+          />
+        </div>
+      ) : (
+        <SettingsTitle title={ config.title } />
+      ) }
       <Notices />
       { isLoading ? (
         <div className="esfw-settings-loading">
@@ -220,7 +248,17 @@ export const SettingsPage = ( props ) => {
           }
           aria-busy={ ( lockFormOnSave && isSaving ) || undefined }
         >
-          { tabs.length > 0 ? (
+          { isSearching ? (
+            <SearchResults
+              config={ searchConfig }
+              query={ query.trim() }
+              fields={ fields }
+              settings={ settings }
+              onChange={ onFormChange }
+              highlight={ highlightName }
+              onHasFields={ setSearchHasFields }
+            />
+          ) : tabs.length > 0 ? (
             <TabNode
               node={ { tabs } }
               fields={ fields }
@@ -255,7 +293,7 @@ export const SettingsPage = ( props ) => {
           ) }
         </div>
       ) }
-      { ! hideSave && ! isLoading && (
+      { ! hideSave && ! isLoading && ( ! isSearching || searchHasFields ) && (
         <SaveButton
           title={ config.save_title }
           onClick={ () => saveUserEdits() }

@@ -154,6 +154,7 @@ class DataView extends View_Base {
 			'persist_section_collapse'    => $settings_obj->should_persist_section_collapse(),
 			'section_collapse_state'      => $settings_obj->get_section_collapse_state(),
 			'section_collapse_meta_key'   => $settings_obj->get_section_collapse_meta_key(),
+			'search'                      => $settings_obj->is_search_enabled() ? $settings_obj->get_search()->get_view_config( $page_slug ) : array( 'enabled' => false ),
 		);
 	}
 

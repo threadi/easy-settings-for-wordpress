@@ -115,6 +115,15 @@ Switching methods on a shipped plugin without data loss: see package docs
 `migrate_settings.md` (or the equivalent section in the package README/docs
 if present in your install).
 
+## Optional search (opt-in)
+
+Large plugins could enable a search field on the settings page with
+`$settings_obj->set_search( true )` (JSON: `"search": true`) and the search in
+the command palette with `$settings_obj->set_search_in_command_palette( true )`.
+Both are disabled by default; do not enable them for small plugins. Add other
+names users may search for via `$setting->set_search_keywords( 'a, b' )` or
+`$tab->set_search_keywords( … )`. Details: `docs/search.md` of the package.
+
 ## Further references (load on demand)
 
 - `references/setup-ordering.md` — why order matters, late-add behavior

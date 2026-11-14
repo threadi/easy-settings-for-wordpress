@@ -23,6 +23,7 @@ use easySettingsForWordPress\Fields\MultiSelect;
 use easySettingsForWordPress\Fields\Password;
 use easySettingsForWordPress\Fields\PermalinkSlug;
 use easySettingsForWordPress\Fields\Radio;
+use easySettingsForWordPress\Fields\Range;
 use easySettingsForWordPress\Fields\Select;
 use easySettingsForWordPress\Fields\SelectPostTypeObject;
 use easySettingsForWordPress\Fields\TextInfo;
@@ -143,6 +144,13 @@ class Setting extends Base_Object {
 	 * @var string
 	 */
 	private string $redirect_on_save = '';
+
+	/**
+	 * Additional search terms for the search in the settings.
+	 *
+	 * @var array<int,string>
+	 */
+	private array $search_keywords = array();
 
 	/**
 	 * Constructor.
@@ -651,6 +659,37 @@ class Setting extends Base_Object {
 	}
 
 	/**
+	 * Return the additional search terms of this setting for the search in the settings.
+	 *
+	 * @since 3.10.0 Available since 3.10.0.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_search_keywords(): array {
+		return $this->search_keywords;
+	}
+
+	/**
+	 * Set additional search terms for this setting, which are used by the search in the settings
+	 * (see Settings::set_search()), e.g. other names of the same thing.
+	 *
+	 * @since 3.10.0 Available since 3.10.0.
+	 *
+	 * @param array<int,string>|string $keywords List of search terms or a string with search terms separated by commas.
+	 *
+	 * @return void
+	 */
+	public function set_search_keywords( array|string $keywords ): void {
+		// convert a string to a list.
+		if ( is_string( $keywords ) ) {
+			$keywords = explode( ',', $keywords );
+		}
+
+		// save the trimmed, non-empty terms.
+		$this->search_keywords = array_values( array_filter( array_map( 'trim', array_map( 'strval', $keywords ) ) ) );
+	}
+
+	/**
 	 * Return the dataview configuration for this field.
 	 *
 	 * @return array<string,mixed>
@@ -883,6 +922,21 @@ class Setting extends Base_Object {
 					$configuration['list_title'] = $field->get_list_title();
 				}
 				break;
+			case 'Range':
+				$configuration['type'] = 'esfw-range';
+				if ( $field instanceof Range ) {
+					list( $min, $max )          = $field->get_bounds();
+					$translations               = $this->get_settings_obj()->get_translations();
+					$configuration['min']       = $min;
+					$configuration['max']       = $max;
+					$configuration['step']      = $field->get_step();
+					$configuration['min_gap']   = $field->get_min_gap();
+					$configuration['precision'] = $field->get_precision();
+					$configuration['fallback']  = $field->get_fallback_value( '' !== $id ? $this->get_default() : null );
+					$configuration['min_label'] = $translations['range_minimum'];
+					$configuration['max_label'] = $translations['range_maximum'];
+				}
+				break;
 			case 'Radio':
 				$configuration['type'] = 'text';
 				$configuration['Edit'] = 'radio';
@@ -971,6 +1025,7 @@ class Setting extends Base_Object {
 				'Password',
 				'Select',
 				'Radio',
+				'Range',
 				'Checkbox',
 				'Date',
 				'DateTime',
