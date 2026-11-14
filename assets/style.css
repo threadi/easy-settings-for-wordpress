@@ -505,6 +505,7 @@ button.esfw-settings-file-choose:not(.button) {
 	margin: 9px 0 4px 12px;
 }
 .easy-settings-for-wordpress .esfw-search ~ .nav-tab-wrapper,
+.easy-settings-for-wordpress .esfw-search ~ .wp-header-end,
 .easy-settings-for-wordpress .esfw-search ~ div {
 	clear: both;
 }
